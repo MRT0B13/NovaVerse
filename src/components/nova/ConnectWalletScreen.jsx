@@ -51,17 +51,52 @@ export default function ConnectWalletScreen() {
       });
     };
     check();
-    // Wallets on mobile can inject very late — check multiple times
     const t1 = setTimeout(check, 300);
     const t2 = setTimeout(check, 800);
     const t3 = setTimeout(check, 1500);
-    const t4 = setTimeout(check, 3000);
     window.addEventListener('eip6963:announceProvider', check);
     return () => {
-      clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4);
+      clearTimeout(t1); clearTimeout(t2); clearTimeout(t3);
       window.removeEventListener('eip6963:announceProvider', check);
     };
   }, []);
+
+  // Auto-connect when inside a wallet's in-app browser (user was deep-linked here)
+  const [autoConnectAttempted, setAutoConnectAttempted] = useState(false);
+  useEffect(() => {
+    if (autoConnectAttempted || connecting) return;
+    
+    // If we're in MetaMask browser and ethereum is available, auto-connect
+    if (walletBrowser === 'metamask' && getEvmProvider()) {
+      setAutoConnectAttempted(true);
+      setDebugMsg('Detected MetaMask browser — connecting automatically…');
+      connectEvm().catch(() => {});
+      return;
+    }
+    // If we're in Phantom browser and solana is available, auto-connect
+    if (walletBrowser === 'phantom' && getPhantomProvider()) {
+      setAutoConnectAttempted(true);
+      setDebugMsg('Detected Phantom browser — connecting automatically…');
+      connectSolana().catch(() => {});
+      return;
+    }
+    
+    // Provider might not be injected yet — retry after delays
+    if (walletBrowser && !autoConnectAttempted) {
+      const tryAuto = setTimeout(() => {
+        if (walletBrowser === 'metamask' && getEvmProvider()) {
+          setAutoConnectAttempted(true);
+          setDebugMsg('Detected MetaMask browser — connecting automatically…');
+          connectEvm().catch(() => {});
+        } else if (walletBrowser === 'phantom' && getPhantomProvider()) {
+          setAutoConnectAttempted(true);
+          setDebugMsg('Detected Phantom browser — connecting automatically…');
+          connectSolana().catch(() => {});
+        }
+      }, 1000);
+      return () => clearTimeout(tryAuto);
+    }
+  }, [walletBrowser, detected, autoConnectAttempted, connecting, connectEvm, connectSolana]);
 
   const handleClick = (e, type) => {
     e.preventDefault();
