@@ -103,7 +103,8 @@ export default function ConnectWalletScreen() {
     e.stopPropagation();
     
     if (type === 'evm') {
-      if (detected.evm) {
+      // If provider is available OR we're inside MetaMask browser, try direct connect
+      if (detected.evm || walletBrowser === 'metamask') {
         setDebugMsg('Requesting accounts…');
         connectEvm().then(() => {
           setDebugMsg('Connected!');
@@ -111,6 +112,7 @@ export default function ConnectWalletScreen() {
           setDebugMsg(`EVM error: ${err?.message || err}`);
         });
       } else if (isMobile) {
+        // Deep-link to open inside MetaMask's in-app browser
         const host = window.location.host;
         const path = window.location.pathname + window.location.search;
         window.location.href = `https://metamask.app.link/dapp/${host}${path}`;
@@ -118,7 +120,7 @@ export default function ConnectWalletScreen() {
         window.open('https://metamask.io/download/', '_blank');
       }
     } else {
-      if (detected.solana) {
+      if (detected.solana || walletBrowser === 'phantom') {
         setDebugMsg('Connecting Phantom…');
         connectSolana().then(() => {
           setDebugMsg('Connected!');
