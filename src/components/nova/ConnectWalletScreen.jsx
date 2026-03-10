@@ -169,9 +169,9 @@ export default function ConnectWalletScreen() {
           })}
         </div>
 
-        {error && (
-          <p className="mt-5 text-xs font-mono text-center leading-relaxed px-2" style={{ color: '#ff4444' }}>
-            {error}
+        {(error || debugMsg) && (
+          <p className="mt-5 text-xs font-mono text-center leading-relaxed px-2" style={{ color: error ? '#ff4444' : '#00ff88' }}>
+            {error || debugMsg}
           </p>
         )}
 
