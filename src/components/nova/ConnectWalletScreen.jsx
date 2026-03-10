@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { Loader2 } from 'lucide-react';
 
@@ -7,60 +7,88 @@ function getIsMobile() {
   catch { return false; }
 }
 
-function handleDeepLink(type) {
-  const dappUrl = window.location.href;
-  const host = window.location.host;
-  const path = window.location.pathname + window.location.search;
-
-  if (type === 'evm') {
-    // MetaMask deep link — opens the dapp URL inside MetaMask's in-app browser
-    window.location.href = `https://metamask.app.link/dapp/${host}${path}`;
-  } else {
-    // Phantom deep link — opens the dapp URL inside Phantom's in-app browser
-    window.location.href = `https://phantom.app/ul/browse/${encodeURIComponent(dappUrl)}?ref=${encodeURIComponent(window.location.origin)}`;
+// Get the correct EVM provider — handles multiple wallets injecting window.ethereum
+function getEvmProvider() {
+  if (window.ethereum?.providers?.length) {
+    // EIP-6963 / multi-provider: find MetaMask specifically
+    const mm = window.ethereum.providers.find(p => p.isMetaMask);
+    if (mm) return mm;
   }
+  if (window.ethereum?.isMetaMask) return window.ethereum;
+  if (window.ethereum) return window.ethereum;
+  return null;
 }
 
-function isInjected(type) {
-  if (type === 'evm') return !!(window.ethereum || window.web3?.currentProvider);
-  if (type === 'solana') {
-    const s = window.phantom?.solana || window.solana;
-    return !!(s?.isPhantom || s?.connect);
-  }
-  return false;
+// Get the Phantom Solana provider
+function getPhantomProvider() {
+  // Phantom injects at window.phantom.solana (preferred) or window.solana
+  if (window.phantom?.solana?.isPhantom) return window.phantom.solana;
+  if (window.solana?.isPhantom) return window.solana;
+  return null;
 }
-
-const WALLETS = [
-  { id: 'metamask', label: 'MetaMask', icon: '🦊', desc: 'EVM — Ethereum & compatible chains', type: 'evm' },
-  { id: 'phantom',  label: 'Phantom',  icon: '👻', desc: 'Solana',                             type: 'solana' },
-];
 
 export default function ConnectWalletScreen() {
   const { connectEvm, connectSolana, connecting, error } = useAuth();
-
+  const [detected, setDetected] = useState({ evm: false, solana: false });
   const isMobile = getIsMobile();
 
-  const handleClick = (wallet) => {
-    if (isInjected(wallet.type)) {
-      wallet.type === 'evm' ? connectEvm() : connectSolana();
-    } else if (isMobile) {
-      handleDeepLink(wallet.type);
+  // Re-check providers after mount (some wallets inject slightly after page load)
+  useEffect(() => {
+    const check = () => {
+      setDetected({
+        evm: !!getEvmProvider(),
+        solana: !!getPhantomProvider(),
+      });
+    };
+    check();
+    // Some wallets inject late — check again after a short delay
+    const t = setTimeout(check, 500);
+    // Listen for EIP-6963 provider announcements
+    window.addEventListener('eip6963:announceProvider', check);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('eip6963:announceProvider', check);
+    };
+  }, []);
+
+  const handleClick = (type) => {
+    if (type === 'evm') {
+      if (detected.evm) {
+        connectEvm();
+      } else if (isMobile) {
+        const host = window.location.host;
+        const path = window.location.pathname + window.location.search;
+        window.location.href = `https://metamask.app.link/dapp/${host}${path}`;
+      } else {
+        window.open('https://metamask.io/download/', '_blank');
+      }
     } else {
-      const installUrls = {
-        evm: 'https://metamask.io/download/',
-        solana: 'https://phantom.app/',
-      };
-      window.open(installUrls[wallet.type], '_blank');
+      if (detected.solana) {
+        connectSolana();
+      } else if (isMobile) {
+        window.location.href = `https://phantom.app/ul/browse/${encodeURIComponent(window.location.href)}?ref=${encodeURIComponent(window.location.origin)}`;
+      } else {
+        window.open('https://phantom.app/', '_blank');
+      }
     }
   };
 
+  const wallets = [
+    {
+      id: 'metamask', type: 'evm', label: 'MetaMask', icon: '🦊',
+      desc: 'EVM — Ethereum & compatible chains',
+      available: detected.evm,
+    },
+    {
+      id: 'phantom', type: 'solana', label: 'Phantom', icon: '👻',
+      desc: 'Solana',
+      available: detected.solana,
+    },
+  ];
+
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-5 py-10"
-      style={{ background: '#060606' }}
-    >
+    <div className="min-h-screen flex flex-col items-center justify-center px-5 py-10" style={{ background: '#060606' }}>
       <div className="w-full max-w-sm flex flex-col items-center">
-        {/* Logo */}
         <div
           className="mb-7 w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shrink-0"
           style={{
@@ -72,29 +100,25 @@ export default function ConnectWalletScreen() {
         <h1 className="font-syne font-extrabold text-3xl text-white mb-1" style={{ letterSpacing: '-0.02em' }}>
           NovaVerse
         </h1>
-        <p className="font-syne text-sm mb-2" style={{ color: '#888' }}>
-          Autonomous DeFi Agent Platform
-        </p>
+        <p className="font-syne text-sm mb-2" style={{ color: '#888' }}>Autonomous DeFi Agent Platform</p>
         <p className="font-mono text-xs text-center leading-relaxed mb-8" style={{ color: '#444' }}>
           Connect your wallet to access your agent dashboard, governance voting, and real-time DeFi intelligence.
         </p>
 
-        {/* Wallet buttons */}
         <div className="w-full space-y-3">
-          {WALLETS.map((w) => {
+          {wallets.map((w) => {
             const busy = connecting === w.type;
-            const injected = isInjected(w.type);
-            const actionLabel = injected ? 'Connect' : isMobile ? `Open in ${w.label}` : `Install ${w.label}`;
+            const actionLabel = w.available ? 'Connect' : isMobile ? `Open in ${w.label}` : `Install ${w.label}`;
 
             return (
               <button
                 key={w.id}
-                onClick={() => handleClick(w)}
+                onClick={() => handleClick(w.type)}
                 disabled={!!connecting}
                 className="w-full flex items-center gap-4 rounded-xl transition-all disabled:opacity-50 active:scale-95"
                 style={{
                   background: '#0d0d0d',
-                  border: '1px solid #1e1e1e',
+                  border: `1px solid ${w.available ? '#1a2a1a' : '#1e1e1e'}`,
                   padding: '16px',
                   cursor: connecting ? 'default' : 'pointer',
                 }}
@@ -103,24 +127,28 @@ export default function ConnectWalletScreen() {
                 <div className="text-left flex-1 min-w-0">
                   <span className="font-syne font-semibold text-base text-white block">{w.label}</span>
                   <span className="font-mono text-[11px] block" style={{ color: '#555' }}>{w.desc}</span>
+                  {w.available && (
+                    <span className="font-mono text-[10px] block mt-0.5" style={{ color: '#00ff8888' }}>
+                      ● Detected
+                    </span>
+                  )}
                 </div>
                 <div className="shrink-0 flex items-center">
-                  {busy
-                    ? <Loader2 className="w-5 h-5 animate-spin" style={{ color: '#00ff88' }} />
-                    : (
-                      <span
-                        className="font-mono text-[11px] px-2 py-1 rounded"
-                        style={{
-                          background: injected ? '#00ff8815' : '#1a1a1a',
-                          color: injected ? '#00ff88' : '#555',
-                          border: `1px solid ${injected ? '#00ff8830' : '#222'}`,
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {actionLabel}
-                      </span>
-                    )
-                  }
+                  {busy ? (
+                    <Loader2 className="w-5 h-5 animate-spin" style={{ color: '#00ff88' }} />
+                  ) : (
+                    <span
+                      className="font-mono text-[11px] px-2.5 py-1 rounded"
+                      style={{
+                        background: w.available ? '#00ff8815' : '#1a1a1a',
+                        color: w.available ? '#00ff88' : '#555',
+                        border: `1px solid ${w.available ? '#00ff8830' : '#222'}`,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {actionLabel}
+                    </span>
+                  )}
                 </div>
               </button>
             );
@@ -130,12 +158,6 @@ export default function ConnectWalletScreen() {
         {error && (
           <p className="mt-5 text-xs font-mono text-center leading-relaxed px-2" style={{ color: '#ff4444' }}>
             {error}
-          </p>
-        )}
-
-        {isMobile && (
-          <p className="mt-5 font-mono text-[10px] text-center leading-relaxed" style={{ color: '#333' }}>
-            On mobile, tap to open this page inside your wallet's browser.
           </p>
         )}
 
