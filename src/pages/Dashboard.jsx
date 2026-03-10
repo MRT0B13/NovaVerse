@@ -50,7 +50,7 @@ export default function Dashboard() {
     let isMounted = true;
 
     function connect() {
-      ws = new WebSocket(`wss://api.novaverse.xyz/api/ws/live?token=${token}`);
+      ws = new WebSocket(`wss://enthusiastic-respect-production-3521.up.railway.app/api/ws/live?token=${token}`);
       wsRef.current = ws;
 
       ws.onopen = () => {
