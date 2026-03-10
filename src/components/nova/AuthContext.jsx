@@ -137,7 +137,26 @@ export default function AuthProvider({ children }) {
       await _doAuth(walletAddress, async (msg) => {
         const encoded = new TextEncoder().encode(msg);
         const { signature } = await solana.signMessage(encoded, 'utf8');
-        return Array.from(signature).map(b => b.toString(16).padStart(2, '0')).join('');
+        // Encode as base58 (Solana standard)
+        const ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+        let bytes = new Uint8Array(signature);
+        const digits = [0];
+        for (let i = 0; i < bytes.length; i++) {
+          let carry = bytes[i];
+          for (let j = 0; j < digits.length; j++) {
+            carry += digits[j] << 8;
+            digits[j] = carry % 58;
+            carry = (carry / 58) | 0;
+          }
+          while (carry > 0) {
+            digits.push(carry % 58);
+            carry = (carry / 58) | 0;
+          }
+        }
+        let str = '';
+        for (let i = 0; i < bytes.length && bytes[i] === 0; i++) str += '1';
+        for (let i = digits.length - 1; i >= 0; i--) str += ALPHABET[digits[i]];
+        return str;
       });
       setError(null);
     } catch (err) {
