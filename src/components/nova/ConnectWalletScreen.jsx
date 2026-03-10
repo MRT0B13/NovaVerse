@@ -2,19 +2,40 @@ import React from 'react';
 import { useAuth } from './AuthContext';
 import { Loader2 } from 'lucide-react';
 
-function getDeepLink(type) {
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+function openDeepLink(customScheme, storeFallback) {
+  // Try to open the app via custom scheme; if it doesn't open in time, go to store/website
+  const t = Date.now();
+  const iframe = document.createElement('iframe');
+  iframe.style.display = 'none';
+  iframe.src = customScheme;
+  document.body.appendChild(iframe);
+  setTimeout(() => {
+    document.body.removeChild(iframe);
+    if (Date.now() - t < 2500) {
+      // App didn't open — redirect to store
+      window.location.href = storeFallback;
+    }
+  }, 1500);
+}
+
+function handleDeepLink(type) {
   const url = window.location.href;
   const host = window.location.host;
   const path = window.location.pathname;
+
   if (type === 'evm') {
-    // MetaMask mobile: open dapp directly inside MM browser
-    return `https://metamask.app.link/dapp/${host}${path}`;
+    const customScheme = `metamask://dapp/${host}${path}`;
+    const storeLink = /iPhone|iPad|iPod/i.test(navigator.userAgent)
+      ? 'https://apps.apple.com/app/metamask/id1438144202'
+      : 'https://play.google.com/store/apps/details?id=io.metamask';
+    openDeepLink(customScheme, storeLink);
+  } else {
+    // Phantom — use their official universal link for in-app browser
+    const phantomUrl = `https://phantom.app/ul/browse/${encodeURIComponent(url)}?ref=${encodeURIComponent(window.location.origin)}`;
+    window.location.href = phantomUrl;
   }
-  if (type === 'solana') {
-    // Phantom mobile: browse to the dapp URL inside Phantom browser
-    return `https://phantom.app/ul/browse/${encodeURIComponent(url)}?ref=${encodeURIComponent(window.location.origin)}`;
-  }
-  return null;
 }
 
 function isInjected(type) {
@@ -28,7 +49,7 @@ function isInjected(type) {
 
 const WALLETS = [
   { id: 'metamask', label: 'MetaMask', icon: '🦊', desc: 'EVM — Ethereum & compatible chains', type: 'evm' },
-  { id: 'phantom',  label: 'Phantom',  icon: '👻', desc: 'Solana — Phantom wallet',            type: 'solana' },
+  { id: 'phantom',  label: 'Phantom',  icon: '👻', desc: 'Solana',                             type: 'solana' },
 ];
 
 export default function ConnectWalletScreen() {
@@ -36,11 +57,16 @@ export default function ConnectWalletScreen() {
 
   const handleClick = (wallet) => {
     if (isInjected(wallet.type)) {
-      if (wallet.type === 'evm') connectEvm();
-      else connectSolana();
+      wallet.type === 'evm' ? connectEvm() : connectSolana();
+    } else if (isMobile) {
+      handleDeepLink(wallet.type);
     } else {
-      // Redirect into the wallet's in-app browser
-      window.location.href = getDeepLink(wallet.type);
+      // Desktop: no wallet injected
+      const installUrls = {
+        evm: 'https://metamask.io/download/',
+        solana: 'https://phantom.app/',
+      };
+      window.open(installUrls[wallet.type], '_blank');
     }
   };
 
@@ -52,7 +78,7 @@ export default function ConnectWalletScreen() {
       <div className="w-full max-w-sm flex flex-col items-center">
         {/* Logo */}
         <div
-          className="mb-7 w-20 h-20 rounded-2xl flex items-center justify-center text-4xl"
+          className="mb-7 w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shrink-0"
           style={{
             background: 'linear-gradient(135deg, #00ff88, #00c8ff)',
             boxShadow: '0 0 40px #00ff8830, 0 0 80px #00c8ff20',
@@ -69,11 +95,13 @@ export default function ConnectWalletScreen() {
           Connect your wallet to access your agent dashboard, governance voting, and real-time DeFi intelligence.
         </p>
 
-        {/* Wallet options */}
+        {/* Wallet buttons */}
         <div className="w-full space-y-3">
           {WALLETS.map((w) => {
             const busy = connecting === w.type;
             const injected = isInjected(w.type);
+            const actionLabel = injected ? 'Connect' : isMobile ? `Open in ${w.label}` : `Install ${w.label}`;
+
             return (
               <button
                 key={w.id}
@@ -83,25 +111,33 @@ export default function ConnectWalletScreen() {
                 style={{
                   background: '#0d0d0d',
                   border: '1px solid #1e1e1e',
-                  padding: '14px 16px',
-                  minHeight: 64,
+                  padding: '16px',
                   cursor: connecting ? 'default' : 'pointer',
                 }}
               >
                 <span className="text-3xl shrink-0">{w.icon}</span>
                 <div className="text-left flex-1 min-w-0">
                   <span className="font-syne font-semibold text-base text-white block">{w.label}</span>
-                  <span className="font-mono text-[11px] block truncate" style={{ color: '#555' }}>{w.desc}</span>
-                  {!injected && (
-                    <span className="font-mono text-[10px] mt-0.5 block" style={{ color: '#333' }}>
-                      Tap to open in {w.label}
-                    </span>
-                  )}
+                  <span className="font-mono text-[11px] block" style={{ color: '#555' }}>{w.desc}</span>
                 </div>
-                {busy
-                  ? <Loader2 className="w-5 h-5 animate-spin shrink-0" style={{ color: '#00ff88' }} />
-                  : <span className="font-mono text-lg shrink-0" style={{ color: '#2a2a2a' }}>›</span>
-                }
+                <div className="shrink-0 flex items-center">
+                  {busy
+                    ? <Loader2 className="w-5 h-5 animate-spin" style={{ color: '#00ff88' }} />
+                    : (
+                      <span
+                        className="font-mono text-[11px] px-2 py-1 rounded"
+                        style={{
+                          background: injected ? '#00ff8815' : '#1a1a1a',
+                          color: injected ? '#00ff88' : '#555',
+                          border: `1px solid ${injected ? '#00ff8830' : '#222'}`,
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {actionLabel}
+                      </span>
+                    )
+                  }
+                </div>
               </button>
             );
           })}
@@ -113,7 +149,13 @@ export default function ConnectWalletScreen() {
           </p>
         )}
 
-        <p className="mt-10 font-mono text-[10px] uppercase tracking-widest" style={{ color: '#2a2a2a' }}>
+        {isMobile && (
+          <p className="mt-5 font-mono text-[10px] text-center leading-relaxed" style={{ color: '#333' }}>
+            On mobile, tap to open this page inside your wallet's browser.
+          </p>
+        )}
+
+        <p className="mt-8 font-mono text-[10px] uppercase tracking-widest" style={{ color: '#2a2a2a' }}>
           Powered by NovaOS
         </p>
       </div>
