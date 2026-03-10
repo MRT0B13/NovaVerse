@@ -50,6 +50,7 @@
 import Dashboard from './pages/Dashboard';
 import DebateChamber from './pages/DebateChamber';
 import Governance from './pages/Governance';
+import AgentFactory from './pages/AgentFactory';
 import __Layout from './Layout.jsx';
 
 
@@ -57,6 +58,7 @@ export const PAGES = {
     "Dashboard": Dashboard,
     "DebateChamber": DebateChamber,
     "Governance": Governance,
+    "AgentFactory": AgentFactory,
 }
 
 export const pagesConfig = {
