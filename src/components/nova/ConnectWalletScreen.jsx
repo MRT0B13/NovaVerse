@@ -52,11 +52,18 @@ export default function ConnectWalletScreen() {
     };
   }, []);
 
-  const handleClick = async (type) => {
+  const handleClick = (e, type) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (type === 'evm') {
       if (detected.evm) {
-        await connectEvm();
-        return;
+        setDebugMsg('Requesting accounts…');
+        connectEvm().then(() => {
+          setDebugMsg('Connected!');
+        }).catch((err) => {
+          setDebugMsg(`EVM error: ${err?.message || err}`);
+        });
       } else if (isMobile) {
         const host = window.location.host;
         const path = window.location.pathname + window.location.search;
@@ -66,8 +73,12 @@ export default function ConnectWalletScreen() {
       }
     } else {
       if (detected.solana) {
-        await connectSolana();
-        return;
+        setDebugMsg('Connecting Phantom…');
+        connectSolana().then(() => {
+          setDebugMsg('Connected!');
+        }).catch((err) => {
+          setDebugMsg(`Solana error: ${err?.message || err}`);
+        });
       } else if (isMobile) {
         window.location.href = `https://phantom.app/ul/browse/${encodeURIComponent(window.location.href)}?ref=${encodeURIComponent(window.location.origin)}`;
       } else {
