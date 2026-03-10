@@ -7,10 +7,19 @@ function getIsMobile() {
   catch { return false; }
 }
 
+// Detect if we're already inside a wallet's in-app browser
+function isInsideWalletBrowser() {
+  const ua = navigator.userAgent || '';
+  // MetaMask injects "MetaMaskMobile" into the UA on its in-app browser
+  if (/MetaMaskMobile/i.test(ua)) return 'metamask';
+  // Phantom injects "Phantom" into the UA
+  if (/Phantom/i.test(ua)) return 'phantom';
+  return null;
+}
+
 // Get the correct EVM provider — handles multiple wallets injecting window.ethereum
 function getEvmProvider() {
   if (window.ethereum?.providers?.length) {
-    // EIP-6963 / multi-provider: find MetaMask specifically
     const mm = window.ethereum.providers.find(p => p.isMetaMask);
     if (mm) return mm;
   }
@@ -21,7 +30,6 @@ function getEvmProvider() {
 
 // Get the Phantom Solana provider
 function getPhantomProvider() {
-  // Phantom injects at window.phantom.solana (preferred) or window.solana
   if (window.phantom?.solana?.isPhantom) return window.phantom.solana;
   if (window.solana?.isPhantom) return window.solana;
   return null;
