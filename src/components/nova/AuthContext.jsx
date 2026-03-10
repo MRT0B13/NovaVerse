@@ -37,49 +37,78 @@ export default function AuthProvider({ children }) {
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState(null);
 
-  const connect = useCallback(async () => {
-    setConnecting(true);
+  const _doAuth = useCallback(async (walletAddress, signFn) => {
+    const nonceRes = await fetch(`${API}/api/auth/nonce`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ address: walletAddress })
+    });
+    const { message } = await nonceRes.json();
+    const signature = await signFn(message, walletAddress);
+    const verifyRes = await fetch(`${API}/api/auth/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ address: walletAddress, message, signature })
+    });
+    const { token: jwt } = await verifyRes.json();
+    localStorage.setItem('nova_token', jwt);
+    localStorage.setItem('nova_address', walletAddress);
+    setToken(jwt);
+    setAddress(walletAddress);
+  }, []);
+
+  const connectEvm = useCallback(async () => {
+    setConnecting('evm');
     setError(null);
-    
-    if (!window.ethereum) {
-      setError('No wallet detected. Please install MetaMask or a compatible wallet.');
-      setConnecting(false);
+    const provider = window.ethereum || window.web3?.currentProvider;
+    if (!provider) {
+      setError('MetaMask not detected. Open this page inside the MetaMask browser or install the extension.');
+      setConnecting(null);
       return;
     }
-    
     try {
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const accounts = await provider.request({ method: 'eth_requestAccounts' });
       const walletAddress = accounts[0];
-      
-      const nonceRes = await fetch(`${API}/api/auth/nonce`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address: walletAddress })
-      });
-      const { message } = await nonceRes.json();
-      
-      const signature = await window.ethereum.request({
-        method: 'personal_sign',
-        params: [message, walletAddress]
-      });
-      
-      const verifyRes = await fetch(`${API}/api/auth/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address: walletAddress, message, signature })
-      });
-      const { token: jwt } = await verifyRes.json();
-      
-      localStorage.setItem('nova_token', jwt);
-      localStorage.setItem('nova_address', walletAddress);
-      setToken(jwt);
-      setAddress(walletAddress);
+      await _doAuth(walletAddress, (msg, addr) =>
+        provider.request({ method: 'personal_sign', params: [msg, addr] })
+      );
     } catch (err) {
-      setError(err.message || 'Connection failed');
+      setError(err.message || 'EVM connection failed');
     } finally {
-      setConnecting(false);
+      setConnecting(null);
     }
-  }, []);
+  }, [_doAuth]);
+
+  const connectSolana = useCallback(async () => {
+    setConnecting('solana');
+    setError(null);
+    const solana = window.phantom?.solana || window.solana;
+    if (!solana?.isPhantom && !solana?.connect) {
+      setError('Phantom not detected. Open this page inside the Phantom browser or install the extension.');
+      setConnecting(null);
+      return;
+    }
+    try {
+      const resp = await solana.connect();
+      const walletAddress = resp.publicKey.toString();
+      await _doAuth(walletAddress, async (msg) => {
+        const encoded = new TextEncoder().encode(msg);
+        const { signature } = await solana.signMessage(encoded, 'utf8');
+        return Buffer.from(signature).toString('hex');
+      });
+    } catch (err) {
+      setError(err.message || 'Solana connection failed');
+    } finally {
+      setConnecting(null);
+    }
+  }, [_doAuth]);
+
+  // legacy single connect — tries EVM first, then Solana
+  const connect = useCallback(async () => {
+    if (window.ethereum || window.web3?.currentProvider) return connectEvm();
+    if (window.phantom?.solana || window.solana) return connectSolana();
+    setError('No wallet detected. Open this page inside MetaMask or Phantom.');
+  }, [connectEvm, connectSolana]);
 
   const disconnect = useCallback(() => {
     localStorage.removeItem('nova_token');
