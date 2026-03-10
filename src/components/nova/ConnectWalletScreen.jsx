@@ -30,6 +30,7 @@ function getPhantomProvider() {
 export default function ConnectWalletScreen() {
   const { connectEvm, connectSolana, connecting, error } = useAuth();
   const [detected, setDetected] = useState({ evm: false, solana: false });
+  const [debugMsg, setDebugMsg] = useState('');
   const isMobile = getIsMobile();
 
   // Re-check providers after mount (some wallets inject slightly after page load)
