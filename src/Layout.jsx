@@ -115,6 +115,70 @@ function MobileNav({ currentPageName }) {
   );
 }
 
+function OpenInBrowserBanner() {
+  const { token, address } = useAuth();
+  const [copied, setCopied] = React.useState(false);
+  const [dismissed, setDismissed] = React.useState(false);
+
+  // Only show inside wallet in-app browsers
+  const ua = navigator.userAgent || '';
+  const isWalletBrowser = /MetaMaskMobile|Phantom/i.test(ua);
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(ua);
+
+  if (!isWalletBrowser || !isMobile || !token || !address || dismissed) return null;
+
+  const url = new URL(window.location.origin);
+  url.searchParams.set('nova_token', token);
+  url.searchParams.set('nova_address', address);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(url.toString());
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      // Fallback for mobile
+      const input = document.createElement('input');
+      input.value = url.toString();
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand('copy');
+      document.body.removeChild(input);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
+  };
+
+  return (
+    <div
+      className="flex items-center justify-between gap-2 px-4 py-2.5"
+      style={{ background: '#0d1a0d', borderBottom: '1px solid #1a2a1a' }}
+    >
+      <p className="font-mono text-[11px]" style={{ color: '#888' }}>
+        Want to use your <strong style={{ color: '#ccc' }}>regular browser</strong> instead?
+      </p>
+      <div className="flex items-center gap-2 shrink-0">
+        <button
+          onClick={handleCopy}
+          className="font-mono text-[11px] px-3 py-1 rounded transition-all"
+          style={{
+            background: copied ? '#00ff8820' : '#00ff8810',
+            color: '#00ff88',
+            border: '1px solid #00ff8830',
+          }}
+        >
+          {copied ? '✓ Copied!' : '📋 Copy Link'}
+        </button>
+        <button
+          onClick={() => setDismissed(true)}
+          className="font-mono text-[11px] px-1.5 py-1"
+          style={{ color: '#444' }}
+        >✕</button>
+      </div>
+    </div>
+  );
+}
+
 function InnerLayout({ children, currentPageName }) {
   const { token } = useAuth();
 
@@ -124,6 +188,7 @@ function InnerLayout({ children, currentPageName }) {
 
   return (
     <div className="min-h-screen" style={{ background: '#060606' }}>
+      <OpenInBrowserBanner />
       <NavBar currentPageName={currentPageName} />
       <main className="pb-20 md:pb-6">
         {children}
