@@ -40,8 +40,9 @@ export default function ConnectWalletScreen() {
   const [detected, setDetected] = useState({ evm: false, solana: false });
   const [debugMsg, setDebugMsg] = useState('');
   const isMobile = getIsMobile();
+  const walletBrowser = isInsideWalletBrowser();
 
-  // Re-check providers after mount (some wallets inject slightly after page load)
+  // Re-check providers after mount (wallets inject late, especially on mobile)
   useEffect(() => {
     const check = () => {
       setDetected({
@@ -50,12 +51,14 @@ export default function ConnectWalletScreen() {
       });
     };
     check();
-    // Some wallets inject late — check again after a short delay
-    const t = setTimeout(check, 500);
-    // Listen for EIP-6963 provider announcements
+    // Wallets on mobile can inject very late — check multiple times
+    const t1 = setTimeout(check, 300);
+    const t2 = setTimeout(check, 800);
+    const t3 = setTimeout(check, 1500);
+    const t4 = setTimeout(check, 3000);
     window.addEventListener('eip6963:announceProvider', check);
     return () => {
-      clearTimeout(t);
+      clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4);
       window.removeEventListener('eip6963:announceProvider', check);
     };
   }, []);
