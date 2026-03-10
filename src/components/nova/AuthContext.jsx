@@ -43,17 +43,30 @@ export default function AuthProvider({ children }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ address: walletAddress })
     });
-    const { message } = await nonceRes.json();
-    const signature = await signFn(message, walletAddress);
+    if (!nonceRes.ok) {
+      const errText = await nonceRes.text().catch(() => nonceRes.statusText);
+      throw new Error(`Nonce request failed (${nonceRes.status}): ${errText}`);
+    }
+    const nonceData = await nonceRes.json();
+    if (!nonceData.message) throw new Error('No nonce message returned from server');
+    
+    const signature = await signFn(nonceData.message, walletAddress);
+    
     const verifyRes = await fetch(`${API}/api/auth/verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ address: walletAddress, message, signature })
+      body: JSON.stringify({ address: walletAddress, message: nonceData.message, signature })
     });
-    const { token: jwt } = await verifyRes.json();
-    localStorage.setItem('nova_token', jwt);
+    if (!verifyRes.ok) {
+      const errText = await verifyRes.text().catch(() => verifyRes.statusText);
+      throw new Error(`Verify request failed (${verifyRes.status}): ${errText}`);
+    }
+    const verifyData = await verifyRes.json();
+    if (!verifyData.token) throw new Error('No token returned from server');
+    
+    localStorage.setItem('nova_token', verifyData.token);
     localStorage.setItem('nova_address', walletAddress);
-    setToken(jwt);
+    setToken(verifyData.token);
     setAddress(walletAddress);
   }, []);
 
