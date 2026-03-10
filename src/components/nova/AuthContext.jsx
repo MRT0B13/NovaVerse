@@ -60,9 +60,15 @@ export default function AuthProvider({ children }) {
   const connectEvm = useCallback(async () => {
     setConnecting('evm');
     setError(null);
-    const provider = window.ethereum || window.web3?.currentProvider;
+    // Find the right EVM provider (handles multiple wallets)
+    let provider = null;
+    if (window.ethereum?.providers?.length) {
+      provider = window.ethereum.providers.find(p => p.isMetaMask) || window.ethereum.providers[0];
+    } else if (window.ethereum) {
+      provider = window.ethereum;
+    }
     if (!provider) {
-      setError('MetaMask not detected. Open this page inside the MetaMask browser or install the extension.');
+      setError('No EVM wallet detected. Please install MetaMask or open this page in your wallet browser.');
       setConnecting(null);
       return;
     }
@@ -82,9 +88,12 @@ export default function AuthProvider({ children }) {
   const connectSolana = useCallback(async () => {
     setConnecting('solana');
     setError(null);
-    const solana = window.phantom?.solana || window.solana;
-    if (!solana?.isPhantom && !solana?.connect) {
-      setError('Phantom not detected. Open this page inside the Phantom browser or install the extension.');
+    // Find the Phantom provider specifically
+    const solana = window.phantom?.solana?.isPhantom ? window.phantom.solana
+                 : window.solana?.isPhantom ? window.solana
+                 : null;
+    if (!solana) {
+      setError('Phantom not detected. Please install Phantom or open this page in the Phantom browser.');
       setConnecting(null);
       return;
     }
