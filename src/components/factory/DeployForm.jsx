@@ -22,7 +22,7 @@ export default function DeployForm({ templateId }) {
     setDeploying(true);
     setError(null);
     try {
-      await apiFetch('/api/agents/deploy', {
+      await apiFetch('/agents/deploy', {
         method: 'POST',
         body: JSON.stringify({
           templateId,

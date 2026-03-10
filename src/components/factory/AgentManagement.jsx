@@ -19,7 +19,7 @@ export default function AgentManagement({ agent, onRefresh }) {
   const isRunning = agent?.status === 'running';
 
   const handleToggleAgent = async () => {
-    const endpoint = isRunning ? '/api/agents/pause' : '/api/agents/resume';
+    const endpoint = isRunning ? `/agents/${agent.id}/pause` : `/agents/${agent.id}/resume`;
     await apiFetch(endpoint, { method: 'PATCH' });
     onRefresh?.();
   };
@@ -28,7 +28,7 @@ export default function AgentManagement({ agent, onRefresh }) {
     setSaving(true);
     const entries = Object.entries(configs);
     for (const [key, value] of entries) {
-      await apiFetch('/api/agents/config', {
+      await apiFetch('/agents/config', {
         method: 'PATCH',
         body: JSON.stringify({ key, value: String(value) }),
       });

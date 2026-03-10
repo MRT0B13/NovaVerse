@@ -114,9 +114,9 @@ export default function VotePanel({ proposal, debateMessages, novaBalance, onVot
 
   const handleVote = async (choice) => {
     setVoting(true);
-    await apiFetch('/api/governance/vote', {
+    await apiFetch(`/governance/proposals/${proposal.id}/vote`, {
       method: 'POST',
-      body: JSON.stringify({ proposalId: proposal.id, choice, agentRecommended: choice === 'YES' }),
+      body: JSON.stringify({ choice, agentRecommended: choice === 'YES' }),
     });
     setVoting(false);
     onVoted?.();
