@@ -65,38 +65,46 @@ export default function ConnectWalletScreen() {
   const [autoConnectAttempted, setAutoConnectAttempted] = useState(false);
   useEffect(() => {
     if (autoConnectAttempted || connecting) return;
-    
-    // If we're in MetaMask browser and ethereum is available, auto-connect
-    if (walletBrowser === 'metamask' && getEvmProvider()) {
-      setAutoConnectAttempted(true);
-      setDebugMsg('Detected MetaMask browser — connecting automatically…');
-      connectEvm().catch(() => {});
-      return;
-    }
-    // If we're in Phantom browser and solana is available, auto-connect
-    if (walletBrowser === 'phantom' && getPhantomProvider()) {
-      setAutoConnectAttempted(true);
-      setDebugMsg('Detected Phantom browser — connecting automatically…');
-      connectSolana().catch(() => {});
-      return;
-    }
-    
-    // Provider might not be injected yet — retry after delays
-    if (walletBrowser && !autoConnectAttempted) {
-      const tryAuto = setTimeout(() => {
-        if (walletBrowser === 'metamask' && getEvmProvider()) {
-          setAutoConnectAttempted(true);
-          setDebugMsg('Detected MetaMask browser — connecting automatically…');
-          connectEvm().catch(() => {});
-        } else if (walletBrowser === 'phantom' && getPhantomProvider()) {
-          setAutoConnectAttempted(true);
-          setDebugMsg('Detected Phantom browser — connecting automatically…');
-          connectSolana().catch(() => {});
+    if (!walletBrowser) return;
+
+    const tryConnect = () => {
+      if (walletBrowser === 'metamask' && getEvmProvider()) {
+        setAutoConnectAttempted(true);
+        setDebugMsg('MetaMask browser detected — authenticating…');
+        connectEvm().catch((err) => {
+          setDebugMsg(`Auto-connect failed: ${err?.message || err}`);
+        });
+        return true;
+      }
+      if (walletBrowser === 'phantom' && getPhantomProvider()) {
+        setAutoConnectAttempted(true);
+        setDebugMsg('Phantom browser detected — authenticating…');
+        connectSolana().catch((err) => {
+          setDebugMsg(`Auto-connect failed: ${err?.message || err}`);
+        });
+        return true;
+      }
+      return false;
+    };
+
+    // Try immediately
+    if (tryConnect()) return;
+
+    // Wallet providers inject late on mobile — poll until found or timeout
+    setDebugMsg(`Waiting for ${walletBrowser} provider…`);
+    let attempt = 0;
+    const maxAttempts = 10;
+    const interval = setInterval(() => {
+      attempt++;
+      if (tryConnect() || attempt >= maxAttempts) {
+        clearInterval(interval);
+        if (attempt >= maxAttempts) {
+          setDebugMsg(`${walletBrowser} provider not detected after ${maxAttempts} attempts`);
         }
-      }, 1000);
-      return () => clearTimeout(tryAuto);
-    }
-  }, [walletBrowser, detected, autoConnectAttempted, connecting, connectEvm, connectSolana]);
+      }
+    }, 500);
+    return () => clearInterval(interval);
+  }, [walletBrowser, autoConnectAttempted, connecting, connectEvm, connectSolana]);
 
   const handleClick = (e, type) => {
     e.preventDefault();
