@@ -127,7 +127,7 @@ export default function ConnectWalletScreen() {
             return (
               <button
                 key={w.id}
-                onClick={() => handleClick(w.type)}
+                onClick={(e) => handleClick(e, w.type)}
                 disabled={!!connecting}
                 className="w-full flex items-center gap-4 rounded-xl transition-all disabled:opacity-50 active:scale-95"
                 style={{
