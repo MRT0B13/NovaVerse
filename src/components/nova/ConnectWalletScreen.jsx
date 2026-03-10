@@ -168,7 +168,9 @@ export default function ConnectWalletScreen() {
         <div className="w-full space-y-3">
           {wallets.map((w) => {
             const busy = connecting === w.type;
-            const actionLabel = w.available ? 'Connect' : isMobile ? `Open in ${w.label}` : `Install ${w.label}`;
+            // If inside a wallet browser, always show "Connect" even if provider detection is slow
+            const inMyWallet = (w.type === 'evm' && walletBrowser === 'metamask') || (w.type === 'solana' && walletBrowser === 'phantom');
+            const actionLabel = (w.available || inMyWallet) ? 'Connect' : isMobile ? `Open in ${w.label}` : `Install ${w.label}`;
 
             return (
               <button
