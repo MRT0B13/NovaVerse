@@ -65,7 +65,8 @@ export default function ConnectWalletScreen() {
       }
     } else {
       if (detected.solana) {
-        connectSolana();
+        await connectSolana();
+        return;
       } else if (isMobile) {
         window.location.href = `https://phantom.app/ul/browse/${encodeURIComponent(window.location.href)}?ref=${encodeURIComponent(window.location.origin)}`;
       } else {
