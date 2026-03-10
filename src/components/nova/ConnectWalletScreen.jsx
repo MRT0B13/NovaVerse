@@ -228,9 +228,14 @@ export default function ConnectWalletScreen() {
         </div>
 
         {(error || debugMsg) && (
-          <p className="mt-5 text-xs font-mono text-center leading-relaxed px-2" style={{ color: error ? '#ff4444' : '#00ff88' }}>
-            {error || debugMsg}
-          </p>
+          <div className="mt-5 text-xs font-mono text-center leading-relaxed px-2 space-y-1">
+            {debugMsg && (
+              <p style={{ color: '#00ff88' }}>{debugMsg}</p>
+            )}
+            {error && (
+              <p style={{ color: error.startsWith('Step') ? '#00c8ff' : '#ff4444' }}>{error}</p>
+            )}
+          </div>
         )}
 
         {!detected.evm && !detected.solana && !isMobile && (
