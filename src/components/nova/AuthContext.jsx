@@ -37,6 +37,24 @@ export default function AuthProvider({ children }) {
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState(null);
 
+  // Allow session transfer via URL parameter (e.g. from wallet browser → regular browser)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get('nova_token');
+    const urlAddress = params.get('nova_address');
+    if (urlToken && urlAddress) {
+      localStorage.setItem('nova_token', urlToken);
+      localStorage.setItem('nova_address', urlAddress);
+      setToken(urlToken);
+      setAddress(urlAddress);
+      // Clean the URL so the token isn't visible / shareable
+      const clean = new URL(window.location.href);
+      clean.searchParams.delete('nova_token');
+      clean.searchParams.delete('nova_address');
+      window.history.replaceState({}, '', clean.toString());
+    }
+  }, []);
+
   const _doAuth = useCallback(async (walletAddress, signFn) => {
     const nonceRes = await fetch(`${API}/api/auth/nonce`, {
       method: 'POST',
