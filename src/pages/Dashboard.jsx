@@ -21,10 +21,10 @@ export default function Dashboard() {
 
   const fetchData = useCallback(async () => {
     const results = await Promise.allSettled([
-      apiFetch('/api/portfolio'),
-      apiFetch('/api/feed?limit=20'),
-      apiFetch('/api/skills'),
-      apiFetch('/api/agents/me'),
+      apiFetch('/portfolio'),
+      apiFetch('/feed?limit=20'),
+      apiFetch('/skills'),
+      apiFetch('/agents/me'),
     ]);
 
     if (results[0].status === 'fulfilled') setPortfolio(results[0].value);
@@ -75,7 +75,7 @@ export default function Dashboard() {
         // Start polling fallback
         if (!pollRef.current) {
           pollRef.current = setInterval(async () => {
-            const res = await apiFetch('/api/feed?limit=20').catch(() => null);
+            const res = await apiFetch('/feed?limit=20').catch(() => null);
             if (res) setFeed(res);
           }, 5000);
         }
