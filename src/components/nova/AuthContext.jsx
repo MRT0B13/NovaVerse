@@ -56,7 +56,7 @@ export default function AuthProvider({ children }) {
   }, []);
 
   const _doAuth = useCallback(async (walletAddress, signFn) => {
-    const nonceRes = await fetch(`${API}/api/auth/nonce`, {
+    const nonceRes = await fetch(`${API}/auth/nonce`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ address: walletAddress })
@@ -70,7 +70,7 @@ export default function AuthProvider({ children }) {
     
     const signature = await signFn(nonceData.message, walletAddress);
     
-    const verifyRes = await fetch(`${API}/api/auth/verify`, {
+    const verifyRes = await fetch(`${API}/auth/verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ address: walletAddress, message: nonceData.message, signature })
