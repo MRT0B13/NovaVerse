@@ -122,7 +122,7 @@ export default function AuthProvider({ children }) {
     : null;
 
   return (
-    <AuthContext.Provider value={{ token, address, truncatedAddress, connecting, error, connect, disconnect }}>
+    <AuthContext.Provider value={{ token, address, truncatedAddress, connecting, error, connect, connectEvm, connectSolana, disconnect }}>
       {children}
     </AuthContext.Provider>
   );
