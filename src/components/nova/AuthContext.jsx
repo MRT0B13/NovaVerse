@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
-const API = 'https://api.novaverse.xyz';
+const API = 'https://novaos-production.up.railway.app';
 const AuthContext = createContext(null);
 
 export function useAuth() {
