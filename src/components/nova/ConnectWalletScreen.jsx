@@ -51,10 +51,11 @@ export default function ConnectWalletScreen() {
     };
   }, []);
 
-  const handleClick = (type) => {
+  const handleClick = async (type) => {
     if (type === 'evm') {
       if (detected.evm) {
-        connectEvm();
+        await connectEvm();
+        return;
       } else if (isMobile) {
         const host = window.location.host;
         const path = window.location.pathname + window.location.search;
