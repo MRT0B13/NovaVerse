@@ -94,7 +94,7 @@ export default function AuthProvider({ children }) {
       await _doAuth(walletAddress, async (msg) => {
         const encoded = new TextEncoder().encode(msg);
         const { signature } = await solana.signMessage(encoded, 'utf8');
-        return Buffer.from(signature).toString('hex');
+        return Array.from(signature).map(b => b.toString(16).padStart(2, '0')).join('');
       });
     } catch (err) {
       setError(err.message || 'Solana connection failed');

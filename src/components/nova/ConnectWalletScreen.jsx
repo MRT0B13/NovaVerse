@@ -2,39 +2,22 @@ import React from 'react';
 import { useAuth } from './AuthContext';
 import { Loader2 } from 'lucide-react';
 
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-function openDeepLink(customScheme, storeFallback) {
-  // Try to open the app via custom scheme; if it doesn't open in time, go to store/website
-  const t = Date.now();
-  const iframe = document.createElement('iframe');
-  iframe.style.display = 'none';
-  iframe.src = customScheme;
-  document.body.appendChild(iframe);
-  setTimeout(() => {
-    document.body.removeChild(iframe);
-    if (Date.now() - t < 2500) {
-      // App didn't open — redirect to store
-      window.location.href = storeFallback;
-    }
-  }, 1500);
+function getIsMobile() {
+  try { return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent); }
+  catch { return false; }
 }
 
 function handleDeepLink(type) {
-  const url = window.location.href;
+  const dappUrl = window.location.href;
   const host = window.location.host;
-  const path = window.location.pathname;
+  const path = window.location.pathname + window.location.search;
 
   if (type === 'evm') {
-    const customScheme = `metamask://dapp/${host}${path}`;
-    const storeLink = /iPhone|iPad|iPod/i.test(navigator.userAgent)
-      ? 'https://apps.apple.com/app/metamask/id1438144202'
-      : 'https://play.google.com/store/apps/details?id=io.metamask';
-    openDeepLink(customScheme, storeLink);
+    // MetaMask deep link — opens the dapp URL inside MetaMask's in-app browser
+    window.location.href = `https://metamask.app.link/dapp/${host}${path}`;
   } else {
-    // Phantom — use their official universal link for in-app browser
-    const phantomUrl = `https://phantom.app/ul/browse/${encodeURIComponent(url)}?ref=${encodeURIComponent(window.location.origin)}`;
-    window.location.href = phantomUrl;
+    // Phantom deep link — opens the dapp URL inside Phantom's in-app browser
+    window.location.href = `https://phantom.app/ul/browse/${encodeURIComponent(dappUrl)}?ref=${encodeURIComponent(window.location.origin)}`;
   }
 }
 
@@ -55,13 +38,14 @@ const WALLETS = [
 export default function ConnectWalletScreen() {
   const { connectEvm, connectSolana, connecting, error } = useAuth();
 
+  const isMobile = getIsMobile();
+
   const handleClick = (wallet) => {
     if (isInjected(wallet.type)) {
       wallet.type === 'evm' ? connectEvm() : connectSolana();
     } else if (isMobile) {
       handleDeepLink(wallet.type);
     } else {
-      // Desktop: no wallet injected
       const installUrls = {
         evm: 'https://metamask.io/download/',
         solana: 'https://phantom.app/',
