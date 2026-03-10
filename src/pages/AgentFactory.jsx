@@ -14,8 +14,8 @@ export default function AgentFactory() {
 
   const fetchData = useCallback(async () => {
     const [t, a] = await Promise.allSettled([
-      apiFetch('/api/agents/templates'),
-      apiFetch('/api/agents/me'),
+      apiFetch('/agents/templates'),
+      apiFetch('/agents/me'),
     ]);
     if (t.status === 'fulfilled') setTemplates(t.value || []);
     if (a.status === 'fulfilled') setAgent(a.value);

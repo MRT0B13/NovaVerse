@@ -19,7 +19,7 @@ function NavBar({ currentPageName }) {
 
   useEffect(() => {
     if (!token) return;
-    apiFetch('/api/portfolio')
+    apiFetch('/portfolio')
       .then(d => setNovaBalance(d?.nova?.balance ?? 0))
       .catch(() => {});
   }, [token]);

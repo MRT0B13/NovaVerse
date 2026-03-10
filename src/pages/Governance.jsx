@@ -14,8 +14,8 @@ export default function Governance() {
 
   const fetchData = useCallback(async () => {
     const [p, port] = await Promise.allSettled([
-      apiFetch('/api/governance/proposals'),
-      apiFetch('/api/portfolio'),
+      apiFetch('/governance/proposals'),
+      apiFetch('/portfolio'),
     ]);
     if (p.status === 'fulfilled') setProposals(p.value || []);
     if (port.status === 'fulfilled') setNovaBalance(port.value?.nova?.balance || 0);

@@ -26,8 +26,8 @@ export default function DebateChamber() {
   // Fetch proposals
   const fetchProposals = useCallback(async () => {
     const [proposalsData, portfolioData] = await Promise.allSettled([
-      apiFetch('/api/governance/proposals'),
-      apiFetch('/api/portfolio'),
+      apiFetch('/governance/proposals'),
+      apiFetch('/portfolio'),
     ]);
     if (proposalsData.status === 'fulfilled') {
       const p = proposalsData.value || [];
@@ -48,7 +48,7 @@ export default function DebateChamber() {
   // Fetch debate messages for selected proposal
   const fetchDebate = useCallback(async () => {
     if (!selectedId) return;
-    const msgs = await apiFetch(`/api/governance/debate/${selectedId}`).catch(() => []);
+    const msgs = await apiFetch(`/governance/debate/${selectedId}`).catch(() => []);
     setDebateMessages(msgs || []);
   }, [apiFetch, selectedId]);
 

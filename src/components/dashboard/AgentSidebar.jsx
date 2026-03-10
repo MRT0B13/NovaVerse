@@ -100,7 +100,7 @@ export default function AgentSidebar({ agent, skills, nova, loading, onRefresh }
   const apiFetch = useApi();
 
   const handleToggleAgent = async () => {
-    const endpoint = agent.status === 'running' ? '/api/agents/pause' : '/api/agents/resume';
+    const endpoint = agent.status === 'running' ? `/agents/${agent.id}/pause` : `/agents/${agent.id}/resume`;
     await apiFetch(endpoint, { method: 'PATCH' });
     onRefresh?.();
   };
@@ -112,7 +112,7 @@ export default function AgentSidebar({ agent, skills, nova, loading, onRefresh }
     onRefresh?.();
     
     try {
-      await apiFetch(`/api/skills/${skill.skill_id}`, {
+      await apiFetch(`/skills/${skill.skill_id}/toggle`, {
         method: 'PATCH',
         body: JSON.stringify({ enabled: newEnabled }),
       });
