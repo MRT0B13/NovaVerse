@@ -161,6 +161,14 @@ export default function ConnectWalletScreen() {
           </p>
         )}
 
+        {!detected.evm && !detected.solana && !isMobile && (
+          <div className="mt-5 w-full rounded-lg p-3" style={{ background: '#0d0d0d', border: '1px solid #1a1a1a' }}>
+            <p className="font-mono text-[11px] text-center leading-relaxed" style={{ color: '#666' }}>
+              No wallets detected. If you have MetaMask or Phantom installed, try opening the <strong style={{ color: '#aaa' }}>published app URL</strong> directly — wallet extensions cannot connect inside preview iframes.
+            </p>
+          </div>
+        )}
+
         <p className="mt-8 font-mono text-[10px] uppercase tracking-widest" style={{ color: '#2a2a2a' }}>
           Powered by NovaOS
         </p>
