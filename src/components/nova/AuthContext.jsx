@@ -91,7 +91,6 @@ export default function AuthProvider({ children }) {
   const connectEvm = useCallback(async () => {
     setConnecting('evm');
     setError(null);
-    // Find the right EVM provider (handles multiple wallets)
     let provider = null;
     if (window.ethereum?.providers?.length) {
       provider = window.ethereum.providers.find(p => p.isMetaMask) || window.ethereum.providers[0];
@@ -99,16 +98,19 @@ export default function AuthProvider({ children }) {
       provider = window.ethereum;
     }
     if (!provider) {
-      setError('No EVM wallet detected. Please install MetaMask or open this page in your wallet browser.');
+      setError('No EVM wallet detected');
       setConnecting(null);
       return;
     }
     try {
+      setError('Step 1/3: Requesting wallet access…');
       const accounts = await provider.request({ method: 'eth_requestAccounts' });
       const walletAddress = accounts[0];
+      setError(`Step 2/3: Signing message for ${walletAddress.slice(0,6)}…`);
       await _doAuth(walletAddress, (msg, addr) =>
         provider.request({ method: 'personal_sign', params: [msg, addr] })
       );
+      setError(null);
     } catch (err) {
       setError(err.message || 'EVM connection failed');
     } finally {
@@ -119,23 +121,25 @@ export default function AuthProvider({ children }) {
   const connectSolana = useCallback(async () => {
     setConnecting('solana');
     setError(null);
-    // Find the Phantom provider specifically
     const solana = window.phantom?.solana?.isPhantom ? window.phantom.solana
                  : window.solana?.isPhantom ? window.solana
                  : null;
     if (!solana) {
-      setError('Phantom not detected. Please install Phantom or open this page in the Phantom browser.');
+      setError('Phantom not detected');
       setConnecting(null);
       return;
     }
     try {
+      setError('Step 1/3: Connecting to Phantom…');
       const resp = await solana.connect();
       const walletAddress = resp.publicKey.toString();
+      setError(`Step 2/3: Signing message for ${walletAddress.slice(0,6)}…`);
       await _doAuth(walletAddress, async (msg) => {
         const encoded = new TextEncoder().encode(msg);
         const { signature } = await solana.signMessage(encoded, 'utf8');
         return Array.from(signature).map(b => b.toString(16).padStart(2, '0')).join('');
       });
+      setError(null);
     } catch (err) {
       setError(err.message || 'Solana connection failed');
     } finally {
