@@ -29,8 +29,16 @@ export default function Dashboard() {
       apiFetch('/agents/me'),
     ]);
 
+    console.log('[Dashboard] fetch results:', results.map((r, i) => ({ i, status: r.status, hasValue: r.status === 'fulfilled' ? !!r.value : false, reason: r.reason?.message })));
+    
     if (results[0].status === 'fulfilled') setPortfolio(results[0].value);
-    if (results[1].status === 'fulfilled') setFeed(results[1].value || []);
+    if (results[1].status === 'fulfilled') {
+      const feedData = results[1].value;
+      console.log('[Dashboard] feed raw:', Array.isArray(feedData) ? `array(${feedData.length})` : typeof feedData, feedData);
+      // Handle both array and object with items/feed key
+      const items = Array.isArray(feedData) ? feedData : (feedData?.items || feedData?.feed || []);
+      setFeed(items);
+    }
     if (results[2].status === 'fulfilled') setSkills(results[2].value || []);
     if (results[3].status === 'fulfilled') setAgent(results[3].value);
     setLoading(false);
