@@ -88,7 +88,10 @@ export default function Dashboard() {
         if (!pollRef.current) {
           pollRef.current = setInterval(async () => {
             const res = await apiFetch('/feed?limit=20').catch(() => null);
-            if (res) setFeed(res);
+            if (res) {
+              const items = Array.isArray(res) ? res : (res?.items || res?.feed || []);
+              setFeed(items);
+            }
           }, 5000);
         }
         reconnectTimeout = setTimeout(connect, 3000);
