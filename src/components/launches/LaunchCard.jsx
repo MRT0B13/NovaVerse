@@ -10,31 +10,35 @@ const STATUS_COLORS = {
   FAILED: '#ff4444',
 };
 
-export default function LaunchCard({ launch, onClick }) {
+export default function LaunchCard({ launch: raw, onClick }) {
   const apiFetch = useApi();
   const [price, setPrice] = useState(null);
-  const brand = launch.brand || {};
-  const status = (launch.launch_status || 'DRAFT').toUpperCase();
+  // Normalize: API may return nested data or flat fields, camelCase or snake_case
+  const launch = raw?.data || raw;
+  const brand = launch.brand || { name: launch.brandName || launch.name, ticker: launch.brandTicker || launch.ticker };
+  const status = (launch.launch_status || launch.launchStatus || launch.status || 'DRAFT').toUpperCase();
   const color = STATUS_COLORS[status] || '#555';
-  const isGraduated = price?.is_graduated || launch.sell_state?.is_graduated;
+  const sellState = launch.sell_state || launch.sellState || {};
+  const isGraduated = price?.is_graduated || sellState.is_graduated || sellState.isGraduated;
+  const launchId = launch.id || raw.id;
 
   useEffect(() => {
     if (status !== 'LAUNCHED') return;
-    const fetchPrice = () => apiFetch(`/launches/${launch.id}/price`).then(setPrice).catch(() => {});
+    const fetchPrice = () => apiFetch(`/launches/${launchId}/price`).then(setPrice).catch(() => {});
     fetchPrice();
     const interval = setInterval(fetchPrice, 30000);
     return () => clearInterval(interval);
-  }, [launch.id, status, apiFetch]);
+  }, [launchId, status, apiFetch]);
 
   return (
     <button
-      onClick={() => onClick(launch)}
+      onClick={() => onClick(raw)}
       className="nova-card p-4 text-left w-full cursor-pointer transition-all hover:border-[#2a2a2a]"
       style={{ border: '1px solid #1a1a1a', background: '#0a0a0a' }}
     >
       <div className="flex items-start gap-3">
-        {launch.logo_url ? (
-          <img src={launch.logo_url} alt="" className="w-12 h-12 rounded-lg object-cover shrink-0" />
+        {(launch.logo_url || launch.logoUrl) ? (
+          <img src={launch.logo_url || launch.logoUrl} alt="" className="w-12 h-12 rounded-lg object-cover shrink-0" />
         ) : (
           <div
             className="w-12 h-12 rounded-lg shrink-0 flex items-center justify-center font-syne font-bold text-sm text-white"
@@ -52,7 +56,7 @@ export default function LaunchCard({ launch, onClick }) {
           </div>
 
           {status === 'LAUNCHED' && (() => {
-            const gradProgress = Number(price?.graduation_progress || launch.sell_state?.graduation_progress || 0);
+            const gradProgress = Number(price?.graduation_progress || sellState.graduation_progress || sellState.graduationProgress || 0);
             return (
               <div className="mt-2 space-y-1">
                 {price && (
@@ -60,10 +64,10 @@ export default function LaunchCard({ launch, onClick }) {
                     MCap: {formatUSD(price.market_cap)}
                   </p>
                 )}
-                {(launch.sell_state?.current_price_sol || price?.price_usd) && (
+                {(sellState.current_price_sol || sellState.currentPriceSol || price?.price_usd) && (
                   <p className="font-mono text-[10px] text-[#888]">
-                    {launch.sell_state?.current_price_sol ? `${formatSOL(launch.sell_state.current_price_sol)}` : ''}
-                    {launch.sell_state?.peak_price_sol ? ` · Peak: ${formatSOL(launch.sell_state.peak_price_sol)}` : ''}
+                    {(sellState.current_price_sol || sellState.currentPriceSol) ? `${formatSOL(sellState.current_price_sol || sellState.currentPriceSol)}` : ''}
+                    {(sellState.peak_price_sol || sellState.peakPriceSol) ? ` · Peak: ${formatSOL(sellState.peak_price_sol || sellState.peakPriceSol)}` : ''}
                   </p>
                 )}
                 <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: '#1a1a1a' }}>
@@ -80,8 +84,8 @@ export default function LaunchCard({ launch, onClick }) {
             );
           })()}
 
-          {Number(launch.treasury_sol || 0) > 0 && (
-            <p className="font-mono text-[10px] text-[#555] mt-1">Treasury: {formatSOL(launch.treasury_sol)}</p>
+          {Number(launch.treasury_sol || launch.treasurySol || 0) > 0 && (
+            <p className="font-mono text-[10px] text-[#555] mt-1">Treasury: {formatSOL(launch.treasury_sol || launch.treasurySol)}</p>
           )}
         </div>
       </div>
