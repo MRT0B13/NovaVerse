@@ -56,7 +56,7 @@ function AgentRecommendation({ proposal, novaBalance, onVote, voting, yourVote }
       {hasVoted || proposal?.status !== 'active' ? (
         hasVoted ? (
           <div className="space-y-2">
-            <div className="font-mono text-xs px-3 py-2 rounded-full inline-flex items-center gap-1.5"
+            <div className="font-mono text-xs px-3 py-2 rounded-[4px] inline-flex items-center gap-1.5"
               style={{
                 background: (yourVote === 'YES' ? '#00ff88' : yourVote === 'NO' ? '#ff4444' : '#888') + '18',
                 border: `1px solid ${yourVote === 'YES' ? '#00ff8840' : yourVote === 'NO' ? '#ff444440' : '#88888840'}`,
