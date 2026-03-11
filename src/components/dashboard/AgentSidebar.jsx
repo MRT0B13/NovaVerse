@@ -137,7 +137,13 @@ export default function AgentSidebar({ agent, skills, nova, loading, onRefresh }
   const handleToggleAgent = async () => {
     if (!agent) return;
     const endpoint = agent.status === 'running' ? '/agents/pause' : '/agents/resume';
-    await apiFetch(endpoint, { method: 'PATCH' });
+    console.log('[AgentSidebar] toggling agent:', endpoint);
+    try {
+      const res = await apiFetch(endpoint, { method: 'PATCH' });
+      console.log('[AgentSidebar] toggle response:', res);
+    } catch (err) {
+      console.error('[AgentSidebar] toggle error:', err);
+    }
     onRefresh?.();
   };
 
@@ -151,12 +157,15 @@ export default function AgentSidebar({ agent, skills, nova, loading, onRefresh }
       return list.map(s => s.skill_id === skill.skill_id ? { ...s, enabled: newEnabled } : s);
     });
     try {
-      await apiFetch(`/skills/${skill.skill_id}/toggle`, {
+      console.log('[AgentSidebar] toggling skill:', skill.skill_id, 'to', newEnabled);
+      const res = await apiFetch(`/skills/${skill.skill_id}/toggle`, {
         method: 'PATCH',
         body: JSON.stringify({ enabled: newEnabled }),
       });
+      console.log('[AgentSidebar] skill toggle response:', res);
       onRefresh?.();
-    } catch {
+    } catch (err) {
+      console.error('[AgentSidebar] skill toggle error:', err);
       setLocalSkills(prev => {
         const list = prev || skills || [];
         return list.map(s => s.skill_id === skill.skill_id ? { ...s, enabled: !newEnabled } : s);
