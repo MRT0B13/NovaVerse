@@ -28,14 +28,37 @@ export default function RedeployModal({ agent, onClose, onSuccess }) {
     setDeploying(true);
     setError(null);
     try {
-      await apiFetch('/agents/redeploy', {
-        method: 'POST',
-        body: JSON.stringify({
-          templateId: selectedTemplate,
-          name: name.trim() || undefined,
-          riskLevel,
-        }),
-      });
+      // Pause agent first if running (server may require it)
+      if (agent?.status === 'running') {
+        await apiFetch('/agents/pause', { method: 'POST' }).catch(() => {});
+      }
+
+      // Try dedicated redeploy endpoint first
+      try {
+        await apiFetch('/agents/redeploy', {
+          method: 'POST',
+          body: JSON.stringify({
+            templateId: selectedTemplate,
+            name: name.trim() || undefined,
+            riskLevel,
+          }),
+        });
+      } catch (redeployErr) {
+        // Fallback: teardown then deploy fresh
+        console.log('[Redeploy] /agents/redeploy failed, falling back to teardown+deploy:', redeployErr.message);
+        await apiFetch('/agents/teardown', { method: 'POST' }).catch(() => {});
+        await apiFetch('/agents/deploy', {
+          method: 'POST',
+          body: JSON.stringify({
+            templateId: selectedTemplate,
+            name: name.trim() || undefined,
+            riskLevel,
+          }),
+        });
+        // Resume after fresh deploy
+        await apiFetch('/agents/resume', { method: 'POST' }).catch(() => {});
+      }
+
       onSuccess?.();
     } catch (err) {
       setError(err.message || 'Redeploy failed');
