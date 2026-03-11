@@ -93,7 +93,7 @@ export default function DeployForm({ template }) {
       });
 
       // Immediately resume to transition from deploying → running
-      await apiFetch('/agents/resume', { method: 'POST' }).catch(() => {});
+      await apiFetch('/agents/resume', { method: 'PATCH' }).catch(() => {});
 
       setShowTransition(true);
 
