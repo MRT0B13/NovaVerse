@@ -82,7 +82,7 @@ export default function TemplateGrid({ templates, selectedId, onSelect }) {
               )}
             </div>
             <div className="flex items-center gap-2 mt-1">
-              <NovaPill text={`${t.skillCount ?? '?'} skills`} color={style.color} />
+              <NovaPill text={`${t.skillCount ?? t.defaultSkills?.length ?? '?'} skills`} color={style.color} />
               {needsWallet && (
                 <span className="font-mono text-[8px] px-1.5 py-0.5 rounded" style={{ background: '#ff950010', color: '#ff9500', border: '1px solid #ff950020' }}>
                   WALLET REQ
