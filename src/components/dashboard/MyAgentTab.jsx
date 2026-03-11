@@ -251,7 +251,7 @@ export default function MyAgentTab({ agent, skills, nova, loading, onRefresh }) 
     const endpoint = agent.status === 'running' ? '/agents/pause' : '/agents/resume';
     console.log('[MyAgentTab] toggling agent:', endpoint);
     try {
-      const res = await apiFetch(endpoint, { method: 'POST' });
+      const res = await apiFetch(endpoint, { method: 'PATCH' });
       console.log('[MyAgentTab] toggle response:', res);
     } catch (err) {
       console.error('[MyAgentTab] toggle error:', err);

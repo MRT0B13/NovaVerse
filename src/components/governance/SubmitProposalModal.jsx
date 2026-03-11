@@ -16,7 +16,7 @@ export default function SubmitProposalModal({ onClose, onCreated }) {
     setError(null);
 
     try {
-      await apiFetch('/governance/proposals', {
+      await apiFetch('/governance/propose', {
         method: 'POST',
         body: JSON.stringify({ title: title.trim(), description: description.trim() }),
       });
