@@ -12,15 +12,18 @@ export default function AgentFactory() {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState(null); // null = not yet determined
+  const [novaBalance, setNovaBalance] = useState(0);
 
   const fetchData = useCallback(async () => {
-    const [t, a] = await Promise.allSettled([
+    const [t, a, p] = await Promise.allSettled([
       apiFetch('/agents/templates'),
       apiFetch('/agents/me'),
+      apiFetch('/portfolio'),
     ]);
     if (t.status === 'fulfilled') setTemplates(t.value || []);
     const agentData = a.status === 'fulfilled' ? a.value : null;
     setAgent(agentData);
+    if (p.status === 'fulfilled') setNovaBalance(Number(p.value?.nova?.balance || 0));
     // Set default tab only on first load
     setTab(prev => prev === null ? (agentData ? 'manage' : 'deploy') : prev);
     setLoading(false);
@@ -107,7 +110,7 @@ export default function AgentFactory() {
               selectedId={selectedTemplate?.id}
               onSelect={setSelectedTemplate}
             />
-            {selectedTemplate && <DeployForm template={selectedTemplate} />}
+            {selectedTemplate && <DeployForm template={selectedTemplate} novaBalance={novaBalance} />}
           </>
         )
       )}
