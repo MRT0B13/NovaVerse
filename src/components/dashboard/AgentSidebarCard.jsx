@@ -38,7 +38,7 @@ export default function AgentSidebarCard({ agent, onRefresh }) {
           }}
         >💹</div>
         <h3 className="font-syne font-bold text-lg text-white">{agent.display_name}</h3>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-[#555] mt-1">
+        <span className="font-mono text-[10px] uppercase tracking-widest text-[#555] mt-1">
           {formatTemplateId(agent.template_id)}
         </span>
         <div className="flex items-center gap-1.5 mt-2 flex-wrap justify-center">

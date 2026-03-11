@@ -50,7 +50,7 @@ export default function CollapsibleSection({ title, icon, summary, summaryColor,
         {/* Summary pill when collapsed */}
         {!open && summary && (
           <span
-            className="font-mono text-[11px] px-3 py-1 rounded-full truncate max-w-[220px]"
+            className="font-mono text-[11px] px-3 py-1 rounded-[4px] truncate max-w-[220px]"
             style={{
               color: summaryColor || '#888',
               background: (summaryColor || '#888') + '15',
