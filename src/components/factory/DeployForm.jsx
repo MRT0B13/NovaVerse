@@ -10,6 +10,14 @@ const RISK_LEVELS = [
   { value: 'aggressive', label: 'Aggressive', desc: 'Max LP deployment, tight ranges, 0.30 Kelly' },
 ];
 
+const RISK_PRESETS = {
+  conservative: { CFO_ORCA_LP_MAX_USD: 80, CFO_KRYSTAL_LP_MAX_USD: 80, CFO_AUTO_TIER_USD: 20, CFO_KELLY_FRACTION: 0.15, CFO_KAMINO_JITO_LOOP_MAX_LOOPS: 2, LP_RANGE_WIDTH_PCT: 15 },
+  balanced: { CFO_ORCA_LP_MAX_USD: 130, CFO_KRYSTAL_LP_MAX_USD: 130, CFO_AUTO_TIER_USD: 40, CFO_KELLY_FRACTION: 0.22, CFO_KAMINO_JITO_LOOP_MAX_LOOPS: 2, LP_RANGE_WIDTH_PCT: 10 },
+  aggressive: { CFO_ORCA_LP_MAX_USD: 180, CFO_KRYSTAL_LP_MAX_USD: 180, CFO_AUTO_TIER_USD: 60, CFO_KELLY_FRACTION: 0.30, CFO_KAMINO_JITO_LOOP_MAX_LOOPS: 3, LP_RANGE_WIDTH_PCT: 6 },
+};
+
+const DEFAULTS = RISK_PRESETS.balanced;
+
 const TEMPLATE_DESCRIPTIONS = {
   'full-nova': 'Full 7-agent swarm. Scout finds opportunities, CFO executes, Guardian protects.',
   'cfo-agent': 'CFO + Guardian only. Capital allocation across Solana LP, Kamino, and Hyperliquid.',
@@ -51,7 +59,12 @@ export default function DeployForm({ template }) {
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [riskLevel, setRiskLevel] = useState('balanced');
-  const [advancedConfigs, setAdvancedConfigs] = useState({});
+  const [advancedConfigs, setAdvancedConfigs] = useState({ ...RISK_PRESETS.balanced });
+
+  const handleRiskLevel = (level) => {
+    setRiskLevel(level);
+    setAdvancedConfigs(prev => ({ ...prev, ...RISK_PRESETS[level] }));
+  };
   const [deploying, setDeploying] = useState(false);
   const [error, setError] = useState(null);
 
@@ -117,7 +130,7 @@ export default function DeployForm({ template }) {
           {RISK_LEVELS.map(r => (
             <button
               key={r.value}
-              onClick={() => setRiskLevel(r.value)}
+              onClick={() => handleRiskLevel(r.value)}
               className="p-3 rounded text-left cursor-pointer transition-all"
               style={{
                 background: riskLevel === r.value ? accent + '10' : '#0d0d0d',
@@ -142,7 +155,7 @@ export default function DeployForm({ template }) {
                 <span className="font-mono text-xs text-white">
                   {advancedConfigs[item.key] !== undefined
                     ? advancedConfigs[item.key]
-                    : item.type === 'range' ? item.min : item.options[0]}
+                    : DEFAULTS[item.key] ?? (item.type === 'range' ? item.min : item.options[0])}
                 </span>
               </div>
               {item.type === 'range' ? (
@@ -151,7 +164,7 @@ export default function DeployForm({ template }) {
                   min={item.min}
                   max={item.max}
                   step={item.step}
-                  value={advancedConfigs[item.key] ?? item.min}
+                  value={advancedConfigs[item.key] ?? DEFAULTS[item.key] ?? item.min}
                   onChange={e => setAdvancedConfigs({ ...advancedConfigs, [item.key]: Number(e.target.value) })}
                   className="w-full"
                   style={{ height: 4, accentColor: accent }}
