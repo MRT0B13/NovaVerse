@@ -5,7 +5,8 @@ import LiveDot from '../nova/LiveDot';
 import NovaPill from '../nova/NovaPill';
 import { useApi } from '../nova/AuthContext';
 import { SkeletonRect } from '../nova/Skeleton';
-import { Pause, Play, Save, Loader2, RotateCw } from 'lucide-react';
+import { Pause, Play, Save, Loader2, RefreshCw } from 'lucide-react';
+import RedeployModal from './RedeployModal';
 
 const STATUS_DOT = { running: '#00ff88', paused: '#ff9500', deploying: '#00c8ff', error: '#ff4444' };
 
@@ -30,7 +31,7 @@ function formatTemplateId(id) {
   return id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
 }
 
-function AgentIdentityCard({ agent, onToggle, onRedeploy, redeploying }) {
+function AgentIdentityCard({ agent, onToggle, onRedeploy }) {
   const isRunning = agent.status === 'running';
   const dotColor = STATUS_DOT[agent.status] || '#555';
 
@@ -75,16 +76,14 @@ function AgentIdentityCard({ agent, onToggle, onRedeploy, redeploying }) {
           )}
           <button
             onClick={onRedeploy}
-            disabled={redeploying}
-            className="flex items-center gap-2 font-mono text-xs px-4 py-2 rounded cursor-pointer transition-all hover:opacity-80 disabled:opacity-40"
+            className="flex items-center gap-2 font-mono text-xs px-4 py-2 rounded cursor-pointer transition-all hover:opacity-80"
             style={{
-              background: '#00c8ff18',
-              border: '1px solid #00c8ff40',
-              color: '#00c8ff',
+              background: '#ff950010',
+              border: '1px solid #ff950030',
+              color: '#ff9500',
             }}
           >
-            <RotateCw className={`w-3 h-3 ${redeploying ? 'animate-spin' : ''}`} />
-            {redeploying ? 'Redeploying…' : 'Redeploy'}
+            <RefreshCw className="w-3 h-3" /> Redeploy
           </button>
         </div>
       </div>
@@ -150,7 +149,7 @@ function ConfigSection({ agent }) {
     setSaving(true);
     for (const [key, value] of Object.entries(configs)) {
       await apiFetch('/agents/config', {
-        method: 'POST',
+        method: 'PATCH',
         body: JSON.stringify({ key, value: String(value) }),
       });
     }
@@ -216,7 +215,6 @@ function ConfigSection({ agent }) {
 export default function MyAgentTab({ agent, skills, nova, loading, onRefresh }) {
   const apiFetch = useApi();
   const [localSkills, setLocalSkills] = useState(null);
-  const [redeploying, setRedeploying] = useState(false);
   const displaySkills = localSkills || skills;
 
   // Poll when agent is stuck in 'deploying'
@@ -227,25 +225,6 @@ export default function MyAgentTab({ agent, skills, nova, loading, onRefresh }) 
   }, [agent?.status, onRefresh]);
 
   React.useEffect(() => { setLocalSkills(null); }, [skills]);
-
-  const handleRedeploy = async () => {
-    if (!agent) return;
-    setRedeploying(true);
-    try {
-      await apiFetch('/agents/redeploy', {
-        method: 'POST',
-        body: JSON.stringify({
-          templateId: agent.template_id,
-          riskLevel: agent.risk_level || 'medium',
-        }),
-      });
-      onRefresh?.();
-    } catch (err) {
-      console.error('[MyAgentTab] redeploy error:', err);
-    } finally {
-      setRedeploying(false);
-    }
-  };
 
   const handleToggleAgent = async () => {
     if (!agent) return;
@@ -310,7 +289,7 @@ export default function MyAgentTab({ agent, skills, nova, loading, onRefresh }) 
 
   return (
     <div className="space-y-4 max-w-[640px]">
-      <AgentIdentityCard agent={agent} onToggle={handleToggleAgent} onRedeploy={handleRedeploy} redeploying={redeploying} />
+      <AgentIdentityCard agent={agent} onToggle={handleToggleAgent} />
       <SkillsList skills={displaySkills} onToggle={handleToggleSkill} />
       <NetworkStats agent={agent} nova={nova} />
       <ConfigSection agent={agent} />
