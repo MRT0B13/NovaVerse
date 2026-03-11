@@ -168,6 +168,20 @@ export default function LearningEngineSection() {
             </div>
           )}
 
+          {/* Alerts */}
+          {params.alerts && params.alerts.length > 0 && (
+            <div>
+              <p className="font-mono text-[9px] uppercase tracking-wider text-[#555] mb-2">Alerts</p>
+              <div className="space-y-1">
+                {params.alerts.map((alert, i) => (
+                  <div key={i} className="flex items-center gap-2 px-3 py-2 rounded" style={{ background: '#ff950010', border: '1px solid #ff950020' }}>
+                    <span className="font-mono text-[11px]" style={{ color: '#ff9500' }}>⚠ {typeof alert === 'string' ? alert : alert.message || JSON.stringify(alert)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Capital Weights */}
           {params.capitalWeights && Object.keys(params.capitalWeights).length > 0 && (
             <div>

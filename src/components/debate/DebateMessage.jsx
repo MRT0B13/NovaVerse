@@ -28,7 +28,7 @@ export default function DebateMessage({ message }) {
             {message.role}
           </span>
           <span className="font-mono text-[10px] text-[#333] ml-auto shrink-0">
-            {relativeTime(message.time)}
+            {relativeTime(message.created_at || message.time)}
           </span>
         </div>
         <div
@@ -39,7 +39,7 @@ export default function DebateMessage({ message }) {
             borderRadius: '4px 12px 12px 12px',
           }}
         >
-          {message.msg}
+          {message.message || message.msg}
         </div>
       </div>
     </div>

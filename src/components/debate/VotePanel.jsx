@@ -73,15 +73,23 @@ function AgentRecommendation({ proposal, novaBalance, onVote, voting, yourVote }
             className="flex-1 font-mono text-xs py-2 rounded cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-50"
             style={{ background: '#00ff8818', border: '1px solid #00ff8840', color: '#00ff88' }}
           >
-            ✓ Vote YES
+            YES
           </button>
           <button
             onClick={() => onVote('NO')}
             disabled={voting}
             className="flex-1 font-mono text-xs py-2 rounded cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-50"
+            style={{ background: '#ff444418', border: '1px solid #ff444440', color: '#ff4444' }}
+          >
+            NO
+          </button>
+          <button
+            onClick={() => onVote('ABSTAIN')}
+            disabled={voting}
+            className="flex-1 font-mono text-xs py-2 rounded cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-50"
             style={{ background: '#1a1a1a', border: '1px solid #222', color: '#888' }}
           >
-            Override
+            ABSTAIN
           </button>
         </div>
       )}
