@@ -68,7 +68,7 @@ export default function LearningEngineSection() {
   })();
 
   return (
-    <CollapsibleSection title="Learning Engine" summary={summary} summaryColor={summaryColor} onFirstOpen={handleFirstOpen}>
+    <CollapsibleSection title="Learning Engine" icon="🧠" accentColor="#00c8ff" summary={summary} summaryColor={summaryColor} onFirstOpen={handleFirstOpen}>
       {loading ? (
         <div className="space-y-3">
           <SkeletonRect h={20} />

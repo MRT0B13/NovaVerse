@@ -79,7 +79,7 @@ export default function SwarmHealthSection() {
   const statusColors = { healthy: '#00ff88', degraded: '#ff9500', critical: '#ff4444' };
 
   return (
-    <CollapsibleSection title="Swarm Health" summary={summary} summaryColor={summaryColor} onFirstOpen={handleFirstOpen}>
+    <CollapsibleSection title="Swarm Health" icon="🛡" accentColor="#00ff88" summary={summary} summaryColor={summaryColor} onFirstOpen={handleFirstOpen}>
       {loading || !data ? (
         <div className="space-y-3">
           <SkeletonRect h={20} />

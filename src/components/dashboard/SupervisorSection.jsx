@@ -80,7 +80,7 @@ export default function SupervisorSection() {
   })();
 
   return (
-    <CollapsibleSection title="Supervisor" summary={summary} summaryColor={summaryColor} onFirstOpen={handleFirstOpen}>
+    <CollapsibleSection title="Supervisor" icon="👁" accentColor="#c084fc" summary={summary} summaryColor={summaryColor} onFirstOpen={handleFirstOpen}>
       {loading ? (
         <div className="space-y-3">
           <SkeletonRect h={40} />
