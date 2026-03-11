@@ -97,6 +97,9 @@ export default function SupervisorSection() {
               </div>
               <span className="font-mono text-[10px] text-[#555]">Uptime: <span className="text-[#bbb]">{status.uptime || '—'}</span></span>
               <span className="font-mono text-[10px] text-[#555]">Mem: <span className="text-[#bbb]">{status.memoryMb ?? '—'} MB</span></span>
+              {status.cpuPercent != null && (
+                <span className="font-mono text-[10px] text-[#555]">CPU: <span className="text-[#bbb]">{Number(status.cpuPercent).toFixed(1)}%</span></span>
+              )}
               {status.currentTask && (
                 <span className="font-mono text-[10px] italic text-[#444] truncate max-w-[200px]">{status.currentTask}</span>
               )}
