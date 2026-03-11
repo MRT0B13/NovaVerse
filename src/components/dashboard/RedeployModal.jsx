@@ -28,29 +28,14 @@ export default function RedeployModal({ agent, onClose, onSuccess }) {
     setDeploying(true);
     setError(null);
     try {
-      // Pause if running
-      if (agent?.status === 'running') {
-        await apiFetch('/agents/pause', { method: 'POST' });
-      }
-
-      // Delete existing agent first
-      await apiFetch('/agents', { method: 'DELETE' });
-
-      // Deploy with new config
-      const payload = {
-        templateId: selectedTemplate,
-        riskLevel,
-      };
-      if (name.trim()) payload.name = name.trim();
-
-      await apiFetch('/agents/deploy', {
+      await apiFetch('/agents/redeploy', {
         method: 'POST',
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          templateId: selectedTemplate,
+          riskLevel,
+          name: name.trim() || undefined,
+        }),
       });
-
-      // Resume the newly deployed agent
-      await apiFetch('/agents/resume', { method: 'POST' }).catch(() => {});
-
       onSuccess?.();
     } catch (err) {
       setError(err.message || 'Redeploy failed');

@@ -58,7 +58,26 @@ function AgentIdentityCard({ agent, onToggle, onRedeploy }) {
                 {agent.status}
               </span>
             </div>
+            {agent.hasWallet === false && (
+              <span className="font-mono text-[9px] px-2 py-0.5 rounded-full" style={{ background: '#ff950018', color: '#ff9500', border: '1px solid #ff950030' }}>
+                No Wallet
+              </span>
+            )}
+            {agent.hasWallet === true && (
+              <span className="font-mono text-[9px] px-2 py-0.5 rounded-full" style={{ background: '#00ff8818', color: '#00ff88', border: '1px solid #00ff8830' }}>
+                Wallet ✓
+              </span>
+            )}
           </div>
+          {Array.isArray(agent.capabilities) && agent.capabilities.length > 0 && (
+            <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+              {agent.capabilities.map(cap => (
+                <span key={cap} className="font-mono text-[9px] px-2 py-0.5 rounded-full" style={{ background: '#1a1a1a', color: '#888', border: '1px solid #222' }}>
+                  {cap}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {(agent.status === 'running' || agent.status === 'paused') && (
