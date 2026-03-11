@@ -33,7 +33,10 @@ export default function RedeployModal({ agent, onClose, onSuccess }) {
         await apiFetch('/agents/pause', { method: 'POST' });
       }
 
-      // Deploy with new config (overwrites existing agent)
+      // Delete existing agent first
+      await apiFetch('/agents', { method: 'DELETE' });
+
+      // Deploy with new config
       const payload = {
         templateId: selectedTemplate,
         riskLevel,
