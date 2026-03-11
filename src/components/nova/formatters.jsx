@@ -56,11 +56,18 @@ export function timeRemaining(isoStr) {
   const end = new Date(isoStr);
   const now = new Date();
   const diff = end - now;
-  if (diff <= 0) return 'Ended';
+  if (diff <= 0) {
+    const ago = now - end;
+    const days = Math.floor(ago / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((ago % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    if (days > 0) return `Ended ${days}d ago`;
+    if (hours > 0) return `Ended ${hours}h ago`;
+    return 'Ended';
+  }
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  if (days > 0) return `${days}d ${hours}h`;
-  return `${hours}h`;
+  if (days > 0) return `Ends in ${days}d ${hours}h`;
+  return `Ends in ${hours}h`;
 }
 
 export function truncateAddress(addr) {

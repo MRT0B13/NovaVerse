@@ -37,8 +37,8 @@ function VoteTally({ proposal }) {
   );
 }
 
-function AgentRecommendation({ proposal, novaBalance, onVote, voting }) {
-  const hasVoted = proposal?.your_vote != null;
+function AgentRecommendation({ proposal, novaBalance, onVote, voting, yourVote }) {
+  const hasVoted = yourVote != null;
 
   return (
     <div className="nova-card p-4 space-y-3">
@@ -54,10 +54,17 @@ function AgentRecommendation({ proposal, novaBalance, onVote, voting }) {
       </p>
 
       {hasVoted ? (
-        <NovaPill
-          text={`You voted: ${proposal.your_vote}`}
-          color={proposal.your_vote === 'YES' ? '#00ff88' : proposal.your_vote === 'NO' ? '#ff4444' : '#888'}
-        />
+        <div className="space-y-2">
+          <div className="font-mono text-xs px-3 py-2 rounded-full inline-flex items-center gap-1.5"
+            style={{
+              background: (yourVote === 'YES' ? '#00ff88' : yourVote === 'NO' ? '#ff4444' : '#888') + '18',
+              border: `1px solid ${yourVote === 'YES' ? '#00ff8840' : yourVote === 'NO' ? '#ff444440' : '#88888840'}`,
+              color: yourVote === 'YES' ? '#00ff88' : yourVote === 'NO' ? '#ff4444' : '#888',
+            }}>
+            ✓ You voted {yourVote}
+          </div>
+          <p className="font-mono text-[10px] text-[#555]">Your {novaBalance || 0} NOVA counted.</p>
+        </div>
       ) : (
         <div className="flex gap-2">
           <button
@@ -111,7 +118,9 @@ function DebatingNow({ agents }) {
 export default function VotePanel({ proposal, debateMessages, novaBalance, onVoted }) {
   const apiFetch = useApi();
   const [voting, setVoting] = useState(false);
-  const [votedChoice, setVotedChoice] = useState(null);
+  const [localVote, setLocalVote] = useState(null);
+
+  const yourVote = localVote || proposal?.your_vote;
 
   const handleVote = async (choice) => {
     setVoting(true);
@@ -119,20 +128,19 @@ export default function VotePanel({ proposal, debateMessages, novaBalance, onVot
       method: 'POST',
       body: JSON.stringify({ choice, agentRecommended: choice === 'YES' }),
     });
-    setVotedChoice(choice);
+    setLocalVote(choice);
     setVoting(false);
     onVoted?.();
   };
 
-  const effectiveVote = votedChoice || proposal?.your_vote;
-
   return (
     <div className="space-y-4 w-full lg:w-[280px] shrink-0">
       <AgentRecommendation
-        proposal={{ ...proposal, your_vote: effectiveVote }}
+        proposal={proposal}
         novaBalance={novaBalance}
         onVote={handleVote}
         voting={voting}
+        yourVote={yourVote}
       />
       <VoteTally proposal={proposal} />
       <DebatingNow agents={debateMessages} />

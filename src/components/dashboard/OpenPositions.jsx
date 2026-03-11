@@ -44,8 +44,8 @@ export default function OpenPositions({ positions, loading }) {
                 >
                   {formatPnlSigned(pos.pnl_usd)}
                   {pos.pnl_pct != null && (
-                    <span className="ml-1 text-[10px]" style={{ color: pos.pnl_pct > 0 ? '#00ff88' : pos.pnl_pct < 0 ? '#ff4444' : '#555' }}>
-                      ({pos.pnl_pct > 0 ? '+' : ''}{pos.pnl_pct.toFixed(1)}%)
+                    <span className="ml-1" style={{ color: pos.pnl_pct > 0 ? '#00ff88' : pos.pnl_pct < 0 ? '#ff4444' : '#555' }}>
+                      ({pos.pnl_pct > 0 ? '+' : ''}{Number(pos.pnl_pct).toFixed(1)}%)
                     </span>
                   )}
                 </p>

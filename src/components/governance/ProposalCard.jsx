@@ -18,14 +18,9 @@ const BORDER_COLORS = {
   expired: '#333',
 };
 
-const VOTE_COLORS = {
-  YES: '#00ff88',
-  NO: '#ff4444',
-  ABSTAIN: '#888',
-};
-
 export default function ProposalCard({ proposal }) {
   const statusColor = STATUS_COLORS[proposal.status] || '#888';
+  const borderColor = BORDER_COLORS[proposal.status] || '#333';
   const yes = proposal.votes_yes || 0;
   const no = proposal.votes_no || 0;
   const abstain = proposal.votes_abstain || 0;
@@ -34,23 +29,6 @@ export default function ProposalCard({ proposal }) {
   const yesPct = total > 0 ? (yes / total * 100).toFixed(1) : '0.0';
   const noPct = total > 0 ? (no / total * 100).toFixed(1) : '0.0';
   const abstainPct = total > 0 ? (abstain / total * 100).toFixed(1) : '0.0';
-  const borderColor = BORDER_COLORS[proposal.status] || '#333';
-
-  const endsText = (() => {
-    if (!proposal.ends_at) return '';
-    const end = new Date(proposal.ends_at);
-    const now = new Date();
-    const diff = end - now;
-    if (diff <= 0) {
-      const ago = now - end;
-      const days = Math.floor(ago / (1000*60*60*24));
-      const hrs = Math.floor((ago % (1000*60*60*24)) / (1000*60*60));
-      return days > 0 ? `Ended ${days}d ago` : `Ended ${hrs}h ago`;
-    }
-    const days = Math.floor(diff / (1000*60*60*24));
-    const hrs = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
-    return days > 0 ? `Ends in ${days}d ${hrs}h` : `Ends in ${hrs}h`;
-  })();
 
   const inner = (
     <div className="nova-card p-4 transition-all hover:border-[#222]" style={{ cursor: proposal.status === 'active' ? 'pointer' : 'default', borderLeft: `3px solid ${borderColor}` }}>
@@ -58,17 +36,17 @@ export default function ProposalCard({ proposal }) {
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-mono text-[10px] text-[#555]">#{proposal.id}</span>
           <NovaPill text={proposal.status} color={statusColor} />
-          {proposal.your_vote ? (
+          {proposal.your_vote != null ? (
             <NovaPill
               text={`You: ${proposal.your_vote}`}
-              color={VOTE_COLORS[proposal.your_vote] || '#888'}
+              color={proposal.your_vote === 'YES' ? '#00ff88' : proposal.your_vote === 'NO' ? '#ff4444' : '#888'}
             />
           ) : proposal.status === 'active' ? (
             <span className="font-mono text-[10px]" style={{ color: '#00c8ff' }}>Vote now →</span>
           ) : null}
         </div>
         <span className="font-mono text-[10px] text-[#555] shrink-0">
-          {endsText}
+          {timeRemaining(proposal.ends_at)}
         </span>
       </div>
 

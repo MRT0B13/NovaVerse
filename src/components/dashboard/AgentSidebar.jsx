@@ -7,12 +7,7 @@ import { useApi } from '../nova/AuthContext';
 import { SkeletonRect } from '../nova/Skeleton';
 import { Pause, Play } from 'lucide-react';
 
-const STATUS_CONFIG = {
-  running:   { color: '#00ff88', label: 'Running' },
-  paused:    { color: '#ff9500', label: 'Paused' },
-  deploying: { color: '#00c8ff', label: 'Deploying' },
-  error:     { color: '#ff4444', label: 'Error' },
-};
+const STATUS_DOT = { running: '#00ff88', paused: '#ff9500', deploying: '#00c8ff' };
 
 function AgentIdentity({ agent, onToggle }) {
   if (!agent) {
@@ -20,17 +15,18 @@ function AgentIdentity({ agent, onToggle }) {
       <div className="rounded-lg p-5 text-center" style={{
         background: '#0a0a0a', border: '1px solid #1a1a1a'
       }}>
-        <div className="w-[72px] h-[72px] rounded-full flex items-center justify-center text-3xl mx-auto mb-3" style={{ background: '#111' }}>🤖</div>
         <p className="font-mono text-xs text-[#555] mb-3">No agent deployed</p>
-        <Link to={createPageUrl('AgentFactory')} className="font-mono text-xs no-underline" style={{ color: '#00ff88' }}>
-          → Deploy one
-        </Link>
+        <Link
+          to={createPageUrl('AgentFactory')}
+          className="font-mono text-xs no-underline"
+          style={{ color: '#00ff88' }}
+        >→ Deploy one</Link>
       </div>
     );
   }
 
-  const sc = STATUS_CONFIG[agent.status] || STATUS_CONFIG.error;
   const isRunning = agent.status === 'running';
+  const dotColor = STATUS_DOT[agent.status] || '#555';
 
   return (
     <div className="rounded-lg p-5" style={{
@@ -48,9 +44,9 @@ function AgentIdentity({ agent, onToggle }) {
         <h3 className="font-syne font-bold text-lg text-white">{agent.display_name}</h3>
         <p className="font-mono text-[10px] uppercase tracking-wider text-[#555] mt-1">{agent.template_id}</p>
         <div className="flex items-center gap-2 mt-3">
-          <LiveDot color={sc.color} size={6} />
-          <span className="font-mono text-xs" style={{ color: sc.color }}>
-            {sc.label}
+          <LiveDot color={dotColor} size={6} />
+          <span className="font-mono text-xs" style={{ color: dotColor }}>
+            {agent.status}
           </span>
         </div>
         <button
@@ -77,7 +73,7 @@ function SkillsList({ skills, onToggle }) {
       </div>
       <div className="divide-y divide-[#111]">
         {(!skills || skills.length === 0) ? (
-          <div className="p-4 text-center text-[#555] font-mono text-xs">No skills loaded — deploy an agent to activate skills.</div>
+          <div className="p-4 text-center text-[#555] font-mono text-xs">No skills loaded</div>
         ) : (
           skills.map(skill => (
             <button
