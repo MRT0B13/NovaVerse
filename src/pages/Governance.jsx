@@ -64,7 +64,7 @@ export default function Governance() {
           </button>
         </div>
 
-        <div className="p-4 space-y-3">
+        <div className="p-4 space-y-4">
           {loading ? (
             [1,2,3].map(i => <SkeletonRect key={i} h={80} />)
           ) : proposals.length === 0 ? (

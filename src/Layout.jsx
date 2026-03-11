@@ -13,16 +13,26 @@ const NAV_ITEMS = [
 ];
 
 function NavBar({ currentPageName }) {
-  const { token, truncatedAddress, disconnect } = useAuth();
+  const { token, address, truncatedAddress, disconnect } = useAuth();
   const apiFetch = useApi();
   const [novaBalance, setNovaBalance] = useState(null);
+  const [copied, setCopied] = useState(false);
+  const [showWalletMenu, setShowWalletMenu] = useState(false);
 
   useEffect(() => {
     if (!token) return;
-    apiFetch('/portfolio')
-      .then(d => setNovaBalance(d?.nova?.balance ?? 0))
-      .catch(() => {});
+    const fetchBal = () => apiFetch('/portfolio').then(d => setNovaBalance(d?.nova?.balance ?? 0)).catch(() => {});
+    fetchBal();
+    const interval = setInterval(fetchBal, 30000);
+    return () => clearInterval(interval);
   }, [token]);
+
+  const handleCopyAddress = async () => {
+    if (!address) return;
+    await navigator.clipboard.writeText(address).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
 
   return (
     <nav
@@ -44,7 +54,7 @@ function NavBar({ currentPageName }) {
       </Link>
 
       {/* Center nav */}
-      <div className="hidden md:flex items-center gap-6 mx-auto">
+      <div className="hidden md:flex items-center gap-6 mx-auto overflow-x-auto" style={{ whiteSpace: 'nowrap' }}>
         {NAV_ITEMS.map(item => {
           const isActive = currentPageName === item.page;
           return (
@@ -70,13 +80,37 @@ function NavBar({ currentPageName }) {
         )}
         
         {truncatedAddress ? (
-          <button
-            onClick={disconnect}
-            className="font-mono text-[11px] px-3 py-1 rounded cursor-pointer transition-opacity hover:opacity-80"
-            style={{ background: '#1a1a1a', color: '#bbb', border: '1px solid #222' }}
-          >
-            {truncatedAddress}
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setShowWalletMenu(prev => !prev)}
+              className="font-mono text-[11px] px-3 py-1 rounded cursor-pointer transition-opacity hover:opacity-80"
+              style={{ background: '#1a1a1a', color: copied ? '#00ff88' : '#bbb', border: '1px solid #222' }}
+            >
+              {copied ? '✓ Copied!' : truncatedAddress}
+            </button>
+            {showWalletMenu && (
+              <div
+                className="absolute right-0 mt-1 w-56 rounded-lg p-3 space-y-2 z-50 animate-fade-in"
+                style={{ background: '#0d0d0d', border: '1px solid #1a1a1a' }}
+              >
+                <p className="font-mono text-[10px] text-[#555] break-all">{address}</p>
+                <button
+                  onClick={() => { handleCopyAddress(); setShowWalletMenu(false); }}
+                  className="w-full font-mono text-[11px] py-1.5 rounded cursor-pointer"
+                  style={{ background: '#1a1a1a', color: '#bbb', border: '1px solid #222' }}
+                >
+                  📋 Copy Address
+                </button>
+                <button
+                  onClick={() => { disconnect(); setShowWalletMenu(false); }}
+                  className="w-full font-mono text-[11px] py-1.5 rounded cursor-pointer"
+                  style={{ background: '#ff444418', color: '#ff4444', border: '1px solid #ff444440' }}
+                >
+                  Disconnect
+                </button>
+              </div>
+            )}
+          </div>
         ) : null}
 
         <div
@@ -94,8 +128,8 @@ function NavBar({ currentPageName }) {
 function MobileNav({ currentPageName }) {
   return (
     <div
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around h-14"
-      style={{ background: '#060606', borderTop: '1px solid #111' }}
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center h-14 overflow-x-auto"
+      style={{ background: '#060606', borderTop: '1px solid #111', WebkitOverflowScrolling: 'touch', whiteSpace: 'nowrap', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
     >
       {NAV_ITEMS.map(item => {
         const isActive = currentPageName === item.page;
@@ -103,7 +137,7 @@ function MobileNav({ currentPageName }) {
           <Link
             key={item.page}
             to={createPageUrl(item.page)}
-            className="font-mono text-[10px] text-center no-underline transition-colors py-2"
+            className="font-mono text-[10px] text-center no-underline transition-colors py-2 flex-1 min-w-[80px]"
             style={{ color: isActive ? '#00ff88' : '#444' }}
           >
             {item.label.split(' ')[0]}<br />

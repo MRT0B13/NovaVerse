@@ -23,7 +23,7 @@ export default function OpenPositions({ positions, loading }) {
 
       {(!positions || positions.length === 0) ? (
         <div className="p-8 text-center text-[#555] font-mono text-xs">
-          No open positions
+          Your agent hasn't opened any positions yet.
         </div>
       ) : (
         <div className="divide-y divide-[#111]">
@@ -40,9 +40,14 @@ export default function OpenPositions({ positions, loading }) {
                 <p className="font-mono text-sm text-white">{formatUSD(pos.amount_usd)}</p>
                 <p
                   className="font-mono text-xs mt-0.5"
-                  style={{ color: pos.pnl_usd >= 0 ? '#00ff88' : '#ff4444' }}
+                  style={{ color: pos.pnl_usd > 0 ? '#00ff88' : pos.pnl_usd < 0 ? '#ff4444' : '#555' }}
                 >
                   {formatPnlSigned(pos.pnl_usd)}
+                  {pos.pnl_pct != null && (
+                    <span className="ml-1 text-[10px]" style={{ color: pos.pnl_pct > 0 ? '#00ff88' : pos.pnl_pct < 0 ? '#ff4444' : '#555' }}>
+                      ({pos.pnl_pct > 0 ? '+' : ''}{pos.pnl_pct.toFixed(1)}%)
+                    </span>
+                  )}
                 </p>
               </div>
             </div>

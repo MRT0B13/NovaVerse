@@ -71,7 +71,7 @@ export function truncateAddress(addr) {
 export const CHAIN_COLORS = {
   solana: '#c084fc',
   arbitrum: '#00c8ff',
-  base: '#3b82f6',
+  base: '#4f8ef7',
   polygon: '#8b5cf6',
-  ethereum: '#3b82f6',
+  ethereum: '#888',
 };

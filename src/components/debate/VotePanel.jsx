@@ -7,12 +7,12 @@ function VoteTally({ proposal }) {
   const yes = proposal?.votes_yes || 0;
   const no = proposal?.votes_no || 0;
   const abstain = proposal?.votes_abstain || 0;
-  const total = yes + no + abstain || 1;
+  const total = yes + no + abstain;
 
   const bars = [
-    { label: 'YES', value: yes, pct: (yes / total * 100).toFixed(1), color: '#00ff88' },
-    { label: 'NO', value: no, pct: (no / total * 100).toFixed(1), color: '#ff4444' },
-    { label: 'ABSTAIN', value: abstain, pct: (abstain / total * 100).toFixed(1), color: '#888' },
+    { label: 'YES', value: yes, pct: total > 0 ? (yes / total * 100).toFixed(1) : '0.0', color: '#00ff88' },
+    { label: 'NO', value: no, pct: total > 0 ? (no / total * 100).toFixed(1) : '0.0', color: '#ff4444' },
+    { label: 'ABSTAIN', value: abstain, pct: total > 0 ? (abstain / total * 100).toFixed(1) : '0.0', color: '#888' },
   ];
 
   return (
@@ -111,6 +111,7 @@ function DebatingNow({ agents }) {
 export default function VotePanel({ proposal, debateMessages, novaBalance, onVoted }) {
   const apiFetch = useApi();
   const [voting, setVoting] = useState(false);
+  const [votedChoice, setVotedChoice] = useState(null);
 
   const handleVote = async (choice) => {
     setVoting(true);
@@ -118,14 +119,17 @@ export default function VotePanel({ proposal, debateMessages, novaBalance, onVot
       method: 'POST',
       body: JSON.stringify({ choice, agentRecommended: choice === 'YES' }),
     });
+    setVotedChoice(choice);
     setVoting(false);
     onVoted?.();
   };
 
+  const effectiveVote = votedChoice || proposal?.your_vote;
+
   return (
     <div className="space-y-4 w-full lg:w-[280px] shrink-0">
       <AgentRecommendation
-        proposal={proposal}
+        proposal={{ ...proposal, your_vote: effectiveVote }}
         novaBalance={novaBalance}
         onVote={handleVote}
         voting={voting}

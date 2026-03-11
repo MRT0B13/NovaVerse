@@ -58,9 +58,17 @@ export default function DebateChamber() {
     return () => clearInterval(interval);
   }, [fetchDebate]);
 
-  // Auto-scroll
+  // Auto-scroll — only if user hasn't scrolled up
+  const userScrolledUp = useRef(false);
+
+  const handleScroll = useCallback(() => {
+    if (!scrollRef.current) return;
+    const el = scrollRef.current;
+    userScrolledUp.current = el.scrollHeight - el.scrollTop - el.clientHeight > 80;
+  }, []);
+
   useEffect(() => {
-    if (scrollRef.current) {
+    if (scrollRef.current && !userScrolledUp.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [debateMessages]);
@@ -100,11 +108,13 @@ export default function DebateChamber() {
         <select
           value={selectedId || ''}
           onChange={e => setSelectedId(Number(e.target.value))}
-          className="font-mono text-xs px-3 py-2 rounded cursor-pointer"
-          style={{ background: '#0a0a0a', border: '1px solid #1a1a1a', color: '#bbb', outline: 'none' }}
+          className="font-mono text-xs px-3 py-2 rounded cursor-pointer w-full sm:w-auto"
+          style={{ background: '#0a0a0a', border: '1px solid #1a1a1a', color: '#bbb', outline: 'none', maxWidth: '100%' }}
         >
-          {activeProposals.map(p => (
-            <option key={p.id} value={p.id}>#{p.id} — {p.title}</option>
+          {proposals.map(p => (
+            <option key={p.id} value={p.id}>
+              #{p.id} · {p.title} · {timeRemaining(p.ends_at)} · [{p.status}]
+            </option>
           ))}
         </select>
       </div>
@@ -131,12 +141,15 @@ export default function DebateChamber() {
         <div className="flex-1 min-w-0 nova-card">
           <div
             ref={scrollRef}
+            onScroll={handleScroll}
             className="overflow-y-auto px-4 divide-y divide-[#111]"
             style={{ maxHeight: 'calc(100vh - 320px)' }}
           >
             {debateMessages.length === 0 ? (
-              <div className="py-16 text-center text-[#555] font-mono text-xs">
-                No debate messages yet for this proposal
+              <div className="py-8 space-y-3 px-4">
+                {[0.85, 0.6, 0.75, 0.5].map((w, i) => (
+                  <div key={i} className={`animate-shimmer rounded-lg ${i % 2 === 1 ? 'ml-12' : ''}`} style={{ height: 48, width: `${w * 100}%` }} />
+                ))}
               </div>
             ) : (
               debateMessages.map((msg, idx) => (
