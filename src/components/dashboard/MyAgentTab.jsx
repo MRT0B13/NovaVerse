@@ -267,8 +267,9 @@ export default function MyAgentTab({ agent, skills, nova, loading, onRefresh }) 
     });
     try {
       console.log('[MyAgentTab] toggling skill:', skill.skill_id, 'to', newEnabled);
-      const res = await apiFetch(`/skills/${skill.skill_id}/toggle`, {
-        method: 'POST',
+      const res = await apiFetch(`/skills/${skill.skill_id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ enabled: newEnabled }),
       });
       console.log('[MyAgentTab] skill toggle response:', res);
       onRefresh?.();
