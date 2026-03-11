@@ -212,7 +212,7 @@ export default function DeployForm({ template }) {
       )}
 
       {/* Risk Level — hidden for non-trading templates */}
-      {!['scout-agent', 'community-agent', 'governance-agent', 'social-agent'].includes(templateId) && (
+      {!['scout-agent', 'analyst-agent', 'community-agent', 'governance-agent', 'social-agent'].includes(templateId) && (
         <div>
           <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block mb-2">Risk Level</label>
           <div className="grid grid-cols-3 gap-2">
@@ -290,7 +290,7 @@ export default function DeployForm({ template }) {
           <span className="font-mono text-[9px] uppercase text-[#555] block">Template</span>
           <span className="font-mono text-xs text-white">{template?.name || templateId}</span>
         </div>
-        {!['scout-agent', 'community-agent', 'governance-agent', 'social-agent'].includes(templateId) && (
+        {!['scout-agent', 'analyst-agent', 'community-agent', 'governance-agent', 'social-agent'].includes(templateId) && (
           <div>
             <span className="font-mono text-[9px] uppercase text-[#555] block">Risk</span>
             <span className="font-mono text-xs text-white capitalize">{riskLevel}</span>
@@ -300,13 +300,13 @@ export default function DeployForm({ template }) {
           <span className="font-mono text-[9px] uppercase text-[#555] block">Skills</span>
           <span className="font-mono text-xs text-white">{template?.skillCount ?? '—'}</span>
         </div>
-        {!['scout-agent', 'community-agent', 'governance-agent', 'social-agent'].includes(templateId) && advancedConfigs.CFO_ORCA_LP_MAX_USD !== undefined && (
+        {!['scout-agent', 'analyst-agent', 'community-agent', 'governance-agent', 'social-agent'].includes(templateId) && advancedConfigs.CFO_ORCA_LP_MAX_USD !== undefined && (
           <div>
             <span className="font-mono text-[9px] uppercase text-[#555] block">Orca LP Max</span>
             <span className="font-mono text-xs text-white">${advancedConfigs.CFO_ORCA_LP_MAX_USD}</span>
           </div>
         )}
-        {!['scout-agent', 'community-agent', 'governance-agent', 'social-agent'].includes(templateId) && advancedConfigs.CFO_KELLY_FRACTION !== undefined && (
+        {!['scout-agent', 'analyst-agent', 'community-agent', 'governance-agent', 'social-agent'].includes(templateId) && advancedConfigs.CFO_KELLY_FRACTION !== undefined && (
           <div>
             <span className="font-mono text-[9px] uppercase text-[#555] block">Kelly</span>
             <span className="font-mono text-xs text-white">{advancedConfigs.CFO_KELLY_FRACTION}</span>

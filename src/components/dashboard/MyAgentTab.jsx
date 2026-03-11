@@ -34,6 +34,7 @@ const TEMPLATE_CONFIG_KEYS = {
   'community-agent': [],
   'governance-agent': [],
   'social-agent': [],
+  'analyst-agent': [],
 };
 
 function formatTemplateId(id) {
