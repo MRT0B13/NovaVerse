@@ -118,7 +118,7 @@ function NavBar({ currentPageName }) {
 function MobileNav({ currentPageName }) {
   return (
     <div
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center h-14 nav-scroll"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center h-14 nav-scroll safe-bottom"
       style={{ background: '#060606', borderTop: '1px solid #111', overflowX: 'auto', whiteSpace: 'nowrap', WebkitOverflowScrolling: 'touch' }}
     >
       {NAV_ITEMS.map(item => {
