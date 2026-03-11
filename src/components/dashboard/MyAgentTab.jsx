@@ -84,9 +84,9 @@ function AgentIdentityCard({ agent, onToggle, onRedeploy, onAttachWallet }) {
               </span>
             )}
           </div>
-          {Array.isArray(agent.capabilities) && agent.capabilities.length > 0 && (
+          {(Array.isArray(agent.capabilities) ? agent.capabilities : Array.isArray(agent.character?.capabilities) ? agent.character.capabilities : []).length > 0 && (
             <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-              {agent.capabilities.map(cap => (
+              {(agent.capabilities || agent.character?.capabilities || []).map(cap => (
                 <span key={cap} className="font-mono text-[9px] px-2 py-0.5 rounded-full" style={{ background: '#1a1a1a', color: '#888', border: '1px solid #222' }}>
                   {cap}
                 </span>
