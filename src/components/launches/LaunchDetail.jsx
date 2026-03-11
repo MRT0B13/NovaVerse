@@ -14,7 +14,7 @@ export default function LaunchDetail({ launchId, onBack }) {
   const [data, setData] = useState(null);
   const [price, setPrice] = useState(null);
   const [loading, setLoading] = useState(true);
-  const priceHistory = useRef([]);
+  const [priceHist, setPriceHist] = useState([]);
 
   useEffect(() => {
     apiFetch(`/launches/${launchId}`).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
@@ -23,7 +23,7 @@ export default function LaunchDetail({ launchId, onBack }) {
   useEffect(() => {
     const fetchPrice = () => apiFetch(`/launches/${launchId}/price`).then(p => {
       setPrice(p);
-      priceHistory.current = [...priceHistory.current, { t: Date.now(), p: Number(p?.price_usd || 0) }].slice(-60);
+      setPriceHist(prev => [...prev, { t: Date.now(), p: Number(p?.price_usd || 0) }].slice(-60));
     }).catch(() => {});
     fetchPrice();
     const interval = setInterval(fetchPrice, 30000);
@@ -68,12 +68,12 @@ export default function LaunchDetail({ launchId, onBack }) {
       </div>
 
       {/* Price chart */}
-      {priceHistory.current.length > 1 && (
+      {priceHist.length > 1 && (
         <div className="nova-card p-4">
           <span className="font-mono text-[10px] uppercase tracking-wider text-[#888]">Price History</span>
           <div className="mt-2" style={{ height: 120 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={priceHistory.current}>
+              <LineChart data={priceHist}>
                 <XAxis dataKey="t" tick={false} stroke="#1a1a1a" />
                 <YAxis domain={['auto', 'auto']} tick={{ fontSize: 9, fill: '#555' }} width={50} tickFormatter={v => `$${v.toFixed(4)}`} stroke="#1a1a1a" />
                 <Tooltip contentStyle={{ background: '#0a0a0a', border: '1px solid #1a1a1a', fontSize: 10 }} labelFormatter={() => ''} formatter={(v) => [`$${Number(v).toFixed(6)}`, 'Price']} />
