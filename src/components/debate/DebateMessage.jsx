@@ -2,9 +2,12 @@ import React from 'react';
 import { relativeTime } from '../nova/formatters';
 
 const ROLE_COLORS = {
-  cfo: '#00ff88',
-  scout: '#00c8ff',
   guardian: '#ff9500',
+  analyst: '#00c8ff',
+  scout: '#00c8ff',
+  'nova-cfo': '#00ff88',
+  cfo: '#00ff88',
+  supervisor: '#c084fc',
 };
 
 export default function DebateMessage({ message }) {

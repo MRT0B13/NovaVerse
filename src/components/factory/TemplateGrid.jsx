@@ -87,9 +87,9 @@ export default function TemplateGrid({ templates, selectedId, onSelect }) {
                   WALLET REQ
                 </span>
               )}
-              {t.novaGate && (
+              {(t.novaGate || t.requiresNova) && (
                 <span className="font-mono text-[8px] px-1.5 py-0.5 rounded" style={{ background: '#c084fc10', color: '#c084fc', border: '1px solid #c084fc20' }}>
-                  {t.novaGate} NOVA
+                  {t.novaGate || t.requiresNova} NOVA
                 </span>
               )}
             </div>

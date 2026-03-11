@@ -97,6 +97,8 @@ function AgentRecommendation({ proposal, novaBalance, onVote, voting, yourVote }
   );
 }
 
+const AGENT_COLORS = { guardian: '#ff9500', analyst: '#00c8ff', scout: '#00c8ff', 'nova-cfo': '#00ff88', cfo: '#00ff88', supervisor: '#c084fc' };
+
 function DebatingNow({ agents }) {
   return (
     <div className="nova-card p-4 space-y-3">
@@ -105,18 +107,21 @@ function DebatingNow({ agents }) {
         <p className="font-mono text-xs text-[#555]">No agents debating</p>
       ) : (
         <div className="space-y-2">
-          {[...new Map(agents.map(a => [a.role, a])).values()].map(agent => (
-            <div key={agent.role} className="flex items-center gap-2">
-              <div
-                className="w-6 h-6 rounded-full flex items-center justify-center text-xs"
-                style={{ background: (agent.color || '#888') + '20' }}
-              >
-                {agent.avatar || '🤖'}
+          {[...new Map(agents.map(a => [a.agent, a])).values()].map(agent => {
+            const color = AGENT_COLORS[(agent.agent || '').toLowerCase()] || agent.color || '#888';
+            return (
+              <div key={agent.agent} className="flex items-center gap-2">
+                <div
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-xs"
+                  style={{ background: color + '20' }}
+                >
+                  {agent.avatar || '🤖'}
+                </div>
+                <span className="font-syne text-xs" style={{ color }}>{agent.agent}</span>
+                <LiveDot color={color} size={4} />
               </div>
-              <span className="font-syne text-xs" style={{ color: agent.color }}>{agent.agent}</span>
-              <LiveDot color={agent.color || '#888'} size={4} />
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

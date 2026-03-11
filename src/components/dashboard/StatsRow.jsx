@@ -19,8 +19,8 @@ export default function StatsRow({ portfolio, skills, agent, loading }) {
 
   const noAgent = !agent;
   const totalValue = Number(portfolio?.summary?.total_value_usd || 0);
-  const novaBalance = portfolio?.nova?.balance || 0;
-  const novaEarned = portfolio?.nova?.earned_month || 0;
+  const novaBalance = Number(portfolio?.nova?.balance || 0);
+  const novaEarned = Number(portfolio?.nova?.earned_month || 0);
   const enabledSkills = skills?.filter(s => s.enabled)?.length || 0;
   const totalSkills = skills?.length || 0;
 

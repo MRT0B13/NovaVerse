@@ -7,6 +7,7 @@ import { timeRemaining } from '../nova/formatters';
 const STATUS_COLORS = {
   active: '#c084fc',
   passed: '#00ff88',
+  failed: '#ff4444',
   rejected: '#ff4444',
   expired: '#555',
 };
@@ -14,6 +15,7 @@ const STATUS_COLORS = {
 const BORDER_COLORS = {
   active: '#c084fc',
   passed: '#00ff88',
+  failed: '#ff4444',
   rejected: '#ff4444',
   expired: '#333',
 };
