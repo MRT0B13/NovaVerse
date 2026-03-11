@@ -53,7 +53,7 @@ function AgentRecommendation({ proposal, novaBalance, onVote, voting, yourVote }
         Your {Number(novaBalance || 0).toLocaleString()} NOVA = {Number(novaBalance || 0).toLocaleString()} votes
       </p>
 
-      {hasVoted ? (
+      {hasVoted || proposal?.status !== 'active' ? (
         <div className="space-y-2">
           <div className="font-mono text-xs px-3 py-2 rounded-full inline-flex items-center gap-1.5"
             style={{

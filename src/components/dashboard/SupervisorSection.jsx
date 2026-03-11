@@ -10,7 +10,7 @@ const AGENT_TYPE_COLORS = {
   cfo: '#00ff88',
   scout: '#00c8ff',
   guardian: '#ff9500',
-  supervisor: '#888',
+  supervisor: '#c084fc',
 };
 
 function agentColor(name) {

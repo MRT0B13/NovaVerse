@@ -1,7 +1,7 @@
 import React from 'react';
 import { relativeTime } from '../nova/formatters';
 
-const ROLE_COLORS = {
+const AGENT_COLORS = {
   guardian: '#ff9500',
   analyst: '#00c8ff',
   scout: '#00c8ff',
@@ -10,8 +10,17 @@ const ROLE_COLORS = {
   supervisor: '#c084fc',
 };
 
+function agentToColor(name) {
+  if (!name) return '#888';
+  const lower = name.toLowerCase();
+  for (const [key, c] of Object.entries(AGENT_COLORS)) {
+    if (lower.includes(key)) return c;
+  }
+  return '#888';
+}
+
 export default function DebateMessage({ message }) {
-  const color = ROLE_COLORS[message.role] || message.color || '#888';
+  const color = agentToColor(message.agent) || message.color || '#888';
 
   return (
     <div className="flex items-start gap-3 py-3 animate-fade-in">
