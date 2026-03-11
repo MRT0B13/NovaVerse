@@ -18,7 +18,7 @@ export default function Governance() {
       apiFetch('/portfolio'),
     ]);
     if (p.status === 'fulfilled') setProposals(p.value || []);
-    if (port.status === 'fulfilled') setNovaBalance(port.value?.nova?.balance || 0);
+    if (port.status === 'fulfilled') setNovaBalance(Number(port.value?.nova?.balance || 0));
     setLoading(false);
   }, [apiFetch]);
 
