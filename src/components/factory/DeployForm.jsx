@@ -73,6 +73,28 @@ const ADVANCED_CONFIGS = {
   'analyst-agent': [],
 };
 
+function DeploySocialConfig() {
+  const [social, setLocalSocial] = React.useState({ x_handle: '', telegram_group: '', posting_frequency: 'medium' });
+  const set = (k, v) => setLocalSocial(s => ({ ...s, [k]: v }));
+  const inputStyle = { background: '#0d0d0d', border: '1px solid #1a1a1a', color: '#fff', borderRadius: 6, padding: '10px 12px', outline: 'none', width: '100%' };
+
+  return (
+    <div className="space-y-3">
+      <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block">Social Config</label>
+      <input placeholder="X Handle (@username)" value={social.x_handle} onChange={e => set('x_handle', e.target.value)} className="font-mono text-xs" style={inputStyle} />
+      <input placeholder="Telegram Group (https://t.me/…)" value={social.telegram_group} onChange={e => set('telegram_group', e.target.value)} className="font-mono text-xs" style={inputStyle} />
+      <div>
+        <label className="font-mono text-[10px] text-[#888] block mb-1">Posting Frequency</label>
+        <div className="flex gap-2">
+          {['low', 'medium', 'high'].map(f => (
+            <button key={f} onClick={() => set('posting_frequency', f)} className="flex-1 font-mono text-xs py-2 rounded cursor-pointer capitalize" style={{ background: social.posting_frequency === f ? '#00c8ff18' : '#0d0d0d', border: `1px solid ${social.posting_frequency === f ? '#00c8ff' : '#1a1a1a'}`, color: social.posting_frequency === f ? '#00c8ff' : '#555' }}>{f}</button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function DeployForm({ template }) {
   const apiFetch = useApi();
   const navigate = useNavigate();
