@@ -81,6 +81,7 @@ function AgentIdentityCard({ agent, onToggle, onRedeploy, onAttachWallet }) {
             {agent.hasWallet === true && (
               <span className="font-mono text-[9px] px-2 py-0.5 rounded-full" style={{ background: '#00ff8818', color: '#00ff88', border: '1px solid #00ff8830' }}>
                 WALLET ✓ {agent.wallet?.chain && <span className="text-[#555]">· {agent.wallet.chain}</span>}
+                {agent.wallet?.address && <span className="text-[#555]"> · {agent.wallet.address.slice(0,6)}…{agent.wallet.address.slice(-4)}</span>}
               </span>
             )}
           </div>
