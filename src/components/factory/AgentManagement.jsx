@@ -19,7 +19,7 @@ export default function AgentManagement({ agent, onRefresh }) {
   const isRunning = agent?.status === 'running';
 
   const handleToggleAgent = async () => {
-    const endpoint = isRunning ? `/agents/${agent.id}/pause` : `/agents/${agent.id}/resume`;
+    const endpoint = isRunning ? '/agents/pause' : '/agents/resume';
     await apiFetch(endpoint, { method: 'PATCH' });
     onRefresh?.();
   };

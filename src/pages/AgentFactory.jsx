@@ -44,10 +44,10 @@ export default function AgentFactory() {
         <>
           <TemplateGrid
             templates={templates}
-            selectedId={selectedTemplate}
+            selectedId={selectedTemplate?.id}
             onSelect={setSelectedTemplate}
           />
-          {selectedTemplate && <DeployForm templateId={selectedTemplate} />}
+          {selectedTemplate && <DeployForm template={selectedTemplate} />}
         </>
       )}
     </div>

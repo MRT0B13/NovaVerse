@@ -10,25 +10,71 @@ const RISK_LEVELS = [
   { value: 'aggressive', label: 'Aggressive', desc: 'Max LP deployment, tight ranges, 0.30 Kelly' },
 ];
 
-export default function DeployForm({ templateId }) {
+const TEMPLATE_DESCRIPTIONS = {
+  'full-nova': 'Full 7-agent swarm. Scout finds opportunities, CFO executes, Guardian protects.',
+  'cfo-agent': 'CFO + Guardian only. Capital allocation across Solana LP, Kamino, and Hyperliquid.',
+  'scout-agent': 'Intel-only agent. Monitors KOLs, tracks movers, sends signals. No trading.',
+  'lp-specialist': 'LP-focused CFO. Optimised for concentrated liquidity on Orca and Krystal.',
+};
+
+const TEMPLATE_COLORS = {
+  'full-nova': '#00ff88',
+  'cfo-agent': '#00c8ff',
+  'scout-agent': '#ff9500',
+  'lp-specialist': '#c084fc',
+};
+
+const ADVANCED_CONFIGS = {
+  'full-nova': [
+    { key: 'CFO_ORCA_LP_MAX_USD', label: 'Orca LP Max (USD)', min: 0, max: 500, step: 10, type: 'range' },
+    { key: 'CFO_KRYSTAL_LP_MAX_USD', label: 'Krystal LP Max (USD)', min: 0, max: 500, step: 10, type: 'range' },
+    { key: 'CFO_AUTO_TIER_USD', label: 'Auto-Approve Tier (USD)', min: 0, max: 200, step: 5, type: 'range' },
+    { key: 'CFO_KELLY_FRACTION', label: 'Kelly Fraction', min: 0.05, max: 0.50, step: 0.01, type: 'range' },
+    { key: 'CFO_KAMINO_JITO_LOOP_MAX_LOOPS', label: 'Kamino Loop Depth', options: [1, 2, 3], type: 'toggle' },
+  ],
+  'cfo-agent': [
+    { key: 'CFO_ORCA_LP_MAX_USD', label: 'Orca LP Max (USD)', min: 0, max: 500, step: 10, type: 'range' },
+    { key: 'CFO_AUTO_TIER_USD', label: 'Auto-Approve Tier (USD)', min: 0, max: 200, step: 5, type: 'range' },
+    { key: 'CFO_KELLY_FRACTION', label: 'Kelly Fraction', min: 0.05, max: 0.50, step: 0.01, type: 'range' },
+    { key: 'CFO_KAMINO_JITO_LOOP_MAX_LOOPS', label: 'Kamino Loop Depth', options: [1, 2, 3], type: 'toggle' },
+  ],
+  'scout-agent': [],
+  'lp-specialist': [
+    { key: 'CFO_ORCA_LP_MAX_USD', label: 'Orca LP Max (USD)', min: 0, max: 500, step: 10, type: 'range' },
+    { key: 'CFO_KRYSTAL_LP_MAX_USD', label: 'Krystal LP Max (USD)', min: 0, max: 500, step: 10, type: 'range' },
+    { key: 'LP_RANGE_WIDTH_PCT', label: 'LP Range Width %', min: 1, max: 50, step: 1, type: 'range' },
+  ],
+};
+
+export default function DeployForm({ template }) {
   const apiFetch = useApi();
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [riskLevel, setRiskLevel] = useState('balanced');
+  const [advancedConfigs, setAdvancedConfigs] = useState({});
   const [deploying, setDeploying] = useState(false);
   const [error, setError] = useState(null);
+
+  const templateId = template?.id;
+  const accent = TEMPLATE_COLORS[templateId] || '#00ff88';
+  const description = TEMPLATE_DESCRIPTIONS[templateId];
+  const configItems = ADVANCED_CONFIGS[templateId] || [];
 
   const handleDeploy = async () => {
     setDeploying(true);
     setError(null);
     try {
+      const payload = {
+        templateId,
+        name: name.trim() || undefined,
+        riskLevel,
+      };
+      if (Object.keys(advancedConfigs).length > 0) {
+        payload.config = advancedConfigs;
+      }
       await apiFetch('/agents/deploy', {
         method: 'POST',
-        body: JSON.stringify({
-          templateId,
-          name: name.trim() || undefined,
-          riskLevel,
-        }),
+        body: JSON.stringify(payload),
       });
       navigate(createPageUrl('Dashboard'));
     } catch (err) {
@@ -43,7 +89,15 @@ export default function DeployForm({ templateId }) {
   };
 
   return (
-    <div className="nova-card p-5 mt-4 space-y-5">
+    <div className="p-5 mt-4 space-y-5 rounded-lg" style={{ background: '#0a0a0a', border: `1px solid ${accent}30` }}>
+      {/* Template description */}
+      {description && (
+        <p className="font-mono text-[11px]" style={{ color: accent + 'cc' }}>
+          {description}
+        </p>
+      )}
+
+      {/* Agent Name */}
       <div>
         <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block mb-2">Agent Name</label>
         <input
@@ -56,6 +110,7 @@ export default function DeployForm({ templateId }) {
         />
       </div>
 
+      {/* Risk Level */}
       <div>
         <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block mb-2">Risk Level</label>
         <div className="grid grid-cols-3 gap-2">
@@ -65,8 +120,8 @@ export default function DeployForm({ templateId }) {
               onClick={() => setRiskLevel(r.value)}
               className="p-3 rounded text-left cursor-pointer transition-all"
               style={{
-                background: riskLevel === r.value ? '#00ff8810' : '#0d0d0d',
-                border: `1px solid ${riskLevel === r.value ? '#00ff88' : '#1a1a1a'}`,
+                background: riskLevel === r.value ? accent + '10' : '#0d0d0d',
+                border: `1px solid ${riskLevel === r.value ? accent : '#1a1a1a'}`,
               }}
             >
               <span className="font-syne text-xs font-semibold text-white block">{r.label}</span>
@@ -76,6 +131,54 @@ export default function DeployForm({ templateId }) {
         </div>
       </div>
 
+      {/* Advanced Configuration */}
+      {configItems.length > 0 && (
+        <div className="space-y-4">
+          <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block">Advanced Configuration</label>
+          {configItems.map(item => (
+            <div key={item.key}>
+              <div className="flex justify-between mb-2">
+                <label className="font-mono text-[10px] text-[#888]">{item.label}</label>
+                <span className="font-mono text-xs text-white">
+                  {advancedConfigs[item.key] !== undefined
+                    ? advancedConfigs[item.key]
+                    : item.type === 'range' ? item.min : item.options[0]}
+                </span>
+              </div>
+              {item.type === 'range' ? (
+                <input
+                  type="range"
+                  min={item.min}
+                  max={item.max}
+                  step={item.step}
+                  value={advancedConfigs[item.key] ?? item.min}
+                  onChange={e => setAdvancedConfigs({ ...advancedConfigs, [item.key]: Number(e.target.value) })}
+                  className="w-full"
+                  style={{ height: 4, accentColor: accent }}
+                />
+              ) : (
+                <div className="flex gap-2">
+                  {item.options.map(opt => (
+                    <button
+                      key={opt}
+                      onClick={() => setAdvancedConfigs({ ...advancedConfigs, [item.key]: opt })}
+                      className="font-mono text-xs px-4 py-1 rounded cursor-pointer transition-all"
+                      style={{
+                        background: (advancedConfigs[item.key] || item.options[0]) === opt ? accent + '18' : '#0d0d0d',
+                        border: `1px solid ${(advancedConfigs[item.key] || item.options[0]) === opt ? accent : '#1a1a1a'}`,
+                        color: (advancedConfigs[item.key] || item.options[0]) === opt ? accent : '#555',
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
       {error && <p className="font-mono text-xs" style={{ color: '#ff4444' }}>{error}</p>}
 
       <button
@@ -83,7 +186,7 @@ export default function DeployForm({ templateId }) {
         disabled={deploying}
         className="w-full font-mono text-sm py-3 rounded cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-50 font-bold"
         style={{
-          background: 'linear-gradient(135deg, #00ff88, #00c8ff)',
+          background: `linear-gradient(135deg, ${accent}, ${accent}aa)`,
           color: '#060606',
           border: 'none',
         }}
