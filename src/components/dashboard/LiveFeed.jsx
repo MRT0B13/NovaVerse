@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import LiveDot from '../nova/LiveDot';
-import AgentPill from '../nova/AgentPill';
-import { relativeTime } from '../nova/formatters';
 import { SkeletonRect } from '../nova/Skeleton';
+import FeedItem, { AGENT_COLORS } from './FeedItem';
 
 export default function LiveFeed({ items, loading }) {
+  const [activeAgent, setActiveAgent] = useState('All');
+
   if (loading) {
     return (
       <div className="nova-card p-4 space-y-3">
@@ -13,6 +14,10 @@ export default function LiveFeed({ items, loading }) {
       </div>
     );
   }
+
+  // Derive unique agents from the feed data
+  const agents = [...new Set((items || []).map(i => i.agent).filter(Boolean))];
+  const filtered = activeAgent === 'All' ? items : (items || []).filter(i => i.agent === activeAgent);
 
   return (
     <div className="nova-card overflow-hidden">
@@ -23,32 +28,45 @@ export default function LiveFeed({ items, loading }) {
         </span>
       </div>
 
+      {/* Agent filter chips */}
+      {agents.length > 1 && (
+        <div className="flex items-center gap-2 px-4 py-2.5 overflow-x-auto nav-scroll" style={{ borderBottom: '1px solid #1a1a1a' }}>
+          <button
+            onClick={() => setActiveAgent('All')}
+            className="font-mono text-[10px] px-2.5 py-1 rounded-[4px] cursor-pointer shrink-0 transition-colors"
+            style={{
+              background: activeAgent === 'All' ? '#1a1a1a' : 'transparent',
+              border: `1px solid ${activeAgent === 'All' ? '#333' : '#1a1a1a'}`,
+              color: activeAgent === 'All' ? '#fff' : '#555',
+            }}
+          >All</button>
+          {agents.map(a => {
+            const active = activeAgent === a;
+            const color = AGENT_COLORS[a] || '#888';
+            return (
+              <button
+                key={a}
+                onClick={() => setActiveAgent(a)}
+                className="font-mono text-[10px] px-2.5 py-1 rounded-[4px] cursor-pointer shrink-0 transition-colors"
+                style={{
+                  background: active ? `${color}18` : 'transparent',
+                  border: `1px solid ${active ? `${color}60` : '#1a1a1a'}`,
+                  color: active ? color : '#555',
+                }}
+              >{a}</button>
+            );
+          })}
+        </div>
+      )}
+
       <div className="overflow-y-auto max-h-[400px]">
-        {(!items || items.length === 0) ? (
+        {(!filtered || filtered.length === 0) ? (
           <div className="p-8 text-center text-[#555] font-mono text-xs">
-            No activity yet — agent is warming up
+            {activeAgent === 'All' ? 'No activity yet — agent is warming up' : `No activity from ${activeAgent}`}
           </div>
         ) : (
-          items.map((item, idx) => (
-            <div
-              key={item.id || idx}
-              className="flex items-start gap-3 px-4 py-3 animate-fade-in"
-              style={{ borderBottom: '1px solid #111' }}
-            >
-              <span className="text-base shrink-0 mt-0.5">{item.icon}</span>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <AgentPill agent={item.agent} />
-                  <span className="font-syne text-sm text-[#bbb] truncate">{item.msg}</span>
-                </div>
-                {item.detail && (
-                  <p className="font-mono text-[11px] text-[#555] mt-1 truncate">{item.detail}</p>
-                )}
-              </div>
-              <span className="font-mono text-[10px] text-[#333] shrink-0 mt-1" title={item.time}>
-                {relativeTime(item.time)}
-              </span>
-            </div>
+          filtered.map((item, idx) => (
+            <FeedItem key={item.id || idx} item={item} />
           ))
         )}
       </div>
