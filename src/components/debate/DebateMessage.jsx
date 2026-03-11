@@ -33,12 +33,14 @@ export default function DebateMessage({ message }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
           <span className="font-syne font-semibold text-sm" style={{ color }}>{message.agent}</span>
-          <span
-            className="font-mono text-[10px] uppercase tracking-wider px-2 py-[1px] rounded-[3px]"
-            style={{ color: color, background: color + '18', border: `1px solid ${color}40` }}
-          >
-            {message.role}
-          </span>
+          {message.role && (
+            <span
+              className="font-mono text-[10px] uppercase tracking-wider px-2 py-[1px] rounded-[3px]"
+              style={{ color: color, background: color + '18', border: `1px solid ${color}40` }}
+            >
+              {message.role}
+            </span>
+          )}
           <span className="font-mono text-[10px] text-[#333] ml-auto shrink-0">
             {relativeTime(message.created_at || message.time)}
           </span>
