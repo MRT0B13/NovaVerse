@@ -3,7 +3,8 @@ import { useAuth, useApi } from '../components/nova/AuthContext';
 import StatsRow from '../components/dashboard/StatsRow';
 import LiveFeed from '../components/dashboard/LiveFeed';
 import OpenPositions from '../components/dashboard/OpenPositions';
-import AgentSidebar from '../components/dashboard/AgentSidebar';
+import DashboardTabs from '../components/dashboard/DashboardTabs';
+import MyAgentTab from '../components/dashboard/MyAgentTab';
 import ErrorBanner from '../components/nova/ErrorBanner';
 
 export default function Dashboard() {
@@ -16,6 +17,7 @@ export default function Dashboard() {
   const [agent, setAgent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [connectionLost, setConnectionLost] = useState(false);
+  const [tab, setTab] = useState('feed');
   const wsRef = useRef(null);
   const pollRef = useRef(null);
 
@@ -98,26 +100,28 @@ export default function Dashboard() {
   const handleRefresh = () => fetchData();
 
   return (
-    <div className="p-4 md:p-6 max-w-[1440px] mx-auto">
+    <div className="p-4 md:p-6 max-w-[1440px] mx-auto space-y-4">
       {connectionLost && <ErrorBanner />}
 
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Main content */}
-        <div className="flex-1 min-w-0 space-y-4">
-          <StatsRow portfolio={portfolio} skills={skills} agent={agent} loading={loading} />
+      <StatsRow portfolio={portfolio} skills={skills} agent={agent} loading={loading} />
+      <DashboardTabs active={tab} onChange={setTab} />
+
+      {tab === 'feed' && (
+        <div className="space-y-4">
           <LiveFeed items={feed} loading={loading} />
           <OpenPositions positions={portfolio?.positions} loading={loading} />
         </div>
+      )}
 
-        {/* Sidebar */}
-        <AgentSidebar
+      {tab === 'agent' && (
+        <MyAgentTab
           agent={agent}
           skills={skills}
           nova={portfolio?.nova}
           loading={loading}
           onRefresh={handleRefresh}
         />
-      </div>
+      )}
     </div>
   );
 }
