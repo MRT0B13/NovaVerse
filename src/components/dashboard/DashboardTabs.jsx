@@ -1,27 +1,25 @@
 import React from 'react';
 
-const TABS = [
-  { key: 'feed', label: 'Live Feed' },
-  { key: 'agent', label: 'My Agent' },
-];
+export default function DashboardTabs({ activeTab, onChange }) {
+  const tabs = [
+    { key: 'feed', label: 'Live Feed' },
+    { key: 'agent', label: 'My Agent' },
+  ];
 
-export default function DashboardTabs({ active, onChange }) {
   return (
-    <div className="flex gap-6" style={{ borderBottom: '1px solid #111' }}>
-      {TABS.map(tab => (
+    <div className="flex gap-1 p-1 rounded-lg mb-4" style={{ background: '#0a0a0a', border: '1px solid #1a1a1a' }}>
+      {tabs.map(t => (
         <button
-          key={tab.key}
-          onClick={() => onChange(tab.key)}
-          className="font-mono text-[11px] uppercase tracking-wider py-3 cursor-pointer transition-colors"
+          key={t.key}
+          onClick={() => onChange(t.key)}
+          className="flex-1 font-mono text-xs py-2.5 rounded-md cursor-pointer transition-all"
           style={{
-            background: 'none',
+            background: activeTab === t.key ? '#1a1a1a' : 'transparent',
+            color: activeTab === t.key ? '#fff' : '#555',
             border: 'none',
-            borderBottom: active === tab.key ? '2px solid #00ff88' : '2px solid transparent',
-            color: active === tab.key ? '#fff' : '#444',
-            marginBottom: '-1px',
           }}
         >
-          {tab.label}
+          {t.label}
         </button>
       ))}
     </div>
