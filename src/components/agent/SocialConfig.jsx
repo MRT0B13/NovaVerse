@@ -31,7 +31,7 @@ export default function SocialConfig({ templateId }) {
 
   return (
     <div className="nova-card p-5 space-y-4">
-      <span className="font-mono text-[10px] uppercase tracking-wider text-[#888]">Social Config</span>
+      <span className="font-mono text-[10px] uppercase tracking-widest text-[#888]">Social Config</span>
 
       <div>
         <label className="font-mono text-[10px] text-[#888] block mb-1">X Handle</label>

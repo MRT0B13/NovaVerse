@@ -111,7 +111,7 @@ export default function TemplateGrid({ templates, selectedId, onSelect }) {
 
   return (
     <div>
-      <h2 className="font-mono text-[10px] uppercase tracking-wider text-[#888] mb-4">Choose a Template</h2>
+      <h2 className="font-mono text-[10px] uppercase tracking-widest text-[#888] mb-4">Choose a Template</h2>
       {flagship && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
           {renderCard(flagship)}

@@ -70,7 +70,7 @@ export default function LaunchDetail({ launchId, onBack }) {
       {/* Price chart */}
       {priceHist.length > 1 && (
         <div className="nova-card p-4">
-          <span className="font-mono text-[10px] uppercase tracking-wider text-[#888]">Price History</span>
+          <span className="font-mono text-[10px] uppercase tracking-widest text-[#888]">Price History</span>
           <div className="mt-2" style={{ height: 120 }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={priceHist}>

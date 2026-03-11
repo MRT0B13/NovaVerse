@@ -80,7 +80,7 @@ function DeploySocialConfig() {
 
   return (
     <div className="space-y-3">
-      <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block">Social Config</label>
+      <label className="font-mono text-[10px] uppercase tracking-widest text-[#888] block">Social Config</label>
       <input placeholder="X Handle (@username)" value={social.x_handle} onChange={e => set('x_handle', e.target.value)} className="font-mono text-xs" style={inputStyle} />
       <input placeholder="Telegram Group (https://t.me/…)" value={social.telegram_group} onChange={e => set('telegram_group', e.target.value)} className="font-mono text-xs" style={inputStyle} />
       <div>
@@ -211,7 +211,7 @@ export default function DeployForm({ template, novaBalance = 0 }) {
 
       {/* Agent Name */}
       <div>
-        <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block mb-2">Agent Name</label>
+        <label className="font-mono text-[10px] uppercase tracking-widest text-[#888] block mb-2">Agent Name</label>
         <input
           type="text"
           value={name}
@@ -225,7 +225,7 @@ export default function DeployForm({ template, novaBalance = 0 }) {
       {/* Launcher-specific fields */}
       {isLauncher && (
         <div className="space-y-3">
-          <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block">Token Details</label>
+          <label className="font-mono text-[10px] uppercase tracking-widest text-[#888] block">Token Details</label>
           <input placeholder="Token Name" value={launchFields.tokenName} onChange={e => setLaunchFields(f => ({ ...f, tokenName: e.target.value }))} className="w-full font-mono text-xs px-3 py-2 rounded" style={{ background: '#0d0d0d', border: '1px solid #1a1a1a', color: '#fff', outline: 'none' }} />
           <input placeholder="Ticker (max 12)" value={launchFields.ticker} onChange={e => setLaunchFields(f => ({ ...f, ticker: e.target.value.toUpperCase().slice(0, 12) }))} className="w-full font-mono text-xs px-3 py-2 rounded" style={{ background: '#0d0d0d', border: '1px solid #1a1a1a', color: '#fff', outline: 'none' }} />
           <input placeholder="Tagline (optional)" value={launchFields.tagline} onChange={e => setLaunchFields(f => ({ ...f, tagline: e.target.value }))} className="w-full font-mono text-xs px-3 py-2 rounded" style={{ background: '#0d0d0d', border: '1px solid #1a1a1a', color: '#fff', outline: 'none' }} />
@@ -236,7 +236,7 @@ export default function DeployForm({ template, novaBalance = 0 }) {
       {/* Risk Level — hidden for templates that don't need it */}
       {!['scout-agent', 'analyst-agent', 'social-agent', 'launcher-agent'].includes(templateId) && (
         <div>
-          <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block mb-2">Risk Level</label>
+          <label className="font-mono text-[10px] uppercase tracking-widest text-[#888] block mb-2">Risk Level</label>
           <div className="grid grid-cols-3 gap-2">
             {RISK_LEVELS.map(r => (
               <button
@@ -259,7 +259,7 @@ export default function DeployForm({ template, novaBalance = 0 }) {
       {/* Advanced Configuration */}
       {configItems.length > 0 && (
         <div className="space-y-4">
-          <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block">Advanced Configuration</label>
+          <label className="font-mono text-[10px] uppercase tracking-widest text-[#888] block">Advanced Configuration</label>
           {configItems.map(item => (
             <div key={item.key}>
               <div className="flex justify-between mb-2">
