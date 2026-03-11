@@ -24,7 +24,7 @@ function NavBar({ currentPageName }) {
 
   useEffect(() => {
     if (!token) return;
-    const fetchBalance = () => apiFetch('/portfolio').then(d => setNovaBalance(d?.nova?.balance ?? 0)).catch(() => {});
+    const fetchBalance = () => apiFetch('/portfolio').then(d => setNovaBalance(Number(d?.nova?.balance ?? 0))).catch(() => {});
     fetchBalance();
     const interval = setInterval(fetchBalance, 30000);
     return () => clearInterval(interval);

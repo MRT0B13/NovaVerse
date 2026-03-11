@@ -38,7 +38,7 @@ export default function DebateChamber() {
       }
     }
     if (portfolioData.status === 'fulfilled') {
-      setNovaBalance(portfolioData.value?.nova?.balance || 0);
+      setNovaBalance(Number(portfolioData.value?.nova?.balance || 0));
     }
     setLoading(false);
   }, [apiFetch, selectedId]);
