@@ -95,7 +95,7 @@ function DeploySocialConfig() {
   );
 }
 
-export default function DeployForm({ template }) {
+export default function DeployForm({ template, novaBalance = 0 }) {
   const apiFetch = useApi();
   const navigate = useNavigate();
   const [name, setName] = useState('');
@@ -203,9 +203,9 @@ export default function DeployForm({ template }) {
       )}
 
       {/* NOVA gate */}
-      {isNovaGated && (
+      {isNovaGated && novaBalance < 100 && (
         <div className="flex items-center gap-2 px-3 py-2 rounded" style={{ background: '#c084fc10', border: '1px solid #c084fc20' }}>
-          <span className="font-mono text-[11px]" style={{ color: '#c084fc' }}>Requires 100 NOVA to deploy</span>
+          <span className="font-mono text-[11px]" style={{ color: '#c084fc' }}>Requires 100 NOVA to deploy (you have {novaBalance.toLocaleString()})</span>
         </div>
       )}
 
@@ -343,7 +343,7 @@ export default function DeployForm({ template }) {
 
       <button
         onClick={handleDeploy}
-        disabled={deploying}
+        disabled={deploying || (isNovaGated && novaBalance < 100)}
         className="w-full font-mono text-sm py-3 rounded cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-50 font-bold"
         style={{
           background: `linear-gradient(135deg, ${accent}, ${accent}aa)`,
