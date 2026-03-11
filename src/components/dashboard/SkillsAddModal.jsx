@@ -21,7 +21,7 @@ export default function SkillsAddModal({ onClose, onAdded, currentSkillIds }) {
     setAssigning(skillId);
     await apiFetch('/skills/assign', {
       method: 'POST',
-      body: JSON.stringify({ skillId }),
+      body: JSON.stringify({ skill_id: skillId }),
     });
     setAssigning(null);
     onAdded?.();
