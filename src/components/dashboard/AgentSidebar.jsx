@@ -125,22 +125,34 @@ export default function AgentSidebar({ agent, skills, nova, loading, onRefresh }
     onRefresh?.();
   };
 
+  const [localSkills, setLocalSkills] = useState(null);
+  const displaySkills = localSkills || skills;
+
   const handleToggleSkill = async (skill) => {
     const newEnabled = !skill.enabled;
     // Optimistic update
-    skill.enabled = newEnabled;
-    onRefresh?.();
+    setLocalSkills(prev => {
+      const list = prev || skills || [];
+      return list.map(s => s.skill_id === skill.skill_id ? { ...s, enabled: newEnabled } : s);
+    });
     
     try {
       await apiFetch(`/skills/${skill.skill_id}/toggle`, {
         method: 'PATCH',
         body: JSON.stringify({ enabled: newEnabled }),
       });
-    } catch {
-      skill.enabled = !newEnabled;
       onRefresh?.();
+    } catch {
+      // Revert on failure
+      setLocalSkills(prev => {
+        const list = prev || skills || [];
+        return list.map(s => s.skill_id === skill.skill_id ? { ...s, enabled: !newEnabled } : s);
+      });
     }
   };
+
+  // Sync local skills when props change
+  React.useEffect(() => { setLocalSkills(null); }, [skills]);
 
   if (loading) {
     return (
@@ -158,7 +170,7 @@ export default function AgentSidebar({ agent, skills, nova, loading, onRefresh }
   return (
     <div className="space-y-4 w-full lg:w-[340px] shrink-0">
       <AgentIdentity agent={agent} onToggle={handleToggleAgent} />
-      <SkillsList skills={skills} onToggle={handleToggleSkill} />
+      <SkillsList skills={displaySkills} onToggle={handleToggleSkill} />
       <NetworkStats agent={agent} nova={nova} />
     </div>
   );

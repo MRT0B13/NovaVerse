@@ -200,14 +200,6 @@ function OpenInBrowserBanner() {
   );
 }
 
-function ProgressBar() {
-  const [show, setShow] = useState(false);
-  const prevPage = React.useRef(null);
-
-  // We rely on the parent re-rendering with a new page to trigger animation
-  return null; // Handled inline below
-}
-
 function InnerLayout({ children, currentPageName }) {
   const { token } = useAuth();
   const [showProgress, setShowProgress] = useState(false);
