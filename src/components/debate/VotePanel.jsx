@@ -54,17 +54,21 @@ function AgentRecommendation({ proposal, novaBalance, onVote, voting, yourVote }
       </p>
 
       {hasVoted || proposal?.status !== 'active' ? (
-        <div className="space-y-2">
-          <div className="font-mono text-xs px-3 py-2 rounded-full inline-flex items-center gap-1.5"
-            style={{
-              background: (yourVote === 'YES' ? '#00ff88' : yourVote === 'NO' ? '#ff4444' : '#888') + '18',
-              border: `1px solid ${yourVote === 'YES' ? '#00ff8840' : yourVote === 'NO' ? '#ff444440' : '#88888840'}`,
-              color: yourVote === 'YES' ? '#00ff88' : yourVote === 'NO' ? '#ff4444' : '#888',
-            }}>
-            ✓ You voted {yourVote}
+        hasVoted ? (
+          <div className="space-y-2">
+            <div className="font-mono text-xs px-3 py-2 rounded-full inline-flex items-center gap-1.5"
+              style={{
+                background: (yourVote === 'YES' ? '#00ff88' : yourVote === 'NO' ? '#ff4444' : '#888') + '18',
+                border: `1px solid ${yourVote === 'YES' ? '#00ff8840' : yourVote === 'NO' ? '#ff444440' : '#88888840'}`,
+                color: yourVote === 'YES' ? '#00ff88' : yourVote === 'NO' ? '#ff4444' : '#888',
+              }}>
+              ✓ You voted {yourVote}
+            </div>
+            <p className="font-mono text-[10px] text-[#555]">Your {Number(novaBalance || 0).toLocaleString()} NOVA counted.</p>
           </div>
-          <p className="font-mono text-[10px] text-[#555]">Your {Number(novaBalance || 0).toLocaleString()} NOVA counted.</p>
-        </div>
+        ) : (
+          <p className="font-mono text-[10px] text-[#555]">Voting has ended.</p>
+        )
       ) : (
         <div className="flex gap-2">
           <button
