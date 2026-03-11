@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatUSD, formatPnlSigned, CHAIN_COLORS } from '../nova/formatters';
+import { formatUSD, formatPnlSigned, strategyColor, CHAIN_COLORS } from '../nova/formatters';
 import NovaPill from '../nova/NovaPill';
 import { SkeletonRect } from '../nova/Skeleton';
 
@@ -32,8 +32,8 @@ export default function OpenPositions({ positions, loading }) {
               <div className="flex-1 min-w-0">
                 <span className="font-syne font-semibold text-sm text-white">{pos.pool_name || pos.asset}</span>
                 <div className="flex items-center gap-2 mt-1">
-                  <NovaPill text={pos.strategy} color={CHAIN_COLORS[pos.chain] || '#888'} />
-                  <NovaPill text={pos.chain} color={CHAIN_COLORS[pos.chain] || '#888'} />
+                  <NovaPill text={pos.strategy} color={strategyColor(pos.strategy)} />
+                  <NovaPill text={pos.chain} color={CHAIN_COLORS[(pos.chain || '').toLowerCase()] || '#888'} />
                 </div>
               </div>
               <div className="text-right shrink-0">

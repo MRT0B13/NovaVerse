@@ -26,7 +26,7 @@ export default function LiveFeed({ items, loading }) {
       <div className="overflow-y-auto max-h-[400px]">
         {(!items || items.length === 0) ? (
           <div className="p-8 text-center text-[#555] font-mono text-xs">
-            No activity yet
+            No activity yet — agent is warming up
           </div>
         ) : (
           items.map((item, idx) => (

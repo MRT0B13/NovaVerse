@@ -1,10 +1,12 @@
 import React from 'react';
 
 const AGENT_COLORS = {
-  CFO: '#00ff88',
-  SCOUT: '#00c8ff',
   GUARDIAN: '#ff9500',
-  SUPERVISOR: '#888888',
+  ANALYST: '#00c8ff',
+  SCOUT: '#00c8ff',
+  'NOVA-CFO': '#00ff88',
+  CFO: '#00ff88',
+  SUPERVISOR: '#c084fc',
 };
 
 export default function AgentPill({ agent }) {
