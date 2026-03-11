@@ -108,7 +108,7 @@ export default function LearningEngineSection() {
 
           {/* Global Risk Multiplier */}
           <div className="p-3 rounded" style={{ background: '#0d0d0d', border: '1px solid #1a1a1a' }}>
-            <p className="font-mono text-[9px] uppercase tracking-wider text-[#555] mb-1">Global Risk Multiplier</p>
+            <p className="font-mono text-[9px] uppercase tracking-widest text-[#555] mb-1">Global Risk Multiplier</p>
             <p className="font-mono text-2xl font-bold" style={{
               color: (params.globalRiskMultiplier ?? 1) > 1 ? '#00ff88' : (params.globalRiskMultiplier ?? 1) < 1 ? '#ff4444' : '#888'
             }}>
@@ -120,7 +120,7 @@ export default function LearningEngineSection() {
           {/* Strategy Performance Table */}
           {stats && (
             <div>
-              <p className="font-mono text-[9px] uppercase tracking-wider text-[#555] mb-2">Strategy Performance</p>
+              <p className="font-mono text-[9px] uppercase tracking-widest text-[#555] mb-2">Strategy Performance</p>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
@@ -171,7 +171,7 @@ export default function LearningEngineSection() {
           {/* Alerts */}
           {params.alerts && params.alerts.length > 0 && (
             <div>
-              <p className="font-mono text-[9px] uppercase tracking-wider text-[#555] mb-2">Alerts</p>
+              <p className="font-mono text-[9px] uppercase tracking-widest text-[#555] mb-2">Alerts</p>
               <div className="space-y-1">
                 {params.alerts.map((alert, i) => (
                   <div key={i} className="flex items-center gap-2 px-3 py-2 rounded" style={{ background: '#ff950010', border: '1px solid #ff950020' }}>
@@ -185,7 +185,7 @@ export default function LearningEngineSection() {
           {/* Capital Weights */}
           {params.capitalWeights && Object.keys(params.capitalWeights).length > 0 && (
             <div>
-              <p className="font-mono text-[9px] uppercase tracking-wider text-[#555] mb-2">Capital Weights</p>
+              <p className="font-mono text-[9px] uppercase tracking-widest text-[#555] mb-2">Capital Weights</p>
               <div className="space-y-2">
                 {Object.entries(params.capitalWeights).map(([key, weight]) => {
                   const pct = (weight * 100).toFixed(1);

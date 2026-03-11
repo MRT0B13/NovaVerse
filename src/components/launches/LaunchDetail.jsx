@@ -121,7 +121,7 @@ export default function LaunchDetail({ launchId, onBack }) {
       {/* Mascot */}
       {mascot && (
         <div className="nova-card p-4">
-          <p className="font-mono text-[9px] uppercase tracking-wider text-[#555] mb-2">Mascot</p>
+          <p className="font-mono text-[9px] uppercase tracking-widest text-[#555] mb-2">Mascot</p>
           <p className="font-syne font-bold text-sm text-white">{mascot.name || 'Unknown'}</p>
           {mascot.personality && <p className="font-mono text-[11px] text-[#888] mt-1">{mascot.personality}</p>}
           {mascot.catchphrases?.length > 0 && (
@@ -135,7 +135,7 @@ export default function LaunchDetail({ launchId, onBack }) {
       {/* Auto-sell Ladder */}
       {sellState.tp_levels?.length > 0 && (
         <div className="nova-card p-4">
-          <p className="font-mono text-[9px] uppercase tracking-wider text-[#555] mb-2">Auto-Sell Ladder</p>
+          <p className="font-mono text-[9px] uppercase tracking-widest text-[#555] mb-2">Auto-Sell Ladder</p>
           <div className="space-y-1">
             {sellState.tp_levels.map((tp, i) => (
               <div key={i} className="flex items-center gap-3 py-1.5" style={{ borderBottom: '1px solid #111' }}>
@@ -151,7 +151,7 @@ export default function LaunchDetail({ launchId, onBack }) {
       {/* Audit Log */}
       {auditLog.length > 0 && (
         <div className="nova-card p-4">
-          <p className="font-mono text-[9px] uppercase tracking-wider text-[#555] mb-2">Audit Log</p>
+          <p className="font-mono text-[9px] uppercase tracking-widest text-[#555] mb-2">Audit Log</p>
           <div className="space-y-1">
             {auditLog.map((entry, i) => (
               <p key={i} className="font-mono text-[10px] text-[#888]">{typeof entry === 'string' ? entry : JSON.stringify(entry)}</p>

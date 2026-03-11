@@ -109,7 +109,7 @@ export default function SupervisorSection() {
           {/* Swarm agents table */}
           {agents && Array.isArray(agents) && agents.length > 0 && (
             <div>
-              <p className="font-mono text-[9px] uppercase tracking-wider text-[#555] mb-2">Swarm Agents</p>
+              <p className="font-mono text-[9px] uppercase tracking-widest text-[#555] mb-2">Swarm Agents</p>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
@@ -157,7 +157,7 @@ export default function SupervisorSection() {
           {/* Recent Decisions */}
           {decisions && Array.isArray(decisions) && decisions.length > 0 && (
             <div>
-              <p className="font-mono text-[9px] uppercase tracking-wider text-[#555] mb-2">Recent Decisions</p>
+              <p className="font-mono text-[9px] uppercase tracking-widest text-[#555] mb-2">Recent Decisions</p>
               <div className="space-y-1">
                 {decisions.map((d, i) => (
                   <div key={d.id || i} className="flex items-center gap-2 py-1.5" style={{ borderBottom: '1px solid #111' }}>
@@ -176,7 +176,7 @@ export default function SupervisorSection() {
           {digest && (digest.text || digest.content || digest.summary) && (
             <div className="p-3 rounded" style={{ background: '#0d0d0d', border: '1px solid #1a1a1a' }}>
               <div className="flex items-center justify-between mb-2">
-                <span className="font-mono text-[9px] uppercase tracking-wider text-[#555]">Latest Digest</span>
+                <span className="font-mono text-[9px] uppercase tracking-widest text-[#555]">Latest Digest</span>
                 {(digest.timestamp || digest.created_at) && (
                   <span className="font-mono text-[10px] text-[#333]">
                     {relativeTime(digest.timestamp || digest.created_at)}

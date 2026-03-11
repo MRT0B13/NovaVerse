@@ -8,7 +8,7 @@ import { relativeTime } from '../nova/formatters';
 function HealthTile({ label, value, color }) {
   return (
     <div className="p-3 rounded" style={{ background: '#0d0d0d', border: '1px solid #1a1a1a' }}>
-      <p className="font-mono text-[9px] uppercase tracking-wider text-[#555] mb-1">{label}</p>
+      <p className="font-mono text-[9px] uppercase tracking-widest text-[#555] mb-1">{label}</p>
       <p className="font-mono text-sm font-bold" style={{ color }}>{value}</p>
     </div>
   );
