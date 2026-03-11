@@ -2,18 +2,35 @@ import React from 'react';
 import NovaPill from '../nova/NovaPill';
 
 const TEMPLATE_STYLES = {
-  'full-nova': { icon: '⚡', color: '#00ff88', bg: '#0d1a0d', badge: 'FLAGSHIP' },
-  'cfo-agent': { icon: '💹', color: '#00c8ff', bg: '#0a0a0a', badge: null },
-  'scout-agent': { icon: '📡', color: '#ff9500', bg: '#0a0a0a', badge: null },
-  'lp-specialist': { icon: '🏊', color: '#c084fc', bg: '#0a0a0a', badge: null },
+  'full-nova':        { icon: '⚡', color: '#00ff88', bg: '#0d1a0d', badge: 'FLAGSHIP' },
+  'cfo-agent':        { icon: '💹', color: '#00c8ff', bg: '#0a0a0a', badge: null },
+  'scout-agent':      { icon: '📡', color: '#ff9500', bg: '#0a0a0a', badge: null },
+  'lp-specialist':    { icon: '🏊', color: '#c084fc', bg: '#0a0a0a', badge: null },
+  'launcher-agent':   { icon: '🚀', color: '#f472b6', bg: '#0a0a0a', badge: null },
+  'community-agent':  { icon: '🤝', color: '#fbbf24', bg: '#0a0a0a', badge: null },
+  'governance-agent': { icon: '🏛️', color: '#818cf8', bg: '#0a0a0a', badge: null },
+  'social-agent':     { icon: '📢', color: '#34d399', bg: '#0a0a0a', badge: null },
 };
+
+const TEMPLATE_DESCRIPTIONS = {
+  'full-nova':        'Full 7-agent swarm. Scout finds opportunities, CFO executes, Guardian protects.',
+  'cfo-agent':        'CFO + Guardian only. Capital allocation across Solana LP, Kamino, and Hyperliquid.',
+  'scout-agent':      'Intel-only agent. Monitors KOLs, tracks movers, sends signals. No trading.',
+  'lp-specialist':    'LP-focused CFO. Optimised for concentrated liquidity on Orca and Krystal.',
+  'launcher-agent':   'Token launch specialist. Manages bonding curves, graduation, and initial liquidity.',
+  'community-agent':  'Manages community engagement, moderation, and sentiment tracking.',
+  'governance-agent': 'Automates governance participation, proposal analysis, and voting delegation.',
+  'social-agent':     'Social media automation. X posts, Telegram updates, and community alerts.',
+};
+
+const WALLET_REQUIRED = ['full-nova', 'cfo-agent', 'lp-specialist', 'launcher-agent'];
 
 function SkillsPreview({ skills, color }) {
   if (!skills?.length) return null;
   const show = skills.slice(0, 3);
   const extra = skills.length - 3;
   return (
-    <p className="font-mono text-[9px] mt-3" style={{ color: '#444' }}>
+    <p className="font-mono text-[9px] mt-2" style={{ color: '#444' }}>
       {show.join(' · ')}{extra > 0 ? ` +${extra} more` : ''}
     </p>
   );
@@ -27,6 +44,8 @@ export default function TemplateGrid({ templates, selectedId, onSelect }) {
     const style = TEMPLATE_STYLES[t.id] || { icon: '🤖', color: '#888', bg: '#0a0a0a', badge: null };
     const isSelected = selectedId === t.id;
     const isFlagship = t.id === 'full-nova';
+    const desc = TEMPLATE_DESCRIPTIONS[t.id];
+    const needsWallet = WALLET_REQUIRED.includes(t.id);
 
     return (
       <button
@@ -60,11 +79,24 @@ export default function TemplateGrid({ templates, selectedId, onSelect }) {
               )}
             </div>
             <div className="flex items-center gap-2 mt-1">
-              <NovaPill text={`${t.skillCount} skills`} color={style.color} />
+              <NovaPill text={`${t.skillCount ?? '?'} skills`} color={style.color} />
+              {needsWallet && (
+                <span className="font-mono text-[8px] px-1.5 py-0.5 rounded" style={{ background: '#ff950010', color: '#ff9500', border: '1px solid #ff950020' }}>
+                  WALLET REQ
+                </span>
+              )}
+              {t.novaGate && (
+                <span className="font-mono text-[8px] px-1.5 py-0.5 rounded" style={{ background: '#c084fc10', color: '#c084fc', border: '1px solid #c084fc20' }}>
+                  {t.novaGate} NOVA
+                </span>
+              )}
             </div>
           </div>
         </div>
-        <p className="font-mono text-[10px] mt-2" style={{ color: style.color + '80' }}>
+        {desc && (
+          <p className="font-mono text-[10px] mt-1" style={{ color: '#666' }}>{desc}</p>
+        )}
+        <p className="font-mono text-[10px] mt-1" style={{ color: style.color + '80' }}>
           {t.agents?.join(', ')}
         </p>
         <SkillsPreview skills={t.defaultSkills} color={style.color} />
@@ -75,10 +107,12 @@ export default function TemplateGrid({ templates, selectedId, onSelect }) {
   return (
     <div>
       <h2 className="font-mono text-[10px] uppercase tracking-wider text-[#888] mb-4">Choose a Template</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {flagship && renderCard(flagship)}
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
+      {flagship && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+          {renderCard(flagship)}
+        </div>
+      )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
         {rest.map(renderCard)}
       </div>
     </div>

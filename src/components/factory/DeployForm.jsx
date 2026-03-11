@@ -24,6 +24,10 @@ const TEMPLATE_DESCRIPTIONS = {
   'cfo-agent': 'CFO + Guardian only. Capital allocation across Solana LP, Kamino, and Hyperliquid.',
   'scout-agent': 'Intel-only agent. Monitors KOLs, tracks movers, sends signals. No trading.',
   'lp-specialist': 'LP-focused CFO. Optimised for concentrated liquidity on Orca and Krystal.',
+  'launcher-agent': 'Token launch specialist. Manages bonding curves, graduation, and initial liquidity.',
+  'community-agent': 'Manages community engagement, moderation, and sentiment tracking.',
+  'governance-agent': 'Automates governance participation, proposal analysis, and voting delegation.',
+  'social-agent': 'Social media automation. X posts, Telegram updates, and community alerts.',
 };
 
 const TEMPLATE_COLORS = {
@@ -31,6 +35,10 @@ const TEMPLATE_COLORS = {
   'cfo-agent': '#00c8ff',
   'scout-agent': '#ff9500',
   'lp-specialist': '#c084fc',
+  'launcher-agent': '#f472b6',
+  'community-agent': '#fbbf24',
+  'governance-agent': '#818cf8',
+  'social-agent': '#34d399',
 };
 
 const ADVANCED_CONFIGS = {
@@ -53,6 +61,13 @@ const ADVANCED_CONFIGS = {
     { key: 'CFO_KRYSTAL_LP_MAX_USD', label: 'Krystal LP Max (USD)', min: 0, max: 500, step: 10, type: 'range' },
     { key: 'LP_RANGE_WIDTH_PCT', label: 'LP Range Width %', min: 1, max: 50, step: 1, type: 'range' },
   ],
+  'launcher-agent': [
+    { key: 'LAUNCH_INITIAL_LIQ_SOL', label: 'Initial Liquidity (SOL)', min: 0.1, max: 10, step: 0.1, type: 'range' },
+    { key: 'LAUNCH_BONDING_CURVE_STEEPNESS', label: 'Bonding Curve Steepness', min: 1, max: 10, step: 1, type: 'range' },
+  ],
+  'community-agent': [],
+  'governance-agent': [],
+  'social-agent': [],
 };
 
 export default function DeployForm({ template }) {

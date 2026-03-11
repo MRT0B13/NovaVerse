@@ -72,7 +72,10 @@ export default function Governance() {
               No proposals yet
             </div>
           ) : (
-            proposals.map(p => <ProposalCard key={p.id} proposal={p} />)
+            [...proposals].sort((a, b) => {
+              const order = { active: 0, passed: 1, rejected: 2, expired: 3 };
+              return (order[a.status] ?? 4) - (order[b.status] ?? 4);
+            }).map(p => <ProposalCard key={p.id} proposal={p} />)
           )}
         </div>
       </div>
