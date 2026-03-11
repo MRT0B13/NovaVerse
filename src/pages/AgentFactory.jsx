@@ -70,7 +70,7 @@ export default function AgentFactory() {
       {/* My Agent tab */}
       {tab === 'manage' && (
         agent ? (
-          <AgentManagement agent={agent} onRefresh={fetchData} />
+          <AgentManagement agent={agent} onRefresh={fetchData} onSwitchToDeploy={() => setTab('deploy')} />
         ) : (
           <div className="nova-card p-8 text-center">
             <p className="font-mono text-xs text-[#555] mb-3">No agent deployed yet</p>

@@ -17,11 +17,12 @@ const ALL_CONFIG_ITEMS = [
   { key: 'CFO_KELLY_FRACTION', label: 'Kelly Fraction', min: 0.05, max: 0.50, step: 0.01, type: 'range' },
   { key: 'CFO_KAMINO_JITO_LOOP_MAX_LOOPS', label: 'Kamino Loop Depth', options: [1, 2, 3], type: 'toggle' },
   { key: 'LP_RANGE_WIDTH_PCT', label: 'LP Range Width %', min: 1, max: 50, step: 1, type: 'range' },
+  { key: 'CFO_MAX_DECISIONS_PER_CYCLE', label: 'Max Decisions / Cycle', min: 1, max: 20, step: 1, type: 'range' },
 ];
 
 const TEMPLATE_CONFIG_KEYS = {
-  'full-nova': ['CFO_ORCA_LP_MAX_USD', 'CFO_KRYSTAL_LP_MAX_USD', 'CFO_AUTO_TIER_USD', 'CFO_KELLY_FRACTION', 'CFO_KAMINO_JITO_LOOP_MAX_LOOPS'],
-  'cfo-agent': ['CFO_ORCA_LP_MAX_USD', 'CFO_AUTO_TIER_USD', 'CFO_KELLY_FRACTION', 'CFO_KAMINO_JITO_LOOP_MAX_LOOPS'],
+  'full-nova': ['CFO_ORCA_LP_MAX_USD', 'CFO_KRYSTAL_LP_MAX_USD', 'CFO_AUTO_TIER_USD', 'CFO_KELLY_FRACTION', 'CFO_KAMINO_JITO_LOOP_MAX_LOOPS', 'CFO_MAX_DECISIONS_PER_CYCLE'],
+  'cfo-agent': ['CFO_ORCA_LP_MAX_USD', 'CFO_AUTO_TIER_USD', 'CFO_KELLY_FRACTION', 'CFO_KAMINO_JITO_LOOP_MAX_LOOPS', 'CFO_MAX_DECISIONS_PER_CYCLE'],
   'lp-specialist': ['CFO_ORCA_LP_MAX_USD', 'CFO_KRYSTAL_LP_MAX_USD', 'LP_RANGE_WIDTH_PCT'],
   'scout-agent': [],
 };
