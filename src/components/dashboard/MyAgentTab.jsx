@@ -30,6 +30,10 @@ const TEMPLATE_CONFIG_KEYS = {
   'cfo-agent': ['CFO_ORCA_LP_MAX_USD', 'CFO_AUTO_TIER_USD', 'CFO_KELLY_FRACTION', 'CFO_KAMINO_JITO_LOOP_MAX_LOOPS', 'CFO_MAX_DECISIONS_PER_CYCLE'],
   'lp-specialist': ['CFO_ORCA_LP_MAX_USD', 'CFO_KRYSTAL_LP_MAX_USD', 'LP_RANGE_WIDTH_PCT'],
   'scout-agent': [],
+  'launcher-agent': [],
+  'community-agent': [],
+  'governance-agent': [],
+  'social-agent': [],
 };
 
 function formatTemplateId(id) {
