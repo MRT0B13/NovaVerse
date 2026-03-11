@@ -64,7 +64,7 @@ export default function TemplateGrid({ templates, selectedId, onSelect }) {
       >
         {isSelected && (
           <span
-            className="absolute top-3 right-3 font-mono text-[9px] font-bold px-2 py-0.5 rounded-full"
+            className="absolute top-3 right-3 font-mono text-[9px] font-bold px-2 py-0.5 rounded-[4px]"
             style={{ background: style.color + '20', color: style.color, border: `1px solid ${style.color}40` }}
           >
             ✓ Selected

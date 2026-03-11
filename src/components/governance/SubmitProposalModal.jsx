@@ -46,7 +46,7 @@ export default function SubmitProposalModal({ onClose, onCreated }) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block mb-2">Title *</label>
+            <label className="font-mono text-[10px] uppercase tracking-widest text-[#888] block mb-2">Title *</label>
             <input
               type="text"
               value={title}
@@ -58,7 +58,7 @@ export default function SubmitProposalModal({ onClose, onCreated }) {
           </div>
 
           <div>
-            <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block mb-2">Duration</label>
+            <label className="font-mono text-[10px] uppercase tracking-widest text-[#888] block mb-2">Duration</label>
             <div className="flex gap-2">
               {[3, 5, 7].map(d => (
                 <button key={d} type="button" onClick={() => setDurationDays(d)} className="flex-1 font-mono text-xs py-2 rounded cursor-pointer" style={{ background: durationDays === d ? '#c084fc18' : '#0d0d0d', border: `1px solid ${durationDays === d ? '#c084fc' : '#1a1a1a'}`, color: durationDays === d ? '#c084fc' : '#555' }}>{d} days</button>
@@ -67,7 +67,7 @@ export default function SubmitProposalModal({ onClose, onCreated }) {
           </div>
 
           <div>
-            <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block mb-2">Description</label>
+            <label className="font-mono text-[10px] uppercase tracking-widest text-[#888] block mb-2">Description</label>
             <textarea
               value={description}
               onChange={e => setDescription(e.target.value)}

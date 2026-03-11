@@ -70,7 +70,7 @@ export default function RedeployModal({ agent, onClose, onSuccess }) {
 
         {/* Template Select */}
         <div>
-          <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block mb-2">Template</label>
+          <label className="font-mono text-[10px] uppercase tracking-widest text-[#888] block mb-2">Template</label>
           {loading ? (
             <div className="h-10 rounded animate-shimmer" />
           ) : (
@@ -97,7 +97,7 @@ export default function RedeployModal({ agent, onClose, onSuccess }) {
 
         {/* Agent Name */}
         <div>
-          <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block mb-2">Agent Name</label>
+          <label className="font-mono text-[10px] uppercase tracking-widest text-[#888] block mb-2">Agent Name</label>
           <input
             type="text"
             value={name}
@@ -111,7 +111,7 @@ export default function RedeployModal({ agent, onClose, onSuccess }) {
         {/* Risk Level */}
         {selectedTemplate !== 'scout-agent' && (
           <div>
-            <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block mb-2">Risk Level</label>
+            <label className="font-mono text-[10px] uppercase tracking-widest text-[#888] block mb-2">Risk Level</label>
             <div className="flex gap-2">
               {RISK_LEVELS.map(r => (
                 <button

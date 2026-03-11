@@ -38,7 +38,7 @@ export default function AttachWalletModal({ onClose, onSuccess }) {
         </div>
 
         <div>
-          <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block mb-2">Chain</label>
+          <label className="font-mono text-[10px] uppercase tracking-widest text-[#888] block mb-2">Chain</label>
           <div className="flex gap-2">
             {chainBtn('solana', 'Solana')}
             {chainBtn('evm', 'EVM')}
@@ -47,17 +47,17 @@ export default function AttachWalletModal({ onClose, onSuccess }) {
         </div>
 
         <div>
-          <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block mb-2">Wallet Address *</label>
+          <label className="font-mono text-[10px] uppercase tracking-widest text-[#888] block mb-2">Wallet Address *</label>
           <input value={address} onChange={e => setAddress(e.target.value)} placeholder="0x… or So…" className="font-mono text-xs" style={inputStyle} />
         </div>
 
         <div>
-          <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block mb-2">Private Key (optional)</label>
+          <label className="font-mono text-[10px] uppercase tracking-widest text-[#888] block mb-2">Private Key (optional)</label>
           <input type="password" value={privateKey} onChange={e => setPrivateKey(e.target.value)} placeholder="Leave blank for read-only" className="font-mono text-xs" style={inputStyle} />
         </div>
 
         <div>
-          <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block mb-2">Permissions</label>
+          <label className="font-mono text-[10px] uppercase tracking-widest text-[#888] block mb-2">Permissions</label>
           <div className="flex gap-2">
             {['read', 'trade', 'lp'].map(p => (
               <button key={p} onClick={() => togglePerm(p)} className="font-mono text-xs px-4 py-1.5 rounded cursor-pointer capitalize" style={{ background: permissions.includes(p) ? '#00ff8818' : '#0d0d0d', border: `1px solid ${permissions.includes(p) ? '#00ff88' : '#1a1a1a'}`, color: permissions.includes(p) ? '#00ff88' : '#555' }}>{p}</button>
