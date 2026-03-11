@@ -101,6 +101,9 @@ export const STRATEGY_COLORS = {
 export function strategyColor(key) {
   if (!key) return '#555';
   const lower = key.toLowerCase();
+  if (STRATEGY_COLORS[lower]) return STRATEGY_COLORS[lower];
+  if (lower.startsWith('hl_')) return '#00c8ff';
+  if (lower.startsWith('kamino')) return '#ff9500';
   for (const [k, c] of Object.entries(STRATEGY_COLORS)) {
     if (lower.includes(k)) return c;
   }
