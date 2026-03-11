@@ -36,7 +36,7 @@ export default function DebateMessage({ message }) {
           {message.role && (
             <span
               className="font-mono text-[10px] uppercase px-2 py-[1px] rounded-[4px]"
-              style={{ color: color, background: color + '18', border: `1px solid ${color}40` }}
+              style={{ letterSpacing: '0.05em', color: color, background: color + '18', border: `1px solid ${color}40` }}
             >
               {message.role}
             </span>
