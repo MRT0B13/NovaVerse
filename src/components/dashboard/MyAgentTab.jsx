@@ -215,6 +215,7 @@ function ConfigSection({ agent }) {
 export default function MyAgentTab({ agent, skills, nova, loading, onRefresh }) {
   const apiFetch = useApi();
   const [localSkills, setLocalSkills] = useState(null);
+  const [showRedeploy, setShowRedeploy] = useState(false);
   const displaySkills = localSkills || skills;
 
   // Poll when agent is stuck in 'deploying'
@@ -289,7 +290,14 @@ export default function MyAgentTab({ agent, skills, nova, loading, onRefresh }) 
 
   return (
     <div className="space-y-4 max-w-[640px]">
-      <AgentIdentityCard agent={agent} onToggle={handleToggleAgent} />
+      <AgentIdentityCard agent={agent} onToggle={handleToggleAgent} onRedeploy={() => setShowRedeploy(true)} />
+      {showRedeploy && (
+        <RedeployModal
+          agent={agent}
+          onClose={() => setShowRedeploy(false)}
+          onSuccess={() => { setShowRedeploy(false); onRefresh?.(); }}
+        />
+      )}
       <SkillsList skills={displaySkills} onToggle={handleToggleSkill} />
       <NetworkStats agent={agent} nova={nova} />
       <ConfigSection agent={agent} />
