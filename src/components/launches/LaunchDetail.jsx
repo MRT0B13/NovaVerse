@@ -23,7 +23,8 @@ export default function LaunchDetail({ launchId, onBack }) {
 
   useEffect(() => {
     if (!data) return;
-    const mint = data.data?.launch?.mint || data.launch?.mint_address;
+    const dd = data.data || data;
+    const mint = dd.launch?.mint || dd.launch?.mintAddress || dd.launch?.mint_address || dd.mint_address || dd.mintAddress;
     if (!mint) return;
     apiFetch('/burn/eligible')
       .then(tokens => setIsBurnable((tokens || []).some(t => t.mint === mint)))
@@ -43,13 +44,16 @@ export default function LaunchDetail({ launchId, onBack }) {
   if (loading) return <div className="space-y-4"><SkeletonRect h={200} /><SkeletonRect h={100} /></div>;
   if (!data) return <p className="font-mono text-xs text-[#555]">Launch not found</p>;
 
-  const brand = data.brand || {};
-  const launch = data.launch || {};
-  const sellState = data.sell_state || {};
-  const mascot = data.mascot || launch.mascot;
-  const auditLog = (data.ops?.audit_log || []).slice(-5);
-  const status = (data.launch_status || 'DRAFT').toUpperCase();
-  const gradProgress = Number(price?.graduation_progress || sellState.graduation_progress || 0);
+  // Normalize: API may wrap in data.data or return flat, camelCase or snake_case
+  const d = data.data || data;
+  const brand = d.brand || { name: d.brandName || d.name, ticker: d.brandTicker || d.ticker };
+  const launch = d.launch || d;
+  const sellState = d.sell_state || d.sellState || launch.sell_state || launch.sellState || {};
+  const mascot = d.mascot || launch.mascot;
+  const auditLog = (d.ops?.audit_log || d.ops?.auditLog || []).slice(-5);
+  const status = (d.launch_status || d.launchStatus || d.status || 'DRAFT').toUpperCase();
+  const logoUrl = d.logo_url || d.logoUrl || launch.logo_url || launch.logoUrl;
+  const gradProgress = Number(price?.graduation_progress || sellState.graduation_progress || sellState.graduationProgress || 0);
 
   return (
     <div className="space-y-4">
@@ -58,8 +62,8 @@ export default function LaunchDetail({ launchId, onBack }) {
       {/* Header */}
       <div className="nova-card p-6">
         <div className="flex items-start gap-4">
-          {data.logo_url ? (
-            <img src={data.logo_url} alt="" className="w-16 h-16 rounded-lg object-cover" />
+          {logoUrl ? (
+            <img src={logoUrl} alt="" className="w-16 h-16 rounded-lg object-cover" />
           ) : (
             <div className="w-16 h-16 rounded-lg flex items-center justify-center font-syne font-bold text-xl text-white" style={{ background: 'linear-gradient(135deg, #00ff88, #00c8ff)' }}>
               {(brand.ticker || '?').slice(0, 2)}
@@ -108,8 +112,8 @@ export default function LaunchDetail({ launchId, onBack }) {
             }} />
           </div>
           <p className="font-mono text-[10px] text-[#555]">{gradProgress.toFixed(1)}% of $69k graduation</p>
-          {sellState.current_price_sol && (
-            <p className="font-mono text-[11px] text-[#bbb]">Price: {formatSOL(sellState.current_price_sol)} {sellState.peak_price_sol ? `(Peak: ${formatSOL(sellState.peak_price_sol)})` : ''}</p>
+          {(sellState.current_price_sol || sellState.currentPriceSol) && (
+            <p className="font-mono text-[11px] text-[#bbb]">Price: {formatSOL(sellState.current_price_sol || sellState.currentPriceSol)} {(sellState.peak_price_sol || sellState.peakPriceSol) ? `(Peak: ${formatSOL(sellState.peak_price_sol || sellState.peakPriceSol)})` : ''}</p>
           )}
         </div>
       )}
@@ -124,10 +128,10 @@ export default function LaunchDetail({ launchId, onBack }) {
 
       {/* Links */}
       <div className="nova-card p-4 flex flex-wrap gap-3">
-        {launch.pump_fun_url && <a href={launch.pump_fun_url} target="_blank" rel="noreferrer" className="font-mono text-[11px] no-underline" style={{ color: '#00c8ff' }}>pump.fun ↗</a>}
-        {launch.mint_address && <a href={`https://solscan.io/token/${launch.mint_address}`} target="_blank" rel="noreferrer" className="font-mono text-[11px] no-underline" style={{ color: '#c084fc' }}>{truncateAddress(launch.mint_address)} ↗</a>}
-        {launch.telegram_url && <a href={launch.telegram_url} target="_blank" rel="noreferrer" className="font-mono text-[11px] no-underline" style={{ color: '#00c8ff' }}>Telegram ↗</a>}
-        {launch.x_url && <a href={launch.x_url} target="_blank" rel="noreferrer" className="font-mono text-[11px] no-underline" style={{ color: '#bbb' }}>X/Twitter ↗</a>}
+        {(launch.pump_fun_url || launch.pumpFunUrl) && <a href={launch.pump_fun_url || launch.pumpFunUrl} target="_blank" rel="noreferrer" className="font-mono text-[11px] no-underline" style={{ color: '#00c8ff' }}>pump.fun ↗</a>}
+        {(launch.mint_address || launch.mintAddress) && <a href={`https://solscan.io/token/${launch.mint_address || launch.mintAddress}`} target="_blank" rel="noreferrer" className="font-mono text-[11px] no-underline" style={{ color: '#c084fc' }}>{truncateAddress(launch.mint_address || launch.mintAddress)} ↗</a>}
+        {(launch.telegram_url || launch.telegramUrl) && <a href={launch.telegram_url || launch.telegramUrl} target="_blank" rel="noreferrer" className="font-mono text-[11px] no-underline" style={{ color: '#00c8ff' }}>Telegram ↗</a>}
+        {(launch.x_url || launch.xUrl) && <a href={launch.x_url || launch.xUrl} target="_blank" rel="noreferrer" className="font-mono text-[11px] no-underline" style={{ color: '#bbb' }}>X/Twitter ↗</a>}
       </div>
 
       {/* Mascot */}
@@ -145,14 +149,14 @@ export default function LaunchDetail({ launchId, onBack }) {
       )}
 
       {/* Auto-sell Ladder */}
-      {sellState.tp_levels?.length > 0 && (
+      {(sellState.tp_levels || sellState.tpLevels)?.length > 0 && (
         <div className="nova-card p-4">
           <p className="font-mono text-[9px] uppercase tracking-widest text-[#555] mb-2">Auto-Sell Ladder</p>
           <div className="space-y-1">
-            {sellState.tp_levels.map((tp, i) => (
+            {(sellState.tp_levels || sellState.tpLevels).map((tp, i) => (
               <div key={i} className="flex items-center gap-3 py-1.5" style={{ borderBottom: '1px solid #111' }}>
-                <span className="font-mono text-[11px] text-[#bbb]">{Number(tp.threshold_x || 0)}x</span>
-                <span className="font-mono text-[11px] text-[#555]">Sell {Number(tp.sell_percent || 0)}%</span>
+                <span className="font-mono text-[11px] text-[#bbb]">{Number(tp.threshold_x || tp.thresholdX || 0)}x</span>
+                <span className="font-mono text-[11px] text-[#555]">Sell {Number(tp.sell_percent || tp.sellPercent || 0)}%</span>
                 <span className="ml-auto">{tp.executed ? <NovaPill text="✓ EXECUTED" color="#00ff88" /> : <NovaPill text="PENDING" color="#555" />}</span>
               </div>
             ))}
