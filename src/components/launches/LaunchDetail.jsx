@@ -15,10 +15,20 @@ export default function LaunchDetail({ launchId, onBack }) {
   const [price, setPrice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [priceHist, setPriceHist] = useState([]);
+  const [isBurnable, setIsBurnable] = useState(false);
 
   useEffect(() => {
     apiFetch(`/launches/${launchId}`).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
   }, [launchId, apiFetch]);
+
+  useEffect(() => {
+    if (!data) return;
+    const mint = data.data?.launch?.mint || data.launch?.mint_address;
+    if (!mint) return;
+    apiFetch('/burn/eligible')
+      .then(tokens => setIsBurnable((tokens || []).some(t => t.mint === mint)))
+      .catch(() => {});
+  }, [data, apiFetch]);
 
   useEffect(() => {
     const fetchPrice = () => apiFetch(`/launches/${launchId}/price`).then(p => {
@@ -105,10 +115,12 @@ export default function LaunchDetail({ launchId, onBack }) {
       )}
 
       {/* Burn eligible badge */}
-      <div className="nova-card p-3 flex items-center gap-2">
-        <span className="font-mono text-[11px]" style={{ color: '#ff9500' }}>🔥 Burnable</span>
-        <Link to={createPageUrl('Burn')} className="font-mono text-[10px] no-underline" style={{ color: '#ff4444' }}>→ Burn page</Link>
-      </div>
+      {isBurnable && (
+        <div className="nova-card p-3 flex items-center gap-2">
+          <span className="font-mono text-[11px]" style={{ color: '#ff9500' }}>🔥 Burnable</span>
+          <Link to={createPageUrl('Burn')} className="font-mono text-[10px] no-underline" style={{ color: '#ff4444' }}>→ Burn page</Link>
+        </div>
+      )}
 
       {/* Links */}
       <div className="nova-card p-4 flex flex-wrap gap-3">

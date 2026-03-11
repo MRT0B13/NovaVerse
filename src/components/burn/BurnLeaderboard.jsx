@@ -59,8 +59,8 @@ export default function BurnLeaderboard() {
                     <td className="py-2 px-3 font-mono text-[11px]" style={{ color: isMe ? '#00ff88' : '#bbb' }}>{truncateAddress(row.wallet || row.address)}</td>
                     <td className="py-2 px-3 font-mono text-[11px]" style={{ color: '#ffd700' }}>{Number(row.credits || 0).toLocaleString()}</td>
                     <td className="py-2 px-3 font-mono text-[11px] text-[#bbb]">{Number(row.burns || row.total_burns || 0)}</td>
-                    <td className="py-2 px-3 font-mono text-[11px]" style={{ color: '#ff9500' }}>{Number(row.total_sol || 0).toFixed(2)}</td>
-                    <td className="py-2 px-3 font-mono text-[10px] text-[#555]">{relativeTime(row.last_active || row.last_burn)}</td>
+                    <td className="py-2 px-3 font-mono text-[11px]" style={{ color: '#ff9500' }}>{Number(row.totalSol || 0).toFixed(2)}</td>
+                    <td className="py-2 px-3 font-mono text-[10px] text-[#555]">{relativeTime(row.lastActive)}</td>
                   </tr>
                 );
               })}
@@ -69,11 +69,20 @@ export default function BurnLeaderboard() {
         </div>
       )}
 
+      {data?.yourRank && !leaderboard.some(r => r.wallet?.toLowerCase() === address?.toLowerCase()) && (
+        <div className="px-4 py-3 flex items-center gap-3" style={{ borderTop: '1px solid #1a1a1a', background: '#00ff8808' }}>
+          <span className="font-mono text-[10px] text-[#555]">YOUR RANK</span>
+          <span className="font-mono text-[11px]" style={{ color: '#00ff88' }}>#{data.yourRank.rank}</span>
+          <span className="font-mono text-[10px] text-[#555] ml-auto">{Number(data.yourRank.credits || 0).toLocaleString()} credits</span>
+          <span className="font-mono text-[10px] text-[#555]">{Number(data.yourRank.totalSol || 0).toFixed(2)} SOL</span>
+        </div>
+      )}
+
       {ecosystem && (
         <div className="px-4 py-3 flex gap-4 flex-wrap" style={{ borderTop: '1px solid #1a1a1a' }}>
-          <span className="font-mono text-[10px] text-[#555]">Total: {Number(ecosystem.total_sol || 0).toFixed(2)} SOL</span>
-          <span className="font-mono text-[10px] text-[#555]">Burns: {Number(ecosystem.total_burns || 0)}</span>
-          <span className="font-mono text-[10px] text-[#555]">Wallets: {Number(ecosystem.unique_wallets || 0)}</span>
+          <span className="font-mono text-[10px] text-[#555]">Total: {Number(ecosystem.totalSolBurned || 0).toFixed(2)} SOL</span>
+          <span className="font-mono text-[10px] text-[#555]">Burns: {Number(ecosystem.totalBurns || 0)}</span>
+          <span className="font-mono text-[10px] text-[#555]">Wallets: {Number(ecosystem.uniqueBurners || 0)}</span>
         </div>
       )}
     </div>
