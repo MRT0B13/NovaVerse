@@ -101,7 +101,15 @@ function AgentRecommendation({ proposal, novaBalance, onVote, voting, yourVote }
   );
 }
 
-const AGENT_COLORS = { guardian: '#ff9500', analyst: '#00c8ff', scout: '#00c8ff', 'nova-cfo': '#00ff88', cfo: '#00ff88', supervisor: '#c084fc' };
+const AGENT_COLORS_MAP = { guardian: '#ff9500', analyst: '#00c8ff', scout: '#00c8ff', 'nova-cfo': '#00ff88', cfo: '#00ff88', supervisor: '#c084fc' };
+function debateAgentColor(name) {
+  if (!name) return '#888';
+  const lower = name.toLowerCase();
+  for (const [key, c] of Object.entries(AGENT_COLORS_MAP)) {
+    if (lower.includes(key)) return c;
+  }
+  return '#888';
+}
 
 function DebatingNow({ agents }) {
   return (
@@ -112,7 +120,7 @@ function DebatingNow({ agents }) {
       ) : (
         <div className="space-y-2">
           {[...new Map(agents.map(a => [a.agent, a])).values()].map(agent => {
-            const color = AGENT_COLORS[(agent.agent || '').toLowerCase()] || agent.color || '#888';
+            const color = debateAgentColor(agent.agent) || agent.color || '#888';
             return (
               <div key={agent.agent} className="flex items-center gap-2">
                 <div
