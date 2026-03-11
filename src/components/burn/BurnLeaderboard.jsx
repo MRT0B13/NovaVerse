@@ -46,7 +46,7 @@ export default function BurnLeaderboard() {
             <thead>
               <tr style={{ borderBottom: '1px solid #1a1a1a' }}>
                 {['#', 'Wallet', 'Credits', 'Burns', 'Total SOL', 'Last Active'].map(h => (
-                  <th key={h} className="font-mono text-[9px] uppercase text-[#555] text-left py-2 px-3">{h}</th>
+                  <th key={h} className="font-mono text-[9px] uppercase text-[#555] text-left py-2 px-3 whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -55,12 +55,12 @@ export default function BurnLeaderboard() {
                 const isMe = address && (row.wallet || row.address || '').toLowerCase() === address.toLowerCase();
                 return (
                   <tr key={row.wallet || i} style={{ borderBottom: '1px solid #111', background: isMe ? '#00ff8808' : 'transparent' }}>
-                    <td className="py-2 px-3 font-mono text-[11px] text-[#888]">{i + 1}</td>
-                    <td className="py-2 px-3 font-mono text-[11px]" style={{ color: isMe ? '#00ff88' : '#bbb' }}>{truncateAddress(row.wallet || row.address)}</td>
-                    <td className="py-2 px-3 font-mono text-[11px]" style={{ color: '#ffd700' }}>{Number(row.credits || 0).toLocaleString()}</td>
-                    <td className="py-2 px-3 font-mono text-[11px] text-[#bbb]">{Number(row.burns || row.total_burns || 0)}</td>
-                    <td className="py-2 px-3 font-mono text-[11px]" style={{ color: '#ff9500' }}>{Number(row.totalSol || 0).toFixed(2)}</td>
-                    <td className="py-2 px-3 font-mono text-[10px] text-[#555]">{relativeTime(row.lastActive)}</td>
+                    <td className="py-2 px-3 font-mono text-[11px] text-[#888] whitespace-nowrap">{i + 1}</td>
+                    <td className="py-2 px-3 font-mono text-[11px] whitespace-nowrap" style={{ color: isMe ? '#00ff88' : '#bbb' }}>{truncateAddress(row.wallet || row.address)}</td>
+                    <td className="py-2 px-3 font-mono text-[11px] whitespace-nowrap" style={{ color: '#ffd700' }}>{Number(row.credits || 0).toLocaleString()}</td>
+                    <td className="py-2 px-3 font-mono text-[11px] text-[#bbb] whitespace-nowrap">{Number(row.burns || row.total_burns || 0)}</td>
+                    <td className="py-2 px-3 font-mono text-[11px] whitespace-nowrap" style={{ color: '#ff9500' }}>{Number(row.totalSol || 0).toFixed(2)}</td>
+                    <td className="py-2 px-3 font-mono text-[10px] text-[#555] whitespace-nowrap">{relativeTime(row.lastActive)}</td>
                   </tr>
                 );
               })}
@@ -70,7 +70,7 @@ export default function BurnLeaderboard() {
       )}
 
       {data?.yourRank && !leaderboard.some(r => r.wallet?.toLowerCase() === address?.toLowerCase()) && (
-        <div className="px-4 py-3 flex items-center gap-3" style={{ borderTop: '1px solid #1a1a1a', background: '#00ff8808' }}>
+        <div className="px-3 sm:px-4 py-3 flex items-center gap-2 sm:gap-3 flex-wrap" style={{ borderTop: '1px solid #1a1a1a', background: '#00ff8808' }}>
           <span className="font-mono text-[10px] text-[#555]">YOUR RANK</span>
           <span className="font-mono text-[11px]" style={{ color: '#00ff88' }}>#{data.yourRank.rank}</span>
           <span className="font-mono text-[10px] text-[#555] ml-auto">{Number(data.yourRank.credits || 0).toLocaleString()} credits</span>

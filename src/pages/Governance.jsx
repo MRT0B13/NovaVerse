@@ -53,11 +53,11 @@ export default function Governance() {
 
       {/* Proposals list */}
       <div className="nova-card overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid #1a1a1a' }}>
+        <div className="flex items-center justify-between px-3 sm:px-4 py-3 gap-2" style={{ borderBottom: '1px solid #1a1a1a' }}>
           <span className="font-mono text-[10px] uppercase tracking-widest text-[#888]">All Proposals</span>
           <button
             onClick={() => setShowModal(true)}
-            className="font-mono text-[10px] px-3 py-1 rounded cursor-pointer transition-opacity hover:opacity-80"
+            className="font-mono text-[10px] px-3 py-1.5 rounded cursor-pointer transition-opacity hover:opacity-80 shrink-0"
             style={{ background: '#c084fc18', border: '1px solid #c084fc40', color: '#c084fc' }}
           >
             + Submit Proposal

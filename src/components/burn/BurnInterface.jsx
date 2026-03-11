@@ -91,13 +91,13 @@ export default function BurnInterface({ eligible, onBurnComplete }) {
 
       {/* Burn progress */}
       {burnStatus && !burnResult && (
-        <div className="flex items-center gap-3 px-3 py-2 rounded" style={{ background: '#0d0d0d', border: '1px solid #1a1a1a' }}>
+        <div className="flex items-center gap-2 sm:gap-3 px-3 py-2 rounded flex-wrap" style={{ background: '#0d0d0d', border: '1px solid #1a1a1a' }}>
           {['pending', 'swapping', 'distributing', 'completed'].map((step, i) => {
             const active = step === burnStatus;
             const done = ['pending', 'swapping', 'distributing', 'completed'].indexOf(burnStatus) > i;
             const colors = { pending: '#ff9500', swapping: '#00c8ff', distributing: '#c084fc', completed: '#00ff88' };
             return (
-              <span key={step} className="font-mono text-[10px] capitalize" style={{ color: active ? colors[step] : done ? '#00ff88' : '#333' }}>
+              <span key={step} className="font-mono text-[9px] sm:text-[10px] capitalize" style={{ color: active ? colors[step] : done ? '#00ff88' : '#333' }}>
                 {done ? '✓' : active ? '●' : '○'} {step}
               </span>
             );

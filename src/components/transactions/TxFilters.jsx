@@ -6,16 +6,16 @@ export default function TxFilters({ filters, onChange, strategies, chains }) {
   const set = (k, v) => onChange({ ...filters, [k]: v });
 
   return (
-    <div className="flex gap-3 flex-wrap">
-      <select value={filters.strategy || ''} onChange={e => set('strategy', e.target.value)} className="font-mono text-[11px]" style={inputStyle}>
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <select value={filters.strategy || ''} onChange={e => set('strategy', e.target.value)} className="font-mono text-[11px] w-full" style={inputStyle}>
         <option value="">All Strategies</option>
         {strategies.map(s => <option key={s} value={s}>{s}</option>)}
       </select>
-      <select value={filters.chain || ''} onChange={e => set('chain', e.target.value)} className="font-mono text-[11px]" style={inputStyle}>
+      <select value={filters.chain || ''} onChange={e => set('chain', e.target.value)} className="font-mono text-[11px] w-full" style={inputStyle}>
         <option value="">All Chains</option>
         {chains.map(c => <option key={c} value={c}>{c}</option>)}
       </select>
-      <select value={filters.status || ''} onChange={e => set('status', e.target.value)} className="font-mono text-[11px]" style={inputStyle}>
+      <select value={filters.status || ''} onChange={e => set('status', e.target.value)} className="font-mono text-[11px] w-full" style={inputStyle}>
         <option value="">All Status</option>
         <option value="confirmed">Confirmed</option>
         <option value="pending">Pending</option>

@@ -84,11 +84,11 @@ export default function DebateChamber() {
     return (
       <div className="p-4 md:p-6 max-w-[1440px] mx-auto space-y-4">
         <SkeletonRect h={40} />
-        <div className="flex gap-6">
+        <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 space-y-3">
             {[1,2,3,4].map(i => <SkeletonRect key={i} h={60} />)}
           </div>
-          <div className="w-[280px] space-y-4">
+          <div className="w-full lg:w-[280px] space-y-4">
             {[1,2,3].map(i => <SkeletonRect key={i} h={100} />)}
           </div>
         </div>
@@ -146,8 +146,8 @@ export default function DebateChamber() {
           <div
             ref={scrollRef}
             onScroll={handleScroll}
-            className="overflow-y-auto px-4 divide-y divide-[#111]"
-            style={{ maxHeight: 'calc(100vh - 320px)' }}
+            className="overflow-y-auto px-3 sm:px-4 divide-y divide-[#111]"
+            style={{ maxHeight: 'calc(100vh - 380px)', minHeight: '200px' }}
           >
             {debateLoading ? (
               <div className="py-4 space-y-4">

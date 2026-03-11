@@ -42,9 +42,9 @@ function NavBar({ currentPageName }) {
       className="sticky top-0 z-40 flex items-center h-14 px-4 md:px-6"
       style={{ background: '#060606', borderBottom: '1px solid #111' }}
     >
-      <Link to={createPageUrl('Dashboard')} className="flex items-center gap-2 shrink-0 no-underline">
+      <Link to={createPageUrl('Dashboard')} className="flex items-center gap-1.5 sm:gap-2 shrink-0 no-underline">
         <div
-          className="w-7 h-7 rounded-md flex items-center justify-center text-sm"
+          className="w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center text-xs sm:text-sm"
           style={{ background: 'linear-gradient(135deg, #00ff88, #00c8ff)', boxShadow: '0 0 12px #00ff8830' }}
         >⚡</div>
         <span className="font-syne font-extrabold text-base text-white hidden sm:inline" style={{ letterSpacing: '-0.02em' }}>
@@ -71,7 +71,7 @@ function NavBar({ currentPageName }) {
         })}
       </div>
 
-      <div className="flex items-center gap-3 ml-auto">
+      <div className="flex items-center gap-2 sm:gap-3 ml-auto">
         {novaBalance != null && (
           <NovaPill text={`${Number(novaBalance).toLocaleString()} NOVA`} />
         )}
@@ -107,7 +107,7 @@ function NavBar({ currentPageName }) {
         ) : null}
 
         <div
-          className="w-8 h-8 rounded-full flex items-center justify-center text-sm shrink-0"
+          className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm shrink-0"
           style={{ background: 'linear-gradient(135deg, #00ff88, #00c8ff)', boxShadow: '0 0 12px #00ff8830' }}
         >💹</div>
       </div>
@@ -127,8 +127,8 @@ function MobileNav({ currentPageName }) {
           <Link
             key={item.page}
             to={createPageUrl(item.page)}
-            className="font-mono text-[10px] text-center no-underline transition-colors py-2 flex-1 min-w-[80px]"
-            style={{ color: isActive ? '#00ff88' : '#444' }}
+            className="font-mono text-[10px] text-center no-underline transition-colors py-2 flex-none px-3"
+            style={{ color: isActive ? '#00ff88' : '#444', minWidth: 'fit-content' }}
           >
             {item.label.split(' ')[0]}<br />
             <span className="text-[9px]">{item.label.split(' ').slice(1).join(' ')}</span>
@@ -230,7 +230,7 @@ function InnerLayout({ children, currentPageName }) {
       )}
       <OpenInBrowserBanner />
       <NavBar currentPageName={currentPageName} />
-      <main className="pb-20 md:pb-6">
+      <main className="pb-16 md:pb-6">
         {children}
       </main>
       <MobileNav currentPageName={currentPageName} />
