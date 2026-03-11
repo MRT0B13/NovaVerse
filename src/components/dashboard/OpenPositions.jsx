@@ -16,7 +16,7 @@ export default function OpenPositions({ positions, loading }) {
   return (
     <div className="nova-card overflow-hidden">
       <div className="px-4 py-3" style={{ borderBottom: '1px solid #1a1a1a' }}>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-[#888]">
+        <span className="font-mono text-[10px] uppercase tracking-widest text-[#888]">
           Open Positions
         </span>
       </div>

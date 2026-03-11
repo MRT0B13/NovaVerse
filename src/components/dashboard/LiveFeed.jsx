@@ -18,7 +18,7 @@ export default function LiveFeed({ items, loading }) {
     <div className="nova-card overflow-hidden">
       <div className="flex items-center gap-2 px-4 py-3" style={{ borderBottom: '1px solid #1a1a1a' }}>
         <LiveDot color="#00ff88" size={6} />
-        <span className="font-mono text-[10px] uppercase tracking-wider text-[#888]">
+        <span className="font-mono text-[10px] uppercase tracking-widest text-[#888]">
           Agent Activity Feed
         </span>
       </div>

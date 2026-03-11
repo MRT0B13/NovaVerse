@@ -37,7 +37,7 @@ export default function SidebarSkills({ skills, onRefresh }) {
     <>
       <div className="nova-card overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid #1a1a1a' }}>
-          <span className="font-mono text-[10px] uppercase tracking-wider text-[#888]">Skills</span>
+          <span className="font-mono text-[10px] uppercase tracking-widest text-[#888]">Skills</span>
           <button
             onClick={() => setShowAdd(true)}
             className="font-mono text-[10px] cursor-pointer transition-opacity hover:opacity-80"
