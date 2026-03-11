@@ -11,6 +11,7 @@ export default function BurnInterface({ eligible, onBurnComplete }) {
   const [quote, setQuote] = useState(null);
   const [quoteLoading, setQuoteLoading] = useState(false);
   const [burning, setBurning] = useState(false);
+  const [burnStatus, setBurnStatus] = useState(null); // null | 'pending' | 'swapping' | 'distributing' | 'completed'
   const [burnResult, setBurnResult] = useState(null);
   const [error, setError] = useState(null);
 
@@ -29,10 +30,19 @@ export default function BurnInterface({ eligible, onBurnComplete }) {
     setBurning(true);
     setError(null);
     setBurnResult(null);
+    setBurnStatus('pending');
     const body = { walletAddress: address, mint: selectedMint, amountTokens: Number(amount), launchPackId: selected?.launchPackId || undefined };
-    const res = await apiFetch('/burn', { method: 'POST', body: JSON.stringify(body) }).catch(e => { setError(e.message); return null; });
+    setBurnStatus('swapping');
+    const res = await apiFetch('/burn', { method: 'POST', body: JSON.stringify(body) }).catch(e => { setError(e.message); setBurnStatus(null); return null; });
+    if (res) {
+      setBurnStatus('distributing');
+      setTimeout(() => {
+        setBurnStatus('completed');
+        setBurnResult(res);
+        onBurnComplete?.();
+      }, 1000);
+    }
     setBurning(false);
-    if (res) { setBurnResult(res); onBurnComplete?.(); }
   };
 
   const inputStyle = { background: '#0d0d0d', border: '1px solid #1a1a1a', color: '#fff', borderRadius: 6, padding: '10px 12px', outline: 'none', width: '100%' };
@@ -79,10 +89,26 @@ export default function BurnInterface({ eligible, onBurnComplete }) {
         </div>
       )}
 
+      {/* Burn progress */}
+      {burnStatus && !burnResult && (
+        <div className="flex items-center gap-3 px-3 py-2 rounded" style={{ background: '#0d0d0d', border: '1px solid #1a1a1a' }}>
+          {['pending', 'swapping', 'distributing', 'completed'].map((step, i) => {
+            const active = step === burnStatus;
+            const done = ['pending', 'swapping', 'distributing', 'completed'].indexOf(burnStatus) > i;
+            const colors = { pending: '#ff9500', swapping: '#00c8ff', distributing: '#c084fc', completed: '#00ff88' };
+            return (
+              <span key={step} className="font-mono text-[10px] capitalize" style={{ color: active ? colors[step] : done ? '#00ff88' : '#333' }}>
+                {done ? '✓' : active ? '●' : '○'} {step}
+              </span>
+            );
+          })}
+        </div>
+      )}
+
       {/* Step 3: Execute */}
-      {quote && !burnResult && (
-        <button onClick={executeBurn} disabled={burning} className="w-full font-mono text-sm py-3 rounded-md cursor-pointer transition-opacity" style={{ background: '#ff444420', border: '1px solid #ff444450', color: '#ff4444', opacity: burning ? 0.5 : 1 }}>
-          {burning ? 'Burning…' : 'Burn Tokens 🔥'}
+      {quote && !burnResult && !burning && (
+        <button onClick={executeBurn} className="w-full font-mono text-sm py-3 rounded-md cursor-pointer transition-opacity hover:opacity-80" style={{ background: '#ff444420', border: '1px solid #ff444450', color: '#ff4444' }}>
+          Burn Tokens 🔥
         </button>
       )}
 

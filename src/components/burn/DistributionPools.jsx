@@ -8,10 +8,14 @@ const POOLS = [
 ];
 
 export default function DistributionPools({ config }) {
-  const pools = config?.pools || POOLS;
+  const configSplits = config?.splits || {};
+  const displayPools = POOLS.map(p => ({
+    ...p,
+    pct: configSplits[p.key] != null ? Number(configSplits[p.key]) : p.pct,
+  }));
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-      {POOLS.map(p => (
+      {displayPools.map(p => (
         <div key={p.key} className="nova-card p-4" style={{ borderLeft: `3px solid ${p.color}` }}>
           <div className="flex items-center justify-between mb-1">
             <span className="font-syne font-bold text-xs text-white">{p.label}</span>

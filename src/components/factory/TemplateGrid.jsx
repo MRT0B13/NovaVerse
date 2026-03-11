@@ -10,6 +10,7 @@ const TEMPLATE_STYLES = {
   'community-agent':  { icon: '🤝', color: '#fbbf24', bg: '#0a0a0a', badge: null },
   'governance-agent': { icon: '🏛️', color: '#818cf8', bg: '#0a0a0a', badge: null },
   'social-agent':     { icon: '📢', color: '#34d399', bg: '#0a0a0a', badge: null },
+  'analyst-agent':    { icon: '📊', color: '#60a5fa', bg: '#0a0a0a', badge: null },
 };
 
 const TEMPLATE_DESCRIPTIONS = {
@@ -20,7 +21,8 @@ const TEMPLATE_DESCRIPTIONS = {
   'launcher-agent':   'Token launch specialist. Manages bonding curves, graduation, and initial liquidity.',
   'community-agent':  'Manages community engagement, moderation, and sentiment tracking.',
   'governance-agent': 'Automates governance participation, proposal analysis, and voting delegation.',
-  'social-agent':     'Social media automation. X posts, Telegram updates, and community alerts.',
+  'social-agent':     'Social sentinel. Polls Reddit and Google Trends for viral culture signals. Feeds trend pool for reactive token launches.',
+  'analyst-agent':    'DeFi analyst. Tracks TVL, DEX volumes, price alerts, and market narratives. Feeds the live feed with intelligence.',
 };
 
 const WALLET_REQUIRED = ['full-nova', 'cfo-agent', 'lp-specialist', 'launcher-agent'];

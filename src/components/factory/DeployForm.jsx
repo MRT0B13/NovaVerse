@@ -20,14 +20,15 @@ const RISK_PRESETS = {
 const DEFAULTS = RISK_PRESETS.balanced;
 
 const TEMPLATE_DESCRIPTIONS = {
-  'full-nova': 'Full 7-agent swarm. Scout finds opportunities, CFO executes, Guardian protects.',
-  'cfo-agent': 'CFO + Guardian only. Capital allocation across Solana LP, Kamino, and Hyperliquid.',
-  'scout-agent': 'Intel-only agent. Monitors KOLs, tracks movers, sends signals. No trading.',
-  'lp-specialist': 'LP-focused CFO. Optimised for concentrated liquidity on Orca and Krystal.',
-  'launcher-agent': 'Token launch specialist. Manages bonding curves, graduation, and initial liquidity.',
-  'community-agent': 'Manages community engagement, moderation, and sentiment tracking.',
-  'governance-agent': 'Automates governance participation, proposal analysis, and voting delegation.',
-  'social-agent': 'Social media automation. X posts, Telegram updates, and community alerts.',
+  'full-nova': 'Full-spectrum DeFi: autonomous trading, yield farming, LP management, intel gathering, and risk control. The complete Nova experience.',
+  'cfo-agent': 'Your autonomous CFO. Manages capital across Orca LP, Kamino loops, Hyperliquid perps, and Polymarket. Risk-gated and self-healing.',
+  'scout-agent': 'Tracks KOLs, narratives, and alpha signals in real-time. Feeds intelligence to your other agents. No wallet required.',
+  'lp-specialist': 'Concentrated liquidity specialist. Manages Orca and Krystal LP positions with dynamic range management.',
+  'launcher-agent': 'Token launcher. Generates launch packs, deploys to pump.fun, manages community mascots and marketing automation.',
+  'community-agent': 'Community manager. Monitors sentiment, manages Telegram groups, tracks engagement metrics. Needs social config after deploy.',
+  'governance-agent': 'Governance strategist. Reads proposals, debates positions, votes aligned with your risk profile. Requires 100 NOVA.',
+  'social-agent': 'Social sentinel. Polls Reddit and Google Trends for viral culture signals. Feeds trend pool for reactive token launches.',
+  'analyst-agent': 'DeFi analyst. Tracks TVL, DEX volumes, price alerts, and market narratives. Feeds the live feed with intelligence.',
 };
 
 const TEMPLATE_COLORS = {
@@ -39,6 +40,7 @@ const TEMPLATE_COLORS = {
   'community-agent': '#fbbf24',
   'governance-agent': '#818cf8',
   'social-agent': '#34d399',
+  'analyst-agent': '#60a5fa',
 };
 
 const ADVANCED_CONFIGS = {
@@ -68,6 +70,7 @@ const ADVANCED_CONFIGS = {
   'community-agent': [],
   'governance-agent': [],
   'social-agent': [],
+  'analyst-agent': [],
 };
 
 export default function DeployForm({ template }) {
@@ -85,10 +88,15 @@ export default function DeployForm({ template }) {
   const [showTransition, setShowTransition] = useState(false);
   const [error, setError] = useState(null);
 
+  const [launchFields, setLaunchFields] = useState({ tokenName: '', ticker: '', tagline: '', logoUrl: '' });
+
   const templateId = template?.id;
   const accent = TEMPLATE_COLORS[templateId] || '#00ff88';
   const description = TEMPLATE_DESCRIPTIONS[templateId];
   const configItems = ADVANCED_CONFIGS[templateId] || [];
+  const walletRequired = ['full-nova', 'cfo-agent', 'lp-specialist', 'launcher-agent'].includes(templateId);
+  const isNovaGated = templateId === 'governance-agent';
+  const isLauncher = templateId === 'launcher-agent';
 
   const handleDeploy = async () => {
     setDeploying(true);
@@ -106,6 +114,17 @@ export default function DeployForm({ template }) {
         method: 'POST',
         body: JSON.stringify(payload),
       });
+
+      // If launcher-agent, also create a linked launch draft
+      if (isLauncher && launchFields.tokenName && launchFields.ticker) {
+        await apiFetch('/launches', {
+          method: 'POST',
+          body: JSON.stringify({
+            brand: { name: launchFields.tokenName, ticker: launchFields.ticker.toUpperCase(), tagline: launchFields.tagline || undefined },
+            assets: launchFields.logoUrl ? { logo_url: launchFields.logoUrl } : undefined,
+          }),
+        }).catch(() => {});
+      }
 
       // Immediately resume to transition from deploying → running
       await apiFetch('/agents/resume', { method: 'PATCH' }).catch(() => {});
@@ -154,6 +173,20 @@ export default function DeployForm({ template }) {
         </p>
       )}
 
+      {/* Wallet required notice */}
+      {walletRequired && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded" style={{ background: '#ff950010', border: '1px solid #ff950020' }}>
+          <span className="font-mono text-[11px]" style={{ color: '#ff9500' }}>⚠ This agent requires a wallet to execute trades. Attach one after deploying.</span>
+        </div>
+      )}
+
+      {/* NOVA gate */}
+      {isNovaGated && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded" style={{ background: '#c084fc10', border: '1px solid #c084fc20' }}>
+          <span className="font-mono text-[11px]" style={{ color: '#c084fc' }}>Requires 100 NOVA to deploy</span>
+        </div>
+      )}
+
       {/* Agent Name */}
       <div>
         <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block mb-2">Agent Name</label>
@@ -166,6 +199,17 @@ export default function DeployForm({ template }) {
           style={{ background: '#0d0d0d', border: '1px solid #1a1a1a', color: '#fff', outline: 'none' }}
         />
       </div>
+
+      {/* Launcher-specific fields */}
+      {isLauncher && (
+        <div className="space-y-3">
+          <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block">Token Details</label>
+          <input placeholder="Token Name" value={launchFields.tokenName} onChange={e => setLaunchFields(f => ({ ...f, tokenName: e.target.value }))} className="w-full font-mono text-xs px-3 py-2 rounded" style={{ background: '#0d0d0d', border: '1px solid #1a1a1a', color: '#fff', outline: 'none' }} />
+          <input placeholder="Ticker (max 12)" value={launchFields.ticker} onChange={e => setLaunchFields(f => ({ ...f, ticker: e.target.value.toUpperCase().slice(0, 12) }))} className="w-full font-mono text-xs px-3 py-2 rounded" style={{ background: '#0d0d0d', border: '1px solid #1a1a1a', color: '#fff', outline: 'none' }} />
+          <input placeholder="Tagline (optional)" value={launchFields.tagline} onChange={e => setLaunchFields(f => ({ ...f, tagline: e.target.value }))} className="w-full font-mono text-xs px-3 py-2 rounded" style={{ background: '#0d0d0d', border: '1px solid #1a1a1a', color: '#fff', outline: 'none' }} />
+          <input placeholder="Logo URL (optional)" value={launchFields.logoUrl} onChange={e => setLaunchFields(f => ({ ...f, logoUrl: e.target.value }))} className="w-full font-mono text-xs px-3 py-2 rounded" style={{ background: '#0d0d0d', border: '1px solid #1a1a1a', color: '#fff', outline: 'none' }} />
+        </div>
+      )}
 
       {/* Risk Level — hidden for non-trading templates */}
       {!['scout-agent', 'community-agent', 'governance-agent', 'social-agent'].includes(templateId) && (

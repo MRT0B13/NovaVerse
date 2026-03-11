@@ -59,6 +59,12 @@ export default function LaunchCard({ launch, onClick }) {
                   MCap: {formatUSD(price.market_cap)}
                 </p>
               )}
+              {(launch.sell_state?.current_price_sol || price?.price_usd) && (
+                <p className="font-mono text-[10px] text-[#888]">
+                  {launch.sell_state?.current_price_sol ? `${formatSOL(launch.sell_state.current_price_sol)}` : ''}
+                  {launch.sell_state?.peak_price_sol ? ` · Peak: ${formatSOL(launch.sell_state.peak_price_sol)}` : ''}
+                </p>
+              )}
               <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: '#1a1a1a' }}>
                 <div
                   className="h-full rounded-full transition-all"

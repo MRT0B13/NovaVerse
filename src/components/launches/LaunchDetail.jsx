@@ -84,6 +84,12 @@ export default function LaunchDetail({ launchId, onBack }) {
         </div>
       )}
 
+      {/* Burn eligible badge */}
+      <div className="nova-card p-3 flex items-center gap-2">
+        <span className="font-mono text-[11px]" style={{ color: '#ff9500' }}>🔥 Burnable</span>
+        <a href={`${window.location.origin}${window.location.pathname}#`} onClick={(e) => { e.preventDefault(); window.location.href = '/Burn'; }} className="font-mono text-[10px] no-underline" style={{ color: '#ff4444' }}>→ Burn page</a>
+      </div>
+
       {/* Links */}
       <div className="nova-card p-4 flex flex-wrap gap-3">
         {launch.pump_fun_url && <a href={launch.pump_fun_url} target="_blank" rel="noreferrer" className="font-mono text-[11px] no-underline" style={{ color: '#00c8ff' }}>pump.fun ↗</a>}
