@@ -4,7 +4,6 @@ import { createPageUrl } from '@/utils';
 import AuthProvider, { useAuth, useApi } from './components/nova/AuthContext';
 import ConnectWalletScreen from './components/nova/ConnectWalletScreen';
 import NovaPill from './components/nova/NovaPill';
-import PageLoadBar from './components/nova/PageLoadBar';
 
 const NAV_ITEMS = [
   { label: '◈ Dashboard', page: 'Dashboard' },
@@ -17,18 +16,18 @@ function NavBar({ currentPageName }) {
   const { token, address, truncatedAddress, disconnect } = useAuth();
   const apiFetch = useApi();
   const [novaBalance, setNovaBalance] = useState(null);
+  const [walletOpen, setWalletOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [showWalletMenu, setShowWalletMenu] = useState(false);
 
   useEffect(() => {
     if (!token) return;
-    const fetchBal = () => apiFetch('/portfolio').then(d => setNovaBalance(d?.nova?.balance ?? 0)).catch(() => {});
-    fetchBal();
-    const interval = setInterval(fetchBal, 30000);
+    const fetchBalance = () => apiFetch('/portfolio').then(d => setNovaBalance(d?.nova?.balance ?? 0)).catch(() => {});
+    fetchBalance();
+    const interval = setInterval(fetchBalance, 30000);
     return () => clearInterval(interval);
   }, [token]);
 
-  const handleCopyAddress = async () => {
+  const copyAddress = async () => {
     if (!address) return;
     await navigator.clipboard.writeText(address).catch(() => {});
     setCopied(true);
@@ -40,22 +39,17 @@ function NavBar({ currentPageName }) {
       className="sticky top-0 z-40 flex items-center h-14 px-4 md:px-6"
       style={{ background: '#060606', borderBottom: '1px solid #111' }}
     >
-      {/* Logo */}
       <Link to={createPageUrl('Dashboard')} className="flex items-center gap-2 shrink-0 no-underline">
         <div
           className="w-7 h-7 rounded-md flex items-center justify-center text-sm"
-          style={{
-            background: 'linear-gradient(135deg, #00ff88, #00c8ff)',
-            boxShadow: '0 0 12px #00ff8830',
-          }}
+          style={{ background: 'linear-gradient(135deg, #00ff88, #00c8ff)', boxShadow: '0 0 12px #00ff8830' }}
         >⚡</div>
         <span className="font-syne font-extrabold text-base text-white hidden sm:inline" style={{ letterSpacing: '-0.02em' }}>
           NovaVerse
         </span>
       </Link>
 
-      {/* Center nav */}
-      <div className="hidden md:flex items-center gap-6 mx-auto overflow-x-auto" style={{ whiteSpace: 'nowrap' }}>
+      <div className="hidden md:flex items-center gap-6 mx-auto nav-scroll" style={{ overflowX: 'auto', whiteSpace: 'nowrap', WebkitOverflowScrolling: 'touch' }}>
         {NAV_ITEMS.map(item => {
           const isActive = currentPageName === item.page;
           return (
@@ -74,7 +68,6 @@ function NavBar({ currentPageName }) {
         })}
       </div>
 
-      {/* Right side */}
       <div className="flex items-center gap-3 ml-auto">
         {novaBalance != null && (
           <NovaPill text={`${Number(novaBalance).toLocaleString()} NOVA`} />
@@ -83,32 +76,28 @@ function NavBar({ currentPageName }) {
         {truncatedAddress ? (
           <div className="relative">
             <button
-              onClick={() => setShowWalletMenu(prev => !prev)}
+              onClick={() => setWalletOpen(!walletOpen)}
               className="font-mono text-[11px] px-3 py-1 rounded cursor-pointer transition-opacity hover:opacity-80"
-              style={{ background: '#1a1a1a', color: copied ? '#00ff88' : '#bbb', border: '1px solid #222' }}
+              style={{ background: '#1a1a1a', color: '#bbb', border: '1px solid #222' }}
             >
               {copied ? '✓ Copied!' : truncatedAddress}
             </button>
-            {showWalletMenu && (
+            {walletOpen && (
               <div
-                className="absolute right-0 mt-1 w-56 rounded-lg p-3 space-y-2 z-50 animate-fade-in"
+                className="absolute right-0 mt-2 w-64 rounded-lg p-3 space-y-2 z-50 animate-fade-in"
                 style={{ background: '#0d0d0d', border: '1px solid #1a1a1a' }}
               >
                 <p className="font-mono text-[10px] text-[#555] break-all">{address}</p>
                 <button
-                  onClick={() => { handleCopyAddress(); setShowWalletMenu(false); }}
+                  onClick={() => { copyAddress(); setWalletOpen(false); }}
                   className="w-full font-mono text-[11px] py-1.5 rounded cursor-pointer"
-                  style={{ background: '#1a1a1a', color: '#bbb', border: '1px solid #222' }}
-                >
-                  📋 Copy Address
-                </button>
+                  style={{ background: '#1a1a1a', border: '1px solid #222', color: '#bbb' }}
+                >📋 Copy Address</button>
                 <button
-                  onClick={() => { disconnect(); setShowWalletMenu(false); }}
+                  onClick={() => { disconnect(); setWalletOpen(false); }}
                   className="w-full font-mono text-[11px] py-1.5 rounded cursor-pointer"
-                  style={{ background: '#ff444418', color: '#ff4444', border: '1px solid #ff444440' }}
-                >
-                  Disconnect
-                </button>
+                  style={{ background: '#ff444418', border: '1px solid #ff444440', color: '#ff4444' }}
+                >Disconnect</button>
               </div>
             )}
           </div>
@@ -116,10 +105,7 @@ function NavBar({ currentPageName }) {
 
         <div
           className="w-8 h-8 rounded-full flex items-center justify-center text-sm shrink-0"
-          style={{
-            background: 'linear-gradient(135deg, #00ff88, #00c8ff)',
-            boxShadow: '0 0 12px #00ff8830',
-          }}
+          style={{ background: 'linear-gradient(135deg, #00ff88, #00c8ff)', boxShadow: '0 0 12px #00ff8830' }}
         >💹</div>
       </div>
     </nav>
@@ -129,8 +115,8 @@ function NavBar({ currentPageName }) {
 function MobileNav({ currentPageName }) {
   return (
     <div
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center h-14 overflow-x-auto"
-      style={{ background: '#060606', borderTop: '1px solid #111', WebkitOverflowScrolling: 'touch', whiteSpace: 'nowrap', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center h-14 nav-scroll"
+      style={{ background: '#060606', borderTop: '1px solid #111', overflowX: 'auto', whiteSpace: 'nowrap', WebkitOverflowScrolling: 'touch' }}
     >
       {NAV_ITEMS.map(item => {
         const isActive = currentPageName === item.page;
@@ -214,8 +200,27 @@ function OpenInBrowserBanner() {
   );
 }
 
+function ProgressBar() {
+  const [show, setShow] = useState(false);
+  const prevPage = React.useRef(null);
+
+  // We rely on the parent re-rendering with a new page to trigger animation
+  return null; // Handled inline below
+}
+
 function InnerLayout({ children, currentPageName }) {
   const { token } = useAuth();
+  const [showProgress, setShowProgress] = useState(false);
+  const prevPage = React.useRef(currentPageName);
+
+  React.useEffect(() => {
+    if (prevPage.current !== currentPageName) {
+      setShowProgress(true);
+      const timer = setTimeout(() => setShowProgress(false), 450);
+      prevPage.current = currentPageName;
+      return () => clearTimeout(timer);
+    }
+  }, [currentPageName]);
 
   if (!token) {
     return <ConnectWalletScreen />;
@@ -223,7 +228,11 @@ function InnerLayout({ children, currentPageName }) {
 
   return (
     <div className="min-h-screen" style={{ background: '#060606' }}>
-      <PageLoadBar />
+      {showProgress && (
+        <div className="fixed top-0 left-0 right-0 z-50 h-[2px]" style={{ background: '#111' }}>
+          <div className="h-full animate-progress" style={{ background: '#00ff88' }} />
+        </div>
+      )}
       <OpenInBrowserBanner />
       <NavBar currentPageName={currentPageName} />
       <main className="pb-20 md:pb-6">
