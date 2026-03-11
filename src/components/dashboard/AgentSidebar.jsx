@@ -143,7 +143,27 @@ export default function AgentSidebar({ agent, skills, nova, loading, onRefresh }
 
   const [localSkills, setLocalSkills] = useState(null);
   const displaySkills = localSkills || skills;
-...
+
+  const handleToggleSkill = async (skill) => {
+    const newEnabled = !skill.enabled;
+    setLocalSkills(prev => {
+      const list = prev || skills || [];
+      return list.map(s => s.skill_id === skill.skill_id ? { ...s, enabled: newEnabled } : s);
+    });
+    try {
+      await apiFetch(`/skills/${skill.skill_id}/toggle`, {
+        method: 'PATCH',
+        body: JSON.stringify({ enabled: newEnabled }),
+      });
+      onRefresh?.();
+    } catch {
+      setLocalSkills(prev => {
+        const list = prev || skills || [];
+        return list.map(s => s.skill_id === skill.skill_id ? { ...s, enabled: !newEnabled } : s);
+      });
+    }
+  };
+
   // Sync local skills when props change
   React.useEffect(() => { setLocalSkills(null); }, [skills]);
 
