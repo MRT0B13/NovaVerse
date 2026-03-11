@@ -73,7 +73,7 @@ function SkillsList({ skills, onToggle }) {
       </div>
       <div className="divide-y divide-[#111]">
         {(!skills || skills.length === 0) ? (
-          <div className="p-4 text-center text-[#555] font-mono text-xs">No skills loaded</div>
+          <div className="p-4 text-center text-[#555] font-mono text-xs">No skills loaded — deploy an agent to activate skills</div>
         ) : (
           skills.map(skill => (
             <button

@@ -221,6 +221,12 @@ export default function DeployForm({ template }) {
             <span className="font-mono text-xs text-white">${advancedConfigs.CFO_ORCA_LP_MAX_USD}</span>
           </div>
         )}
+        {templateId !== 'scout-agent' && advancedConfigs.CFO_KELLY_FRACTION !== undefined && (
+          <div>
+            <span className="font-mono text-[9px] uppercase text-[#555] block">Kelly</span>
+            <span className="font-mono text-xs text-white">{advancedConfigs.CFO_KELLY_FRACTION}</span>
+          </div>
+        )}
       </div>
 
       <button
