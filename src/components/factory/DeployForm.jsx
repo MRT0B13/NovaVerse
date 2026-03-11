@@ -325,7 +325,7 @@ export default function DeployForm({ template }) {
         )}
         <div>
           <span className="font-mono text-[9px] uppercase text-[#555] block">Skills</span>
-          <span className="font-mono text-xs text-white">{template?.skillCount ?? '—'}</span>
+          <span className="font-mono text-xs text-white">{template?.skillCount ?? template?.defaultSkills?.length ?? '—'}</span>
         </div>
         {!['scout-agent', 'analyst-agent', 'social-agent', 'launcher-agent'].includes(templateId) && advancedConfigs.CFO_ORCA_LP_MAX_USD !== undefined && (
           <div>
