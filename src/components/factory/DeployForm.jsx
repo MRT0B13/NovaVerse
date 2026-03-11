@@ -3,6 +3,7 @@ import { useApi } from '../nova/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Loader2 } from 'lucide-react';
+import DeployTransition from './DeployTransition';
 
 const RISK_LEVELS = [
   { value: 'conservative', label: 'Conservative', desc: 'Lower sizing, wider ranges, safer thresholds' },
@@ -66,6 +67,7 @@ export default function DeployForm({ template }) {
     setAdvancedConfigs(prev => ({ ...prev, ...RISK_PRESETS[level] }));
   };
   const [deploying, setDeploying] = useState(false);
+  const [showTransition, setShowTransition] = useState(false);
   const [error, setError] = useState(null);
 
   const templateId = template?.id;
@@ -89,7 +91,8 @@ export default function DeployForm({ template }) {
         method: 'POST',
         body: JSON.stringify(payload),
       });
-      navigate(createPageUrl('Dashboard'));
+      setShowTransition(true);
+      setTimeout(() => navigate(createPageUrl('Dashboard')), 1500);
     } catch (err) {
       if (err.message?.includes('409')) {
         setError('You already have an active agent. Pause it first.');
@@ -196,6 +199,30 @@ export default function DeployForm({ template }) {
 
       {error && <p className="font-mono text-xs" style={{ color: '#ff4444' }}>{error}</p>}
 
+      {/* Deploy Summary */}
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 rounded-lg" style={{ background: '#0d0d0d', border: '1px solid #1a1a1a' }}>
+        <div>
+          <span className="font-mono text-[9px] uppercase text-[#555] block">Template</span>
+          <span className="font-mono text-xs text-white">{template?.name || templateId}</span>
+        </div>
+        {templateId !== 'scout-agent' && (
+          <div>
+            <span className="font-mono text-[9px] uppercase text-[#555] block">Risk</span>
+            <span className="font-mono text-xs text-white capitalize">{riskLevel}</span>
+          </div>
+        )}
+        <div>
+          <span className="font-mono text-[9px] uppercase text-[#555] block">Skills</span>
+          <span className="font-mono text-xs text-white">{template?.skillCount ?? '—'}</span>
+        </div>
+        {templateId !== 'scout-agent' && advancedConfigs.CFO_ORCA_LP_MAX_USD !== undefined && (
+          <div>
+            <span className="font-mono text-[9px] uppercase text-[#555] block">Orca LP Max</span>
+            <span className="font-mono text-xs text-white">${advancedConfigs.CFO_ORCA_LP_MAX_USD}</span>
+          </div>
+        )}
+      </div>
+
       <button
         onClick={handleDeploy}
         disabled={deploying}
@@ -210,8 +237,10 @@ export default function DeployForm({ template }) {
           <span className="flex items-center justify-center gap-2">
             <Loader2 className="w-4 h-4 animate-spin" /> Deploying…
           </span>
-        ) : '⚡ Deploy Agent'}
+        ) : '⚡ Confirm & Deploy'}
       </button>
+
+      {showTransition && <DeployTransition accent={accent} />}
     </div>
   );
 }

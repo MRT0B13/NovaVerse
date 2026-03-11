@@ -20,48 +20,66 @@ function SkillsPreview({ skills, color }) {
 }
 
 export default function TemplateGrid({ templates, selectedId, onSelect }) {
+  const flagship = templates.find(t => t.id === 'full-nova');
+  const rest = templates.filter(t => t.id !== 'full-nova');
+
+  const renderCard = (t) => {
+    const style = TEMPLATE_STYLES[t.id] || { icon: '🤖', color: '#888', bg: '#0a0a0a', badge: null };
+    const isSelected = selectedId === t.id;
+    const isFlagship = t.id === 'full-nova';
+
+    return (
+      <button
+        key={t.id}
+        onClick={() => onSelect(t)}
+        className={`relative text-left p-4 rounded-lg cursor-pointer transition-all ${isFlagship ? 'sm:col-span-2' : ''}`}
+        style={{
+          background: isSelected ? style.color + '20' : style.bg,
+          border: `1px solid ${isSelected ? style.color : '#1a1a1a'}`,
+          outline: isSelected ? `1px solid ${style.color}60` : 'none',
+          boxShadow: isSelected ? `0 0 20px ${style.color}15` : 'none',
+        }}
+      >
+        {isSelected && (
+          <span
+            className="absolute top-3 right-3 font-mono text-[9px] font-bold px-2 py-0.5 rounded-full"
+            style={{ background: style.color + '20', color: style.color, border: `1px solid ${style.color}40` }}
+          >
+            ✓ Selected
+          </span>
+        )}
+        <div className="flex items-center gap-3 mb-2">
+          <span className="text-2xl">{style.icon}</span>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-syne font-semibold text-sm text-white">{t.name}</h3>
+              {style.badge && (
+                <span className="font-mono text-[8px] font-bold px-1.5 py-0.5 rounded" style={{ background: '#00ff8818', color: '#00ff88', border: '1px solid #00ff8830' }}>
+                  {style.badge}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-2 mt-1">
+              <NovaPill text={`${t.skillCount} skills`} color={style.color} />
+            </div>
+          </div>
+        </div>
+        <p className="font-mono text-[10px] mt-2" style={{ color: style.color + '80' }}>
+          {t.agents?.join(', ')}
+        </p>
+        <SkillsPreview skills={t.defaultSkills} color={style.color} />
+      </button>
+    );
+  };
+
   return (
     <div>
       <h2 className="font-mono text-[10px] uppercase tracking-wider text-[#888] mb-4">Choose a Template</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {templates.map(t => {
-          const style = TEMPLATE_STYLES[t.id] || { icon: '🤖', color: '#888', bg: '#0a0a0a', badge: null };
-          const isSelected = selectedId === t.id;
-
-          return (
-            <button
-              key={t.id}
-              onClick={() => onSelect(t)}
-              className="text-left p-4 rounded-lg cursor-pointer transition-all"
-              style={{
-                background: isSelected ? style.color + '10' : style.bg,
-                border: `1px solid ${isSelected ? style.color : '#1a1a1a'}`,
-                outline: isSelected ? `1px solid ${style.color}40` : 'none',
-              }}
-            >
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-2xl">{style.icon}</span>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-syne font-semibold text-sm text-white">{t.name}</h3>
-                    {style.badge && (
-                      <span className="font-mono text-[8px] font-bold px-1.5 py-0.5 rounded" style={{ background: '#00ff8818', color: '#00ff88', border: '1px solid #00ff8830' }}>
-                        {style.badge}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <NovaPill text={`${t.skillCount} skills`} color={style.color} />
-                  </div>
-                </div>
-              </div>
-              <p className="font-mono text-[10px] mt-2" style={{ color: style.color + '80' }}>
-                {t.agents?.join(', ')}
-              </p>
-              <SkillsPreview skills={t.defaultSkills} color={style.color} />
-            </button>
-          );
-        })}
+        {flagship && renderCard(flagship)}
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
+        {rest.map(renderCard)}
       </div>
     </div>
   );
