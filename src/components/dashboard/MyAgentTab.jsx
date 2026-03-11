@@ -130,7 +130,7 @@ function SkillsList({ skills, onToggle }) {
   return (
     <div className="nova-card overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid #1a1a1a' }}>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-[#888]">Skills</span>
+        <span className="font-mono text-[10px] uppercase tracking-widest text-[#888]">Skills</span>
       </div>
       <div className="divide-y divide-[#111]">
         {(!skills || skills.length === 0) ? (
@@ -157,7 +157,7 @@ function SkillsList({ skills, onToggle }) {
 function NetworkStats({ agent, nova }) {
   return (
     <div className="nova-card p-4 space-y-3">
-      <span className="font-mono text-[10px] uppercase tracking-wider text-[#888]">Network Contribution</span>
+      <span className="font-mono text-[10px] uppercase tracking-widest text-[#888]">Network Contribution</span>
       <div className="flex justify-between">
         <span className="font-mono text-xs text-[#555]">Intel signals (24h)</span>
         <span className="font-mono text-xs text-[#00c8ff]">{Number(agent?.messages_24h || 0)}</span>
@@ -194,7 +194,7 @@ function ConfigSection({ agent }) {
 
   return (
     <div className="nova-card p-5 space-y-5">
-      <span className="font-mono text-[10px] uppercase tracking-wider text-[#888]">Configuration</span>
+      <span className="font-mono text-[10px] uppercase tracking-widest text-[#888]">Configuration</span>
       {configItems.map(item => (
         <div key={item.key}>
           <div className="flex justify-between mb-2">

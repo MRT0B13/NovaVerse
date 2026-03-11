@@ -50,7 +50,7 @@ export default function BurnInterface({ eligible, onBurnComplete }) {
 
   return (
     <div className="nova-card p-5 space-y-4" style={{ border: '1px solid #ff444440' }}>
-      <p className="font-mono text-[10px] uppercase tracking-wider text-[#888]">Burn Interface</p>
+      <p className="font-mono text-[10px] uppercase tracking-widest text-[#888]">Burn Interface</p>
 
       {/* Step 1: Token Select */}
       <select value={selectedMint} onChange={e => { setSelectedMint(e.target.value); setQuote(null); setBurnResult(null); }} className="font-mono text-xs" style={inputStyle}>

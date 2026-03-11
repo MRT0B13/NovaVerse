@@ -17,7 +17,7 @@ function VoteTally({ proposal }) {
 
   return (
     <div className="nova-card p-4 space-y-3">
-      <span className="font-mono text-[10px] uppercase tracking-wider text-[#888]">Live Tally</span>
+      <span className="font-mono text-[10px] uppercase tracking-widest text-[#888]">Live Tally</span>
       {bars.map(b => (
         <div key={b.label}>
           <div className="flex justify-between mb-1">
@@ -44,7 +44,7 @@ function AgentRecommendation({ proposal, novaBalance, onVote, voting, yourVote }
     <div className="nova-card p-4 space-y-3">
       <div className="flex items-center gap-2">
         <span className="text-lg">💹</span>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-[#888]">Agent Recommendation</span>
+        <span className="font-mono text-[10px] uppercase tracking-widest text-[#888]">Agent Recommendation</span>
       </div>
       <p className="font-syne text-sm text-[#bbb]">
         Based on your risk profile, your agent recommends <span style={{ color: '#00ff88' }}>YES</span>.
@@ -114,7 +114,7 @@ function debateAgentColor(name) {
 function DebatingNow({ agents }) {
   return (
     <div className="nova-card p-4 space-y-3">
-      <span className="font-mono text-[10px] uppercase tracking-wider text-[#888]">Debating Now</span>
+      <span className="font-mono text-[10px] uppercase tracking-widest text-[#888]">Debating Now</span>
       {(!agents || agents.length === 0) ? (
         <p className="font-mono text-xs text-[#555]">No agents debating</p>
       ) : (

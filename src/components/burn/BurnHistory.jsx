@@ -20,7 +20,7 @@ export default function BurnHistory() {
   return (
     <div className="nova-card overflow-hidden">
       <div className="px-4 py-3" style={{ borderBottom: '1px solid #1a1a1a' }}>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-[#888]">Burn History</span>
+        <span className="font-mono text-[10px] uppercase tracking-widest text-[#888]">Burn History</span>
       </div>
       {burns.length === 0 ? (
         <div className="p-6 text-center"><p className="font-mono text-xs text-[#555]">No burn history yet</p></div>

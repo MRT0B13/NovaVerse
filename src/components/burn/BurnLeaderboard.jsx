@@ -30,7 +30,7 @@ export default function BurnLeaderboard() {
   return (
     <div className="nova-card overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3 flex-wrap gap-2" style={{ borderBottom: '1px solid #1a1a1a' }}>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-[#888]">Leaderboard</span>
+        <span className="font-mono text-[10px] uppercase tracking-widest text-[#888]">Leaderboard</span>
         <div className="flex gap-1 p-1 rounded" style={{ background: '#0a0a0a' }}>
           {['credits', 'sol', 'burns'].map(s => (
             <button key={s} onClick={() => setSortBy(s)} className="font-mono text-[10px] px-2 py-1 rounded" style={btnStyle(sortBy === s)}>By {s.charAt(0).toUpperCase() + s.slice(1)}</button>
