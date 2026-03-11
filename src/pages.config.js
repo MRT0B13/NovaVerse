@@ -48,22 +48,22 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import AgentFactory from './pages/AgentFactory';
+import Burn from './pages/Burn';
 import Dashboard from './pages/Dashboard';
 import DebateChamber from './pages/DebateChamber';
 import Governance from './pages/Governance';
 import Launches from './pages/Launches';
-import Burn from './pages/Burn';
 import Transactions from './pages/Transactions';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AgentFactory": AgentFactory,
+    "Burn": Burn,
     "Dashboard": Dashboard,
     "DebateChamber": DebateChamber,
     "Governance": Governance,
     "Launches": Launches,
-    "Burn": Burn,
     "Transactions": Transactions,
 }
 

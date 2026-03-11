@@ -52,7 +52,7 @@ export default function Launches() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {launches.map(l => (
-            <LaunchCard key={l.id} launch={l} onClick={() => setSelectedId(l.id)} />
+            <LaunchCard key={l.id || l.data?.id} launch={l} onClick={() => setSelectedId(l.id || l.data?.id)} />
           ))}
         </div>
       )}
