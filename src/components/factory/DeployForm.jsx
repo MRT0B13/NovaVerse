@@ -123,26 +123,28 @@ export default function DeployForm({ template }) {
         />
       </div>
 
-      {/* Risk Level */}
-      <div>
-        <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block mb-2">Risk Level</label>
-        <div className="grid grid-cols-3 gap-2">
-          {RISK_LEVELS.map(r => (
-            <button
-              key={r.value}
-              onClick={() => handleRiskLevel(r.value)}
-              className="p-3 rounded text-left cursor-pointer transition-all"
-              style={{
-                background: riskLevel === r.value ? accent + '10' : '#0d0d0d',
-                border: `1px solid ${riskLevel === r.value ? accent : '#1a1a1a'}`,
-              }}
-            >
-              <span className="font-syne text-xs font-semibold text-white block">{r.label}</span>
-              <span className="font-mono text-[9px] text-[#555] block mt-1">{r.desc}</span>
-            </button>
-          ))}
+      {/* Risk Level — hidden for scout-agent (intel-only) */}
+      {templateId !== 'scout-agent' && (
+        <div>
+          <label className="font-mono text-[10px] uppercase tracking-wider text-[#888] block mb-2">Risk Level</label>
+          <div className="grid grid-cols-3 gap-2">
+            {RISK_LEVELS.map(r => (
+              <button
+                key={r.value}
+                onClick={() => handleRiskLevel(r.value)}
+                className="p-3 rounded text-left cursor-pointer transition-all"
+                style={{
+                  background: riskLevel === r.value ? accent + '10' : '#0d0d0d',
+                  border: `1px solid ${riskLevel === r.value ? accent : '#1a1a1a'}`,
+                }}
+              >
+                <span className="font-syne text-xs font-semibold text-white block">{r.label}</span>
+                <span className="font-mono text-[9px] text-[#555] block mt-1">{r.desc}</span>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Advanced Configuration */}
       {configItems.length > 0 && (
