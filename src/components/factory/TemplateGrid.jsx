@@ -1,5 +1,6 @@
 import React from 'react';
 import NovaPill from '../nova/NovaPill';
+import AgentPill from '../nova/AgentPill';
 
 const TEMPLATE_STYLES = {
   'full-nova':        { icon: '⚡', color: '#00ff88', bg: '#0d1a0d', badge: 'FLAGSHIP' },
@@ -98,9 +99,11 @@ export default function TemplateGrid({ templates, selectedId, onSelect }) {
         {desc && (
           <p className="font-mono text-[10px] mt-1" style={{ color: '#666' }}>{desc}</p>
         )}
-        <p className="font-mono text-[10px] mt-1" style={{ color: style.color + '80' }}>
-          {t.agents?.join(', ')}
-        </p>
+        {t.agents?.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-1">
+            {t.agents.map(a => <AgentPill key={a} agent={a} />)}
+          </div>
+        )}
         <SkillsPreview skills={t.defaultSkills} color={style.color} />
       </button>
     );
