@@ -4,6 +4,7 @@ import { createPageUrl } from '@/utils';
 import AuthProvider, { useAuth, useApi } from './components/nova/AuthContext';
 import ConnectWalletScreen from './components/nova/ConnectWalletScreen';
 import NovaPill from './components/nova/NovaPill';
+import PageLoadBar from './components/nova/PageLoadBar';
 
 const NAV_ITEMS = [
   { label: '◈ Dashboard', page: 'Dashboard' },
@@ -222,6 +223,7 @@ function InnerLayout({ children, currentPageName }) {
 
   return (
     <div className="min-h-screen" style={{ background: '#060606' }}>
+      <PageLoadBar />
       <OpenInBrowserBanner />
       <NavBar currentPageName={currentPageName} />
       <main className="pb-20 md:pb-6">
