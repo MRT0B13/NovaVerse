@@ -34,7 +34,7 @@ export default function Governance() {
   return (
     <div className="p-4 md:p-6 max-w-[1000px] mx-auto">
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
         {loading ? (
           [1,2,3].map(i => (
             <div key={i} className="nova-card p-4 space-y-2">
