@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { useAuth, useApi } from '../components/nova/AuthContext';
 import StatsRow from '../components/dashboard/StatsRow';
 import LiveFeed from '../components/dashboard/LiveFeed';
 import OpenPositions from '../components/dashboard/OpenPositions';
-import DashboardTabs from '../components/dashboard/DashboardTabs';
-import MyAgentTab from '../components/dashboard/MyAgentTab';
+import AgentSidebarCard from '../components/dashboard/AgentSidebarCard';
+import SidebarSkills from '../components/dashboard/SidebarSkills';
+import SidebarNetwork from '../components/dashboard/SidebarNetwork';
 import ErrorBanner from '../components/nova/ErrorBanner';
 
 export default function Dashboard() {
@@ -17,7 +20,6 @@ export default function Dashboard() {
   const [agent, setAgent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [connectionLost, setConnectionLost] = useState(false);
-  const [tab, setTab] = useState('feed');
   const wsRef = useRef(null);
   const pollRef = useRef(null);
 
@@ -29,13 +31,9 @@ export default function Dashboard() {
       apiFetch('/agents/me'),
     ]);
 
-    console.log('[Dashboard] fetch results:', results.map((r, i) => ({ i, status: r.status, hasValue: r.status === 'fulfilled' ? !!r.value : false, reason: r.reason?.message })));
-    
     if (results[0].status === 'fulfilled') setPortfolio(results[0].value);
     if (results[1].status === 'fulfilled') {
       const feedData = results[1].value;
-      console.log('[Dashboard] feed raw:', Array.isArray(feedData) ? `array(${feedData.length})` : typeof feedData, feedData);
-      // Handle both array and object with items/feed key
       const items = Array.isArray(feedData) ? feedData : (feedData?.items || feedData?.feed || []);
       setFeed(items);
     }
@@ -44,7 +42,7 @@ export default function Dashboard() {
     setLoading(false);
   }, [apiFetch]);
 
-  // Initial load + 30s refresh for portfolio/agent
+  // Initial load + 30s refresh
   useEffect(() => {
     fetchData();
     const interval = setInterval(fetchData, 30000);
@@ -65,7 +63,6 @@ export default function Dashboard() {
 
       ws.onopen = () => {
         if (isMounted) setConnectionLost(false);
-        // Stop polling if WS is open
         if (pollRef.current) {
           clearInterval(pollRef.current);
           pollRef.current = null;
@@ -73,7 +70,6 @@ export default function Dashboard() {
       };
 
       ws.onmessage = (event) => {
-        console.log('[WS] message:', event.data?.slice?.(0, 200));
         const parsed = JSON.parse(event.data);
         const { type, data } = parsed;
         if (type === 'feed_event' && data) {
@@ -84,7 +80,6 @@ export default function Dashboard() {
       ws.onclose = () => {
         if (!isMounted) return;
         setConnectionLost(true);
-        // Start polling fallback
         if (!pollRef.current) {
           pollRef.current = setInterval(async () => {
             const res = await apiFetch('/feed?limit=20').catch(() => null);
@@ -110,31 +105,39 @@ export default function Dashboard() {
     };
   }, [token, apiFetch]);
 
-  const handleRefresh = () => fetchData();
-
   return (
-    <div className="p-4 md:p-6 max-w-[1440px] mx-auto space-y-4">
+    <div className="p-4 md:p-6 max-w-[1440px] mx-auto">
       {connectionLost && <ErrorBanner />}
 
       <StatsRow portfolio={portfolio} skills={skills} agent={agent} loading={loading} />
-      <DashboardTabs active={tab} onChange={setTab} />
 
-      {tab === 'feed' && (
-        <div className="space-y-4">
+      <div className="flex flex-col lg:flex-row gap-6 mt-4">
+        {/* Left column — feed + positions */}
+        <div className="flex-1 min-w-0 space-y-4">
           <LiveFeed items={feed} loading={loading} />
           <OpenPositions positions={portfolio?.positions} loading={loading} />
         </div>
-      )}
 
-      {tab === 'agent' && (
-        <MyAgentTab
-          agent={agent}
-          skills={skills}
-          nova={portfolio?.nova}
-          loading={loading}
-          onRefresh={handleRefresh}
-        />
-      )}
+        {/* Right column — agent sidebar (340px) */}
+        <div className="w-full lg:w-[340px] shrink-0 space-y-4">
+          {agent ? (
+            <>
+              <AgentSidebarCard agent={agent} onRefresh={fetchData} />
+              <SidebarSkills skills={skills} onRefresh={fetchData} />
+              <SidebarNetwork agent={agent} nova={portfolio?.nova} />
+            </>
+          ) : (
+            <div className="nova-card p-8 text-center">
+              <p className="font-mono text-xs text-[#555] mb-3">No agent deployed</p>
+              <Link
+                to={createPageUrl('AgentFactory')}
+                className="font-mono text-xs no-underline"
+                style={{ color: '#00ff88' }}
+              >→ Deploy one</Link>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
