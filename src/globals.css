@@ -24,6 +24,7 @@
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -32,6 +33,16 @@ body {
   font-family: 'Syne', sans-serif;
   margin: 0;
   -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+/* Safe area insets for notched phones */
+@supports(padding: env(safe-area-inset-bottom)) {
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+button, a, select, input {
+  touch-action: manipulation;
 }
 
 /* Scrollbar */
