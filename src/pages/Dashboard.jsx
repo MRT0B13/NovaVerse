@@ -8,6 +8,9 @@ import OpenPositions from '../components/dashboard/OpenPositions';
 import AgentSidebarCard from '../components/dashboard/AgentSidebarCard';
 import SidebarSkills from '../components/dashboard/SidebarSkills';
 import SidebarNetwork from '../components/dashboard/SidebarNetwork';
+import SwarmHealthSection from '../components/dashboard/SwarmHealthSection';
+import LearningEngineSection from '../components/dashboard/LearningEngineSection';
+import SupervisorSection from '../components/dashboard/SupervisorSection';
 import ErrorBanner from '../components/nova/ErrorBanner';
 
 export default function Dashboard() {
@@ -125,6 +128,9 @@ export default function Dashboard() {
               <AgentSidebarCard agent={agent} onRefresh={fetchData} />
               <SidebarSkills skills={skills} onRefresh={fetchData} />
               <SidebarNetwork agent={agent} nova={portfolio?.nova} />
+              <SwarmHealthSection />
+              <LearningEngineSection />
+              <SupervisorSection />
             </>
           ) : (
             <div className="nova-card p-8 text-center">
