@@ -45,28 +45,32 @@ export default function DebateChamber() {
 
   useEffect(() => { fetchProposals(); }, [fetchProposals]);
 
+  const [debateLoading, setDebateLoading] = useState(false);
+  const userScrolledUp = useRef(false);
+
   // Fetch debate messages for selected proposal
-  const fetchDebate = useCallback(async () => {
+  const fetchDebate = useCallback(async (isInitial) => {
     if (!selectedId) return;
+    if (isInitial) setDebateLoading(true);
     const msgs = await apiFetch(`/governance/debate/${selectedId}`).catch(() => []);
     setDebateMessages(msgs || []);
+    if (isInitial) setDebateLoading(false);
   }, [apiFetch, selectedId]);
 
   useEffect(() => {
-    fetchDebate();
-    const interval = setInterval(fetchDebate, 5000);
+    fetchDebate(true);
+    const interval = setInterval(() => fetchDebate(false), 5000);
     return () => clearInterval(interval);
   }, [fetchDebate]);
 
-  // Auto-scroll — only if user hasn't scrolled up
-  const userScrolledUp = useRef(false);
-
+  // Track manual scroll
   const handleScroll = useCallback(() => {
-    if (!scrollRef.current) return;
     const el = scrollRef.current;
-    userScrolledUp.current = el.scrollHeight - el.scrollTop - el.clientHeight > 80;
+    if (!el) return;
+    userScrolledUp.current = el.scrollTop + el.clientHeight < el.scrollHeight - 40;
   }, []);
 
+  // Auto-scroll unless user scrolled up
   useEffect(() => {
     if (scrollRef.current && !userScrolledUp.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -109,11 +113,11 @@ export default function DebateChamber() {
           value={selectedId || ''}
           onChange={e => setSelectedId(Number(e.target.value))}
           className="font-mono text-xs px-3 py-2 rounded cursor-pointer w-full sm:w-auto"
-          style={{ background: '#0a0a0a', border: '1px solid #1a1a1a', color: '#bbb', outline: 'none', maxWidth: '100%' }}
+          style={{ background: '#0a0a0a', border: '1px solid #1a1a1a', color: '#bbb', outline: 'none' }}
         >
           {proposals.map(p => (
             <option key={p.id} value={p.id}>
-              #{p.id} · {p.title} · {timeRemaining(p.ends_at)} · [{p.status}]
+              #{p.id} · {p.title} · {timeRemaining(p.ends_at)} · [{p.status.toUpperCase()}]
             </option>
           ))}
         </select>
@@ -145,11 +149,17 @@ export default function DebateChamber() {
             className="overflow-y-auto px-4 divide-y divide-[#111]"
             style={{ maxHeight: 'calc(100vh - 320px)' }}
           >
-            {debateMessages.length === 0 ? (
-              <div className="py-8 space-y-3 px-4">
-                {[0.85, 0.6, 0.75, 0.5].map((w, i) => (
-                  <div key={i} className={`animate-shimmer rounded-lg ${i % 2 === 1 ? 'ml-12' : ''}`} style={{ height: 48, width: `${w * 100}%` }} />
+            {debateLoading ? (
+              <div className="py-4 space-y-4">
+                {[65, 80, 55, 70].map((w, i) => (
+                  <div key={i} className="flex" style={{ justifyContent: i % 2 === 0 ? 'flex-start' : 'flex-start', paddingLeft: i % 2 === 1 ? '2rem' : 0 }}>
+                    <SkeletonRect w={`${w}%`} h={56} />
+                  </div>
                 ))}
+              </div>
+            ) : debateMessages.length === 0 ? (
+              <div className="py-16 text-center text-[#555] font-mono text-xs">
+                No debate messages yet for this proposal
               </div>
             ) : (
               debateMessages.map((msg, idx) => (
