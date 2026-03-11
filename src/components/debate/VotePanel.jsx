@@ -50,7 +50,7 @@ function AgentRecommendation({ proposal, novaBalance, onVote, voting, yourVote }
         Based on your risk profile, your agent recommends <span style={{ color: '#00ff88' }}>YES</span>.
       </p>
       <p className="font-mono text-[10px] text-[#555]">
-        Your {novaBalance || 0} NOVA = {novaBalance || 0} votes
+        Your {Number(novaBalance || 0).toLocaleString()} NOVA = {Number(novaBalance || 0).toLocaleString()} votes
       </p>
 
       {hasVoted ? (
@@ -63,7 +63,7 @@ function AgentRecommendation({ proposal, novaBalance, onVote, voting, yourVote }
             }}>
             ✓ You voted {yourVote}
           </div>
-          <p className="font-mono text-[10px] text-[#555]">Your {novaBalance || 0} NOVA counted.</p>
+          <p className="font-mono text-[10px] text-[#555]">Your {Number(novaBalance || 0).toLocaleString()} NOVA counted.</p>
         </div>
       ) : (
         <div className="flex gap-2">
