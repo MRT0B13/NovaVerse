@@ -82,3 +82,36 @@ export const CHAIN_COLORS = {
   polygon: '#8b5cf6',
   ethereum: '#888',
 };
+
+export const STRATEGY_COLORS = {
+  polymarket: '#c084fc',
+  hyperliquid: '#00c8ff',
+  hl_perp_scalp: '#00c8ff',
+  hl_funding: '#00c8ff',
+  orca_lp: '#00ff88',
+  krystal_lp: '#00e5cc',
+  kamino: '#ff9500',
+  kamino_loop: '#ff9500',
+  jito: '#ffd700',
+  jupiter_swap: '#6366f1',
+  evm_flash_arb: '#f472b6',
+};
+
+export function strategyColor(key) {
+  if (!key) return '#555';
+  const lower = key.toLowerCase();
+  for (const [k, c] of Object.entries(STRATEGY_COLORS)) {
+    if (lower.includes(k)) return c;
+  }
+  return '#555';
+}
+
+export function formatSOL(n) {
+  if (n == null) return '0.0000 SOL';
+  return Number(n).toFixed(4) + ' SOL';
+}
+
+export function formatPct(n) {
+  if (n == null) return '0.0%';
+  return Number(n).toFixed(1) + '%';
+}

@@ -10,6 +10,9 @@ const NAV_ITEMS = [
   { label: '⬡ Debate Chamber', page: 'DebateChamber' },
   { label: '◉ Governance', page: 'Governance' },
   { label: '⊕ Agent Factory', page: 'AgentFactory' },
+  { label: '🚀 Launches', page: 'Launches' },
+  { label: '🔥 Burn', page: 'Burn' },
+  { label: '↔ Transactions', page: 'Transactions' },
 ];
 
 function NavBar({ currentPageName }) {
