@@ -47,12 +47,12 @@ export default function AgentSidebarCard({ agent, onRefresh }) {
             {agent.status}
           </span>
           {agent.hasWallet === false && (
-            <span className="font-mono text-[9px] px-2 py-0.5 rounded-full" style={{ background: '#ff950018', color: '#ff9500', border: '1px solid #ff950030' }}>
+            <span className="font-mono text-[9px] px-2 py-0.5 rounded-[4px]" style={{ background: '#ff950018', color: '#ff9500', border: '1px solid #ff950030' }}>
               No Wallet
             </span>
           )}
           {agent.hasWallet === true && (
-            <span className="font-mono text-[9px] px-2 py-0.5 rounded-full" style={{ background: '#00ff8818', color: '#00ff88', border: '1px solid #00ff8830' }}>
+            <span className="font-mono text-[9px] px-2 py-0.5 rounded-[4px]" style={{ background: '#00ff8818', color: '#00ff88', border: '1px solid #00ff8830' }}>
               WALLET ✓ {agent.wallet?.chain && <span className="text-[#555]">· {agent.wallet.chain}</span>}
               {agent.wallet?.address && <span className="text-[#555]"> · {agent.wallet.address.slice(0,6)}…{agent.wallet.address.slice(-4)}</span>}
             </span>
@@ -61,7 +61,7 @@ export default function AgentSidebarCard({ agent, onRefresh }) {
         {Array.isArray(agent.capabilities) && agent.capabilities.length > 0 && (
           <div className="flex items-center gap-1.5 mt-2 flex-wrap justify-center">
             {agent.capabilities.map(cap => (
-              <span key={cap} className="font-mono text-[9px] px-2 py-0.5 rounded-full" style={{ background: '#1a1a1a', color: '#888', border: '1px solid #222' }}>
+              <span key={cap} className="font-mono text-[9px] px-2 py-0.5 rounded-[4px]" style={{ background: '#1a1a1a', color: '#888', border: '1px solid #222' }}>
                 {cap}
               </span>
             ))}

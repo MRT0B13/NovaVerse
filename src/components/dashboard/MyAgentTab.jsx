@@ -72,14 +72,14 @@ function AgentIdentityCard({ agent, onToggle, onRedeploy, onAttachWallet }) {
             {agent.hasWallet === false && (
               <button
                 onClick={onAttachWallet}
-                className="font-mono text-[9px] px-2 py-0.5 rounded-full cursor-pointer hover:opacity-80"
+                className="font-mono text-[9px] px-2 py-0.5 rounded-[4px] cursor-pointer hover:opacity-80"
                 style={{ background: '#ff950018', color: '#ff9500', border: '1px solid #ff950030' }}
               >
                 NO WALLET — Attach Wallet →
               </button>
             )}
             {agent.hasWallet === true && (
-              <span className="font-mono text-[9px] px-2 py-0.5 rounded-full" style={{ background: '#00ff8818', color: '#00ff88', border: '1px solid #00ff8830' }}>
+              <span className="font-mono text-[9px] px-2 py-0.5 rounded-[4px]" style={{ background: '#00ff8818', color: '#00ff88', border: '1px solid #00ff8830' }}>
                 WALLET ✓ {agent.wallet?.chain && <span className="text-[#555]">· {agent.wallet.chain}</span>}
                 {agent.wallet?.address && <span className="text-[#555]"> · {agent.wallet.address.slice(0,6)}…{agent.wallet.address.slice(-4)}</span>}
               </span>
@@ -88,7 +88,7 @@ function AgentIdentityCard({ agent, onToggle, onRedeploy, onAttachWallet }) {
           {(Array.isArray(agent.capabilities) ? agent.capabilities : Array.isArray(agent.character?.capabilities) ? agent.character.capabilities : []).length > 0 && (
             <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
               {(agent.capabilities || agent.character?.capabilities || []).map(cap => (
-                <span key={cap} className="font-mono text-[9px] px-2 py-0.5 rounded-full" style={{ background: '#1a1a1a', color: '#888', border: '1px solid #222' }}>
+                <span key={cap} className="font-mono text-[9px] px-2 py-0.5 rounded-[4px]" style={{ background: '#1a1a1a', color: '#888', border: '1px solid #222' }}>
                   {cap}
                 </span>
               ))}
