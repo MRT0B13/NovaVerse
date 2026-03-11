@@ -5,6 +5,7 @@ import { useApi } from '../nova/AuthContext';
 import NovaPill from '../nova/NovaPill';
 import { formatUSD, formatSOL, truncateAddress } from '../nova/formatters';
 import { SkeletonRect } from '../nova/Skeleton';
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 
 const STATUS_COLORS = { DRAFT: '#555', READY: '#ff9500', LAUNCHED: '#00c8ff', FAILED: '#ff4444' };
 
@@ -65,6 +66,23 @@ export default function LaunchDetail({ launchId, onBack }) {
           </div>
         </div>
       </div>
+
+      {/* Price chart */}
+      {priceHistory.current.length > 1 && (
+        <div className="nova-card p-4">
+          <span className="font-mono text-[10px] uppercase tracking-wider text-[#888]">Price History</span>
+          <div className="mt-2" style={{ height: 120 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={priceHistory.current}>
+                <XAxis dataKey="t" tick={false} stroke="#1a1a1a" />
+                <YAxis domain={['auto', 'auto']} tick={{ fontSize: 9, fill: '#555' }} width={50} tickFormatter={v => `$${v.toFixed(4)}`} stroke="#1a1a1a" />
+                <Tooltip contentStyle={{ background: '#0a0a0a', border: '1px solid #1a1a1a', fontSize: 10 }} labelFormatter={() => ''} formatter={(v) => [`$${Number(v).toFixed(6)}`, 'Price']} />
+                <Line type="monotone" dataKey="p" stroke="#00ff88" dot={false} strokeWidth={1.5} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
 
       {/* Price + Graduation */}
       {price && (
