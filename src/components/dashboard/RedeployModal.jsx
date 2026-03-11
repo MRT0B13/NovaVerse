@@ -28,19 +28,12 @@ export default function RedeployModal({ agent, onClose, onSuccess }) {
     setDeploying(true);
     setError(null);
     try {
-      // Step 1: Pause if running
+      // Pause if running
       if (agent?.status === 'running') {
         await apiFetch('/agents/pause', { method: 'POST' });
       }
 
-      // Step 2: Destroy current agent
-      await apiFetch('/agents/destroy', { method: 'POST' }).catch(() =>
-        apiFetch('/agents/teardown', { method: 'POST' }).catch(() =>
-          apiFetch(`/agents/${agent?.id || 'me'}`, { method: 'DELETE' })
-        )
-      );
-
-      // Step 3: Deploy fresh (same as AgentFactory)
+      // Deploy with new config (overwrites existing agent)
       const payload = {
         templateId: selectedTemplate,
         riskLevel,
@@ -52,12 +45,11 @@ export default function RedeployModal({ agent, onClose, onSuccess }) {
         body: JSON.stringify(payload),
       });
 
-      // Step 4: Resume
+      // Resume the newly deployed agent
       await apiFetch('/agents/resume', { method: 'POST' }).catch(() => {});
 
       onSuccess?.();
     } catch (err) {
-      console.error('[Redeploy] failed:', err);
       setError(err.message || 'Redeploy failed');
       setDeploying(false);
     }
