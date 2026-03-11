@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { useApi } from '../nova/AuthContext';
 import LiveDot from '../nova/LiveDot';
 import NovaPill from '../nova/NovaPill';
-import { Pause, Play, Save, Loader2 } from 'lucide-react';
+import { Pause, Play, Save, Loader2, Rocket } from 'lucide-react';
 
 const ALL_CONFIG_ITEMS = [
   { key: 'CFO_ORCA_LP_MAX_USD', label: 'Orca LP Max (USD)', min: 0, max: 500, step: 10, type: 'range' },
@@ -11,11 +13,12 @@ const ALL_CONFIG_ITEMS = [
   { key: 'CFO_KELLY_FRACTION', label: 'Kelly Fraction', min: 0.05, max: 0.50, step: 0.01, type: 'range' },
   { key: 'CFO_KAMINO_JITO_LOOP_MAX_LOOPS', label: 'Kamino Loop Depth', options: [1, 2, 3], type: 'toggle' },
   { key: 'LP_RANGE_WIDTH_PCT', label: 'LP Range Width %', min: 1, max: 50, step: 1, type: 'range' },
+  { key: 'CFO_MAX_DECISIONS_PER_CYCLE', label: 'Max Decisions / Cycle', min: 1, max: 20, step: 1, type: 'range' },
 ];
 
 const TEMPLATE_CONFIG_KEYS = {
-  'full-nova': ['CFO_ORCA_LP_MAX_USD', 'CFO_KRYSTAL_LP_MAX_USD', 'CFO_AUTO_TIER_USD', 'CFO_KELLY_FRACTION', 'CFO_KAMINO_JITO_LOOP_MAX_LOOPS'],
-  'cfo-agent': ['CFO_ORCA_LP_MAX_USD', 'CFO_AUTO_TIER_USD', 'CFO_KELLY_FRACTION', 'CFO_KAMINO_JITO_LOOP_MAX_LOOPS'],
+  'full-nova': ['CFO_ORCA_LP_MAX_USD', 'CFO_KRYSTAL_LP_MAX_USD', 'CFO_AUTO_TIER_USD', 'CFO_KELLY_FRACTION', 'CFO_KAMINO_JITO_LOOP_MAX_LOOPS', 'CFO_MAX_DECISIONS_PER_CYCLE'],
+  'cfo-agent': ['CFO_ORCA_LP_MAX_USD', 'CFO_AUTO_TIER_USD', 'CFO_KELLY_FRACTION', 'CFO_KAMINO_JITO_LOOP_MAX_LOOPS', 'CFO_MAX_DECISIONS_PER_CYCLE'],
   'lp-specialist': ['CFO_ORCA_LP_MAX_USD', 'CFO_KRYSTAL_LP_MAX_USD', 'LP_RANGE_WIDTH_PCT'],
   'scout-agent': [],
 };
@@ -25,7 +28,7 @@ function formatTemplateId(id) {
   return id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
 }
 
-export default function AgentManagement({ agent, onRefresh }) {
+export default function AgentManagement({ agent, onRefresh, onSwitchToDeploy }) {
   const apiFetch = useApi();
   const [configs, setConfigs] = useState({});
   const [saving, setSaving] = useState(false);
@@ -154,6 +157,19 @@ export default function AgentManagement({ agent, onRefresh }) {
           Save Configuration
         </button>
       </div>
+      )}
+
+      {/* Deploy New Agent button — only enabled when paused */}
+      <button
+        onClick={onSwitchToDeploy}
+        disabled={agent?.status !== 'paused'}
+        className="w-full flex items-center justify-center gap-2 font-mono text-xs py-3 rounded cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-30 disabled:cursor-not-allowed"
+        style={{ background: '#c084fc18', border: '1px solid #c084fc40', color: '#c084fc' }}
+      >
+        <Rocket className="w-3 h-3" /> Deploy New Agent
+      </button>
+      {agent?.status !== 'paused' && (
+        <p className="font-mono text-[10px] text-center text-[#555]">Pause your agent to deploy a new one</p>
       )}
     </div>
   );
