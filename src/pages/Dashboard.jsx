@@ -73,9 +73,11 @@ export default function Dashboard() {
       };
 
       ws.onmessage = (event) => {
-        const { type, data } = JSON.parse(event.data);
+        console.log('[WS] message:', event.data?.slice?.(0, 200));
+        const parsed = JSON.parse(event.data);
+        const { type, data } = parsed;
         if (type === 'feed_event' && data) {
-          setFeed(prev => [data, ...prev].slice(0, 50));
+          setFeed(prev => [data, ...(Array.isArray(prev) ? prev : [])].slice(0, 50));
         }
       };
 
