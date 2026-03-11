@@ -11,6 +11,8 @@ import SidebarNetwork from '../components/dashboard/SidebarNetwork';
 import SwarmHealthSection from '../components/dashboard/SwarmHealthSection';
 import LearningEngineSection from '../components/dashboard/LearningEngineSection';
 import SupervisorSection from '../components/dashboard/SupervisorSection';
+import DashboardTabs from '../components/dashboard/DashboardTabs';
+import MyAgentTab from '../components/dashboard/MyAgentTab';
 import ErrorBanner from '../components/nova/ErrorBanner';
 
 export default function Dashboard() {
@@ -23,6 +25,7 @@ export default function Dashboard() {
   const [agent, setAgent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [connectionLost, setConnectionLost] = useState(false);
+  const [dashTab, setDashTab] = useState('feed');
   const wsRef = useRef(null);
   const pollRef = useRef(null);
 
@@ -45,7 +48,6 @@ export default function Dashboard() {
     setLoading(false);
   }, [apiFetch]);
 
-  // Initial load + 30s refresh
   useEffect(() => {
     fetchData();
     const interval = setInterval(fetchData, 30000);
@@ -55,7 +57,6 @@ export default function Dashboard() {
   // WebSocket for live feed
   useEffect(() => {
     if (!token) return;
-
     let ws;
     let reconnectTimeout;
     let isMounted = true;
@@ -66,17 +67,13 @@ export default function Dashboard() {
 
       ws.onopen = () => {
         if (isMounted) setConnectionLost(false);
-        if (pollRef.current) {
-          clearInterval(pollRef.current);
-          pollRef.current = null;
-        }
+        if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
       };
 
       ws.onmessage = (event) => {
         const parsed = JSON.parse(event.data);
-        const { type, data } = parsed;
-        if (type === 'feed_event' && data) {
-          setFeed(prev => [data, ...(Array.isArray(prev) ? prev : [])].slice(0, 50));
+        if (parsed.type === 'feed_event' && parsed.data) {
+          setFeed(prev => [parsed.data, ...(Array.isArray(prev) ? prev : [])].slice(0, 50));
         }
       };
 
@@ -99,7 +96,6 @@ export default function Dashboard() {
     }
 
     connect();
-
     return () => {
       isMounted = false;
       if (ws) ws.close();
@@ -114,36 +110,37 @@ export default function Dashboard() {
 
       <StatsRow portfolio={portfolio} skills={skills} agent={agent} loading={loading} />
 
-      <div className="flex flex-col lg:flex-row gap-6 mt-4">
-        {/* Left column — feed + positions */}
-        <div className="flex-1 min-w-0 space-y-4">
-          <LiveFeed items={feed} loading={loading} />
-          <OpenPositions positions={portfolio?.positions} loading={loading} />
-        </div>
-
-        {/* Right column — agent sidebar (340px) */}
-        <div className="w-full lg:w-[340px] shrink-0 space-y-4">
-          {agent ? (
-            <>
-              <AgentSidebarCard agent={agent} onRefresh={fetchData} />
-              <SidebarSkills skills={skills} onRefresh={fetchData} />
-              <SidebarNetwork agent={agent} nova={portfolio?.nova} />
-              <SwarmHealthSection />
-              <LearningEngineSection />
-              <SupervisorSection />
-            </>
-          ) : (
-            <div className="nova-card p-8 text-center">
-              <p className="font-mono text-xs text-[#555] mb-3">No agent deployed</p>
-              <Link
-                to={createPageUrl('AgentFactory')}
-                className="font-mono text-xs no-underline"
-                style={{ color: '#00ff88' }}
-              >→ Deploy one</Link>
-            </div>
-          )}
-        </div>
+      <div className="mt-4">
+        <DashboardTabs activeTab={dashTab} onChange={setDashTab} />
       </div>
+
+      {dashTab === 'feed' ? (
+        <div className="flex flex-col lg:flex-row gap-6">
+          <div className="flex-1 min-w-0 space-y-4">
+            <LiveFeed items={feed} loading={loading} />
+            <OpenPositions positions={portfolio?.positions} loading={loading} />
+          </div>
+          <div className="w-full lg:w-[340px] shrink-0 space-y-4">
+            {agent ? (
+              <>
+                <AgentSidebarCard agent={agent} onRefresh={fetchData} />
+                <SidebarSkills skills={skills} onRefresh={fetchData} />
+                <SidebarNetwork agent={agent} nova={portfolio?.nova} />
+                <SwarmHealthSection />
+                <LearningEngineSection />
+                <SupervisorSection />
+              </>
+            ) : (
+              <div className="nova-card p-8 text-center">
+                <p className="font-mono text-xs text-[#555] mb-3">No agent deployed</p>
+                <Link to={createPageUrl('AgentFactory')} className="font-mono text-xs no-underline" style={{ color: '#00ff88' }}>→ Deploy one</Link>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <MyAgentTab agent={agent} skills={skills} nova={portfolio?.nova} loading={loading} onRefresh={fetchData} />
+      )}
     </div>
   );
 }

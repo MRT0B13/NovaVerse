@@ -18,13 +18,13 @@ export default function StatsRow({ portfolio, skills, agent, loading }) {
   }
 
   const noAgent = !agent;
-  const totalValue = portfolio?.positions?.reduce((s, p) => s + (p.amount_usd || 0), 0) || 0;
+  const totalValue = Number(portfolio?.summary?.total_value_usd || 0);
   const novaBalance = portfolio?.nova?.balance || 0;
   const novaEarned = portfolio?.nova?.earned_month || 0;
   const enabledSkills = skills?.filter(s => s.enabled)?.length || 0;
   const totalSkills = skills?.length || 0;
 
-  const STATUS_COLORS = { running: '#00ff88', paused: '#ff9500', deploying: '#00c8ff', error: '#ff9500' };
+  const STATUS_COLORS = { running: '#00ff88', paused: '#ff9500', deploying: '#00c8ff', error: '#ff4444' };
   const agentStatus = agent?.status;
   const statusColor = noAgent ? '#555' : (STATUS_COLORS[agentStatus] || '#555');
   const statusLabel = noAgent ? 'Not Deployed' : agentStatus.charAt(0).toUpperCase() + agentStatus.slice(1);
