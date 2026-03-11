@@ -21,9 +21,9 @@ const BORDER_COLORS = {
 export default function ProposalCard({ proposal }) {
   const statusColor = STATUS_COLORS[proposal.status] || '#888';
   const borderColor = BORDER_COLORS[proposal.status] || '#333';
-  const yes = proposal.votes_yes || 0;
-  const no = proposal.votes_no || 0;
-  const abstain = proposal.votes_abstain || 0;
+  const yes = Number(proposal.votes_yes) || 0;
+  const no = Number(proposal.votes_no) || 0;
+  const abstain = Number(proposal.votes_abstain) || 0;
   const total = yes + no + abstain;
 
   const yesPct = total > 0 ? (yes / total * 100).toFixed(1) : '0.0';

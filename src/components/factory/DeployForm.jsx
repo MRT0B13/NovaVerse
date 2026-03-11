@@ -91,6 +91,10 @@ export default function DeployForm({ template }) {
         method: 'POST',
         body: JSON.stringify(payload),
       });
+
+      // Immediately resume to transition from deploying → running
+      await apiFetch('/agents/resume', { method: 'PATCH' }).catch(() => {});
+
       setShowTransition(true);
 
       // Poll /agents/me until status is no longer 'deploying'
@@ -108,7 +112,6 @@ export default function DeployForm({ template }) {
             setError('Agent is taking longer than expected to start. Check your configuration.');
           }
         } catch {
-          // Keep polling on error
           if (Date.now() - pollStart > 15000) {
             clearInterval(pollInterval);
             setShowTransition(false);

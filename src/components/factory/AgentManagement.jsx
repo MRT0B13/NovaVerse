@@ -4,13 +4,21 @@ import LiveDot from '../nova/LiveDot';
 import NovaPill from '../nova/NovaPill';
 import { Pause, Play, Save, Loader2 } from 'lucide-react';
 
-const CONFIG_ITEMS = [
+const ALL_CONFIG_ITEMS = [
   { key: 'CFO_ORCA_LP_MAX_USD', label: 'Orca LP Max (USD)', min: 0, max: 500, step: 10, type: 'range' },
   { key: 'CFO_KRYSTAL_LP_MAX_USD', label: 'Krystal LP Max (USD)', min: 0, max: 500, step: 10, type: 'range' },
   { key: 'CFO_AUTO_TIER_USD', label: 'Auto-Approve Tier (USD)', min: 0, max: 200, step: 5, type: 'range' },
   { key: 'CFO_KELLY_FRACTION', label: 'Kelly Fraction', min: 0.05, max: 0.50, step: 0.01, type: 'range' },
   { key: 'CFO_KAMINO_JITO_LOOP_MAX_LOOPS', label: 'Kamino Loop Depth', options: [1, 2, 3], type: 'toggle' },
+  { key: 'LP_RANGE_WIDTH_PCT', label: 'LP Range Width %', min: 1, max: 50, step: 1, type: 'range' },
 ];
+
+const TEMPLATE_CONFIG_KEYS = {
+  'full-nova': ['CFO_ORCA_LP_MAX_USD', 'CFO_KRYSTAL_LP_MAX_USD', 'CFO_AUTO_TIER_USD', 'CFO_KELLY_FRACTION', 'CFO_KAMINO_JITO_LOOP_MAX_LOOPS'],
+  'cfo-agent': ['CFO_ORCA_LP_MAX_USD', 'CFO_AUTO_TIER_USD', 'CFO_KELLY_FRACTION', 'CFO_KAMINO_JITO_LOOP_MAX_LOOPS'],
+  'lp-specialist': ['CFO_ORCA_LP_MAX_USD', 'CFO_KRYSTAL_LP_MAX_USD', 'LP_RANGE_WIDTH_PCT'],
+  'scout-agent': [],
+};
 
 function formatTemplateId(id) {
   if (!id) return '';
@@ -24,6 +32,9 @@ export default function AgentManagement({ agent, onRefresh }) {
   const isRunning = agent?.status === 'running';
   const isPaused = agent?.status === 'paused';
   const showToggle = isRunning || isPaused;
+
+  const allowedKeys = TEMPLATE_CONFIG_KEYS[agent?.template_id] || [];
+  const configItems = ALL_CONFIG_ITEMS.filter(item => allowedKeys.includes(item.key));
 
   const handleToggleAgent = async () => {
     const endpoint = isRunning ? '/agents/pause' : '/agents/resume';
@@ -88,11 +99,12 @@ export default function AgentManagement({ agent, onRefresh }) {
         </div>
       </div>
 
-      {/* Config editor */}
+      {/* Config editor — hidden for scout-agent */}
+      {configItems.length > 0 && (
       <div className="nova-card p-5 space-y-5">
         <span className="font-mono text-[10px] uppercase tracking-wider text-[#888]">Configuration</span>
         
-        {CONFIG_ITEMS.map(item => (
+        {configItems.map(item => (
           <div key={item.key}>
             <div className="flex justify-between mb-2">
               <label className="font-mono text-[10px] text-[#888]">{item.label}</label>
@@ -142,6 +154,7 @@ export default function AgentManagement({ agent, onRefresh }) {
           Save Configuration
         </button>
       </div>
+      )}
     </div>
   );
 }

@@ -8,9 +8,10 @@ import { SkeletonRect } from '../components/nova/Skeleton';
 export default function AgentFactory() {
   const apiFetch = useApi();
   const [templates, setTemplates] = useState([]);
-  const [agent, setAgent] = useState(undefined); // undefined = loading, null = no agent
+  const [agent, setAgent] = useState(undefined);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState(null); // null = not yet determined
 
   const fetchData = useCallback(async () => {
     const [t, a] = await Promise.allSettled([
@@ -18,8 +19,10 @@ export default function AgentFactory() {
       apiFetch('/agents/me'),
     ]);
     if (t.status === 'fulfilled') setTemplates(t.value || []);
-    if (a.status === 'fulfilled') setAgent(a.value);
-    else setAgent(null);
+    const agentData = a.status === 'fulfilled' ? a.value : null;
+    setAgent(agentData);
+    // Set default tab only on first load
+    setTab(prev => prev === null ? (agentData ? 'manage' : 'deploy') : prev);
     setLoading(false);
   }, [apiFetch]);
 
@@ -38,17 +41,75 @@ export default function AgentFactory() {
 
   return (
     <div className="p-4 md:p-6 max-w-[800px] mx-auto">
-      {agent ? (
-        <AgentManagement agent={agent} onRefresh={fetchData} />
-      ) : (
-        <>
-          <TemplateGrid
-            templates={templates}
-            selectedId={selectedTemplate?.id}
-            onSelect={setSelectedTemplate}
-          />
-          {selectedTemplate && <DeployForm template={selectedTemplate} />}
-        </>
+      {/* Tabs */}
+      <div className="flex gap-1 mb-6 p-1 rounded-lg" style={{ background: '#0a0a0a', border: '1px solid #1a1a1a' }}>
+        <button
+          onClick={() => setTab('manage')}
+          className="flex-1 font-mono text-xs py-2.5 rounded-md cursor-pointer transition-all"
+          style={{
+            background: tab === 'manage' ? '#1a1a1a' : 'transparent',
+            color: tab === 'manage' ? '#fff' : '#555',
+            border: 'none',
+          }}
+        >
+          My Agent
+        </button>
+        <button
+          onClick={() => setTab('deploy')}
+          className="flex-1 font-mono text-xs py-2.5 rounded-md cursor-pointer transition-all"
+          style={{
+            background: tab === 'deploy' ? '#1a1a1a' : 'transparent',
+            color: tab === 'deploy' ? '#fff' : '#555',
+            border: 'none',
+          }}
+        >
+          Deploy New
+        </button>
+      </div>
+
+      {/* My Agent tab */}
+      {tab === 'manage' && (
+        agent ? (
+          <AgentManagement agent={agent} onRefresh={fetchData} />
+        ) : (
+          <div className="nova-card p-8 text-center">
+            <p className="font-mono text-xs text-[#555] mb-3">No agent deployed yet</p>
+            <button
+              onClick={() => setTab('deploy')}
+              className="font-mono text-xs cursor-pointer"
+              style={{ background: 'none', border: 'none', color: '#00ff88' }}
+            >
+              → Deploy your first agent
+            </button>
+          </div>
+        )
+      )}
+
+      {/* Deploy New tab */}
+      {tab === 'deploy' && (
+        agent?.status === 'running' ? (
+          <div className="nova-card p-6 text-center" style={{ border: '1px solid #ff950030' }}>
+            <p className="font-mono text-xs" style={{ color: '#ff9500' }}>
+              ⚠ Pause your current agent before deploying a new one
+            </p>
+            <button
+              onClick={() => setTab('manage')}
+              className="font-mono text-xs mt-3 cursor-pointer"
+              style={{ background: 'none', border: 'none', color: '#00ff88' }}
+            >
+              → Go to My Agent
+            </button>
+          </div>
+        ) : (
+          <>
+            <TemplateGrid
+              templates={templates}
+              selectedId={selectedTemplate?.id}
+              onSelect={setSelectedTemplate}
+            />
+            {selectedTemplate && <DeployForm template={selectedTemplate} />}
+          </>
+        )
       )}
     </div>
   );

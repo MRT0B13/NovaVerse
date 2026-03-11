@@ -4,9 +4,9 @@ import LiveDot from '../nova/LiveDot';
 import { useApi } from '../nova/AuthContext';
 
 function VoteTally({ proposal }) {
-  const yes = proposal?.votes_yes || 0;
-  const no = proposal?.votes_no || 0;
-  const abstain = proposal?.votes_abstain || 0;
+  const yes = Number(proposal?.votes_yes) || 0;
+  const no = Number(proposal?.votes_no) || 0;
+  const abstain = Number(proposal?.votes_abstain) || 0;
   const total = yes + no + abstain;
 
   const bars = [
@@ -124,9 +124,9 @@ export default function VotePanel({ proposal, debateMessages, novaBalance, onVot
 
   const handleVote = async (choice) => {
     setVoting(true);
-    await apiFetch(`/governance/proposals/${proposal.id}/vote`, {
+    await apiFetch('/governance/vote', {
       method: 'POST',
-      body: JSON.stringify({ choice, agentRecommended: choice === 'YES' }),
+      body: JSON.stringify({ proposalId: proposal.id, choice, agentRecommended: choice === 'YES' }),
     });
     setLocalVote(choice);
     setVoting(false);

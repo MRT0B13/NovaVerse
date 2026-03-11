@@ -125,6 +125,15 @@ function NetworkStats({ agent, nova }) {
 export default function AgentSidebar({ agent, skills, nova, loading, onRefresh }) {
   const apiFetch = useApi();
 
+  // Poll when agent is stuck in 'deploying'
+  React.useEffect(() => {
+    if (agent?.status !== 'deploying') return;
+    const interval = setInterval(async () => {
+      onRefresh?.();
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [agent?.status, onRefresh]);
+
   const handleToggleAgent = async () => {
     if (!agent) return;
     const endpoint = agent.status === 'running' ? '/agents/pause' : '/agents/resume';
@@ -134,30 +143,7 @@ export default function AgentSidebar({ agent, skills, nova, loading, onRefresh }
 
   const [localSkills, setLocalSkills] = useState(null);
   const displaySkills = localSkills || skills;
-
-  const handleToggleSkill = async (skill) => {
-    const newEnabled = !skill.enabled;
-    // Optimistic update
-    setLocalSkills(prev => {
-      const list = prev || skills || [];
-      return list.map(s => s.skill_id === skill.skill_id ? { ...s, enabled: newEnabled } : s);
-    });
-    
-    try {
-      await apiFetch(`/skills/${skill.skill_id}/toggle`, {
-        method: 'PATCH',
-        body: JSON.stringify({ enabled: newEnabled }),
-      });
-      onRefresh?.();
-    } catch {
-      // Revert on failure
-      setLocalSkills(prev => {
-        const list = prev || skills || [];
-        return list.map(s => s.skill_id === skill.skill_id ? { ...s, enabled: !newEnabled } : s);
-      });
-    }
-  };
-
+...
   // Sync local skills when props change
   React.useEffect(() => { setLocalSkills(null); }, [skills]);
 
