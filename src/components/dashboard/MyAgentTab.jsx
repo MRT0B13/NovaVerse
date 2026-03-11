@@ -10,6 +10,8 @@ import RedeployModal from './RedeployModal';
 import SwarmHealthSection from './SwarmHealthSection';
 import LearningEngineSection from './LearningEngineSection';
 import SupervisorSection from './SupervisorSection';
+import AttachWalletModal from '../agent/AttachWalletModal';
+import SocialConfig from '../agent/SocialConfig';
 
 const STATUS_DOT = { running: '#00ff88', paused: '#ff9500', deploying: '#00c8ff', error: '#ff4444' };
 
@@ -35,7 +37,7 @@ function formatTemplateId(id) {
   return id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
 }
 
-function AgentIdentityCard({ agent, onToggle, onRedeploy }) {
+function AgentIdentityCard({ agent, onToggle, onRedeploy, onAttachWallet }) {
   const isRunning = agent.status === 'running';
   const dotColor = STATUS_DOT[agent.status] || '#555';
 
@@ -63,13 +65,17 @@ function AgentIdentityCard({ agent, onToggle, onRedeploy }) {
               </span>
             </div>
             {agent.hasWallet === false && (
-              <span className="font-mono text-[9px] px-2 py-0.5 rounded-full" style={{ background: '#ff950018', color: '#ff9500', border: '1px solid #ff950030' }}>
-                No Wallet
-              </span>
+              <button
+                onClick={onAttachWallet}
+                className="font-mono text-[9px] px-2 py-0.5 rounded-full cursor-pointer hover:opacity-80"
+                style={{ background: '#ff950018', color: '#ff9500', border: '1px solid #ff950030' }}
+              >
+                NO WALLET — Attach Wallet →
+              </button>
             )}
             {agent.hasWallet === true && (
               <span className="font-mono text-[9px] px-2 py-0.5 rounded-full" style={{ background: '#00ff8818', color: '#00ff88', border: '1px solid #00ff8830' }}>
-                Wallet ✓
+                WALLET ✓ {agent.wallet?.chain && <span className="text-[#555]">· {agent.wallet.chain}</span>}
               </span>
             )}
           </div>
@@ -239,6 +245,7 @@ export default function MyAgentTab({ agent, skills, nova, loading, onRefresh }) 
   const apiFetch = useApi();
   const [localSkills, setLocalSkills] = useState(null);
   const [showRedeploy, setShowRedeploy] = useState(false);
+  const [showAttachWallet, setShowAttachWallet] = useState(false);
   const displaySkills = localSkills || skills;
 
   // Poll when agent is stuck in 'deploying'
@@ -314,7 +321,7 @@ export default function MyAgentTab({ agent, skills, nova, loading, onRefresh }) 
 
   return (
     <div className="space-y-4 max-w-[640px]">
-      <AgentIdentityCard agent={agent} onToggle={handleToggleAgent} onRedeploy={() => setShowRedeploy(true)} />
+      <AgentIdentityCard agent={agent} onToggle={handleToggleAgent} onRedeploy={() => setShowRedeploy(true)} onAttachWallet={() => setShowAttachWallet(true)} />
       {showRedeploy && (
         <RedeployModal
           agent={agent}
@@ -322,9 +329,13 @@ export default function MyAgentTab({ agent, skills, nova, loading, onRefresh }) 
           onSuccess={() => { setShowRedeploy(false); onRefresh?.(); }}
         />
       )}
+      {showAttachWallet && (
+        <AttachWalletModal onClose={() => setShowAttachWallet(false)} onSuccess={() => { setShowAttachWallet(false); onRefresh?.(); }} />
+      )}
       <SkillsList skills={displaySkills} onToggle={handleToggleSkill} />
       <NetworkStats agent={agent} nova={nova} />
       <ConfigSection agent={agent} />
+      <SocialConfig templateId={agent?.template_id} />
       <SwarmHealthSection />
       <LearningEngineSection />
       <SupervisorSection />
