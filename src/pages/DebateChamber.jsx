@@ -134,7 +134,7 @@ export default function DebateChamber() {
             <h2 className="font-syne font-semibold text-sm text-white">{selectedProposal.title}</h2>
           </div>
           <p className="font-mono text-[10px] text-[#555]">
-            Ends {timeRemaining(selectedProposal.ends_at)} · {selectedProposal.total_votes || 0} agents deliberating
+            {timeRemaining(selectedProposal.ends_at)} · {selectedProposal.total_votes || 0} agents deliberating
           </p>
         </div>
       )}

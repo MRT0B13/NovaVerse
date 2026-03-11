@@ -92,14 +92,37 @@ export default function DeployForm({ template }) {
         body: JSON.stringify(payload),
       });
       setShowTransition(true);
-      setTimeout(() => navigate(createPageUrl('Dashboard')), 1500);
+
+      // Poll /agents/me until status is no longer 'deploying'
+      const pollStart = Date.now();
+      const pollInterval = setInterval(async () => {
+        try {
+          const agentData = await apiFetch('/agents/me');
+          if (agentData?.status && agentData.status !== 'deploying') {
+            clearInterval(pollInterval);
+            navigate(createPageUrl('Dashboard'));
+          } else if (Date.now() - pollStart > 15000) {
+            clearInterval(pollInterval);
+            setShowTransition(false);
+            setDeploying(false);
+            setError('Agent is taking longer than expected to start. Check your configuration.');
+          }
+        } catch {
+          // Keep polling on error
+          if (Date.now() - pollStart > 15000) {
+            clearInterval(pollInterval);
+            setShowTransition(false);
+            setDeploying(false);
+            setError('Agent is taking longer than expected to start. Check your configuration.');
+          }
+        }
+      }, 2000);
     } catch (err) {
       if (err.message?.includes('409')) {
         setError('You already have an active agent. Pause it first.');
       } else {
         setError(err.message);
       }
-    } finally {
       setDeploying(false);
     }
   };

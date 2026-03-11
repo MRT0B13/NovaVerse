@@ -7,7 +7,12 @@ import { useApi } from '../nova/AuthContext';
 import { SkeletonRect } from '../nova/Skeleton';
 import { Pause, Play } from 'lucide-react';
 
-const STATUS_DOT = { running: '#00ff88', paused: '#ff9500', deploying: '#00c8ff' };
+const STATUS_DOT = { running: '#00ff88', paused: '#ff9500', deploying: '#00c8ff', error: '#ff4444' };
+
+function formatTemplateId(id) {
+  if (!id) return '';
+  return id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+}
 
 function AgentIdentity({ agent, onToggle }) {
   if (!agent) {
@@ -42,24 +47,26 @@ function AgentIdentity({ agent, onToggle }) {
           }}
         >💹</div>
         <h3 className="font-syne font-bold text-lg text-white">{agent.display_name}</h3>
-        <p className="font-mono text-[10px] uppercase tracking-wider text-[#555] mt-1">{agent.template_id}</p>
+        <p className="font-mono text-[10px] uppercase tracking-wider text-[#555] mt-1">{formatTemplateId(agent.template_id)}</p>
         <div className="flex items-center gap-2 mt-3">
           <LiveDot color={dotColor} size={6} />
-          <span className="font-mono text-xs" style={{ color: dotColor }}>
+          <span className="font-mono text-xs capitalize" style={{ color: dotColor }}>
             {agent.status}
           </span>
         </div>
-        <button
-          onClick={onToggle}
-          className="mt-4 flex items-center gap-2 font-mono text-xs px-4 py-2 rounded cursor-pointer transition-all hover:opacity-80"
-          style={{
-            background: isRunning ? '#ff950018' : '#00ff8818',
-            border: `1px solid ${isRunning ? '#ff950040' : '#00ff8840'}`,
-            color: isRunning ? '#ff9500' : '#00ff88',
-          }}
-        >
-          {isRunning ? <><Pause className="w-3 h-3" /> Pause</> : <><Play className="w-3 h-3" /> Resume</>}
-        </button>
+        {(agent.status === 'running' || agent.status === 'paused') && (
+          <button
+            onClick={onToggle}
+            className="mt-4 flex items-center gap-2 font-mono text-xs px-4 py-2 rounded cursor-pointer transition-all hover:opacity-80"
+            style={{
+              background: isRunning ? '#ff950018' : '#00ff8818',
+              border: `1px solid ${isRunning ? '#ff950040' : '#00ff8840'}`,
+              color: isRunning ? '#ff9500' : '#00ff88',
+            }}
+          >
+            {isRunning ? <><Pause className="w-3 h-3" /> Pause</> : <><Play className="w-3 h-3" /> Resume</>}
+          </button>
+        )}
       </div>
     </div>
   );

@@ -12,11 +12,18 @@ const CONFIG_ITEMS = [
   { key: 'CFO_KAMINO_JITO_LOOP_MAX_LOOPS', label: 'Kamino Loop Depth', options: [1, 2, 3], type: 'toggle' },
 ];
 
+function formatTemplateId(id) {
+  if (!id) return '';
+  return id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+}
+
 export default function AgentManagement({ agent, onRefresh }) {
   const apiFetch = useApi();
   const [configs, setConfigs] = useState({});
   const [saving, setSaving] = useState(false);
   const isRunning = agent?.status === 'running';
+  const isPaused = agent?.status === 'paused';
+  const showToggle = isRunning || isPaused;
 
   const handleToggleAgent = async () => {
     const endpoint = isRunning ? '/agents/pause' : '/agents/resume';
@@ -55,27 +62,29 @@ export default function AgentManagement({ agent, onRefresh }) {
           <div className="flex-1">
             <h3 className="font-syne font-bold text-lg text-white">{agent.display_name}</h3>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
-              <NovaPill text={agent.template_id} />
+              <NovaPill text={formatTemplateId(agent.template_id)} />
               <NovaPill text={agent.risk_level} color="#ff9500" />
               <div className="flex items-center gap-1">
-                <LiveDot color={isRunning ? '#00ff88' : '#ff9500'} size={5} />
-                <span className="font-mono text-[10px]" style={{ color: isRunning ? '#00ff88' : '#ff9500' }}>
+                <LiveDot color={isRunning ? '#00ff88' : isPaused ? '#ff9500' : agent.status === 'deploying' ? '#00c8ff' : '#ff4444'} size={5} />
+                <span className="font-mono text-[10px] capitalize" style={{ color: isRunning ? '#00ff88' : isPaused ? '#ff9500' : agent.status === 'deploying' ? '#00c8ff' : '#ff4444' }}>
                   {agent.status}
                 </span>
               </div>
             </div>
           </div>
-          <button
-            onClick={handleToggleAgent}
-            className="flex items-center gap-2 font-mono text-xs px-4 py-2 rounded cursor-pointer transition-all hover:opacity-80 shrink-0"
-            style={{
-              background: isRunning ? '#ff950018' : '#00ff8818',
-              border: `1px solid ${isRunning ? '#ff950040' : '#00ff8840'}`,
-              color: isRunning ? '#ff9500' : '#00ff88',
-            }}
-          >
-            {isRunning ? <><Pause className="w-3 h-3" /> Pause</> : <><Play className="w-3 h-3" /> Resume</>}
-          </button>
+          {showToggle ? (
+            <button
+              onClick={handleToggleAgent}
+              className="flex items-center gap-2 font-mono text-xs px-4 py-2 rounded cursor-pointer transition-all hover:opacity-80 shrink-0"
+              style={{
+                background: isRunning ? '#ff950018' : '#00ff8818',
+                border: `1px solid ${isRunning ? '#ff950040' : '#00ff8840'}`,
+                color: isRunning ? '#ff9500' : '#00ff88',
+              }}
+            >
+              {isRunning ? <><Pause className="w-3 h-3" /> Pause</> : <><Play className="w-3 h-3" /> Resume</>}
+            </button>
+          ) : null}
         </div>
       </div>
 
