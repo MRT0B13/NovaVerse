@@ -14,13 +14,13 @@ const TEMPLATE_STYLES = {
 };
 
 const TEMPLATE_DESCRIPTIONS = {
-  'full-nova':        'Full 7-agent swarm. Scout finds opportunities, CFO executes, Guardian protects.',
-  'cfo-agent':        'CFO + Guardian only. Capital allocation across Solana LP, Kamino, and Hyperliquid.',
-  'scout-agent':      'Intel-only agent. Monitors KOLs, tracks movers, sends signals. No trading.',
-  'lp-specialist':    'LP-focused CFO. Optimised for concentrated liquidity on Orca and Krystal.',
-  'launcher-agent':   'Token launch specialist. Manages bonding curves, graduation, and initial liquidity.',
-  'community-agent':  'Manages community engagement, moderation, and sentiment tracking.',
-  'governance-agent': 'Automates governance participation, proposal analysis, and voting delegation.',
+  'full-nova':        'Full-spectrum DeFi: autonomous trading, yield farming, LP management, intel gathering, and risk control. The complete Nova experience.',
+  'cfo-agent':        'Your autonomous CFO. Manages capital across Orca LP, Kamino loops, Hyperliquid perps, and Polymarket. Risk-gated and self-healing.',
+  'scout-agent':      'Tracks KOLs, narratives, and alpha signals in real-time. Feeds intelligence to your other agents. No wallet required.',
+  'lp-specialist':    'Concentrated liquidity specialist. Manages Orca and Krystal LP positions with dynamic range management.',
+  'launcher-agent':   'Token launcher. Generates launch packs, deploys to pump.fun, manages community mascots and marketing automation.',
+  'community-agent':  'Community manager. Monitors sentiment, manages Telegram groups, tracks engagement metrics. Needs social config after deploy.',
+  'governance-agent': 'Governance strategist. Reads proposals, debates positions, votes aligned with your risk profile. Requires 100 NOVA.',
   'social-agent':     'Social sentinel. Polls Reddit and Google Trends for viral culture signals. Feeds trend pool for reactive token launches.',
   'analyst-agent':    'DeFi analyst. Tracks TVL, DEX volumes, price alerts, and market narratives. Feeds the live feed with intelligence.',
 };

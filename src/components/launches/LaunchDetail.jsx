@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { useApi } from '../nova/AuthContext';
 import NovaPill from '../nova/NovaPill';
 import { formatUSD, formatSOL, truncateAddress } from '../nova/formatters';
@@ -87,7 +89,7 @@ export default function LaunchDetail({ launchId, onBack }) {
       {/* Burn eligible badge */}
       <div className="nova-card p-3 flex items-center gap-2">
         <span className="font-mono text-[11px]" style={{ color: '#ff9500' }}>🔥 Burnable</span>
-        <a href={`${window.location.origin}${window.location.pathname}#`} onClick={(e) => { e.preventDefault(); window.location.href = '/Burn'; }} className="font-mono text-[10px] no-underline" style={{ color: '#ff4444' }}>→ Burn page</a>
+        <Link to={createPageUrl('Burn')} className="font-mono text-[10px] no-underline" style={{ color: '#ff4444' }}>→ Burn page</Link>
       </div>
 
       {/* Links */}
