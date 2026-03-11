@@ -7,6 +7,9 @@ import { useApi } from '../nova/AuthContext';
 import { SkeletonRect } from '../nova/Skeleton';
 import { Pause, Play, Save, Loader2, RefreshCw } from 'lucide-react';
 import RedeployModal from './RedeployModal';
+import SwarmHealthSection from './SwarmHealthSection';
+import LearningEngineSection from './LearningEngineSection';
+import SupervisorSection from './SupervisorSection';
 
 const STATUS_DOT = { running: '#00ff88', paused: '#ff9500', deploying: '#00c8ff', error: '#ff4444' };
 
@@ -322,6 +325,9 @@ export default function MyAgentTab({ agent, skills, nova, loading, onRefresh }) 
       <SkillsList skills={displaySkills} onToggle={handleToggleSkill} />
       <NetworkStats agent={agent} nova={nova} />
       <ConfigSection agent={agent} />
+      <SwarmHealthSection />
+      <LearningEngineSection />
+      <SupervisorSection />
     </div>
   );
 }
