@@ -53,6 +53,7 @@ import DebateChamber from './pages/DebateChamber';
 import Governance from './pages/Governance';
 import Launches from './pages/Launches';
 import Burn from './pages/Burn';
+import Transactions from './pages/Transactions';
 import __Layout from './Layout.jsx';
 
 
@@ -63,6 +64,7 @@ export const PAGES = {
     "Governance": Governance,
     "Launches": Launches,
     "Burn": Burn,
+    "Transactions": Transactions,
 }
 
 export const pagesConfig = {
