@@ -28,39 +28,36 @@ export default function RedeployModal({ agent, onClose, onSuccess }) {
     setDeploying(true);
     setError(null);
     try {
-      // Pause agent first if running (server may require it)
+      // Step 1: Pause if running
       if (agent?.status === 'running') {
-        await apiFetch('/agents/pause', { method: 'POST' }).catch(() => {});
+        await apiFetch('/agents/pause', { method: 'POST' });
       }
 
-      // Try dedicated redeploy endpoint first
-      try {
-        await apiFetch('/agents/redeploy', {
-          method: 'POST',
-          body: JSON.stringify({
-            templateId: selectedTemplate,
-            name: name.trim() || undefined,
-            riskLevel,
-          }),
-        });
-      } catch (redeployErr) {
-        // Fallback: teardown then deploy fresh
-        console.log('[Redeploy] /agents/redeploy failed, falling back to teardown+deploy:', redeployErr.message);
-        await apiFetch('/agents/teardown', { method: 'POST' }).catch(() => {});
-        await apiFetch('/agents/deploy', {
-          method: 'POST',
-          body: JSON.stringify({
-            templateId: selectedTemplate,
-            name: name.trim() || undefined,
-            riskLevel,
-          }),
-        });
-        // Resume after fresh deploy
-        await apiFetch('/agents/resume', { method: 'POST' }).catch(() => {});
-      }
+      // Step 2: Destroy current agent
+      await apiFetch('/agents/destroy', { method: 'POST' }).catch(() =>
+        apiFetch('/agents/teardown', { method: 'POST' }).catch(() =>
+          apiFetch(`/agents/${agent?.id || 'me'}`, { method: 'DELETE' })
+        )
+      );
+
+      // Step 3: Deploy fresh (same as AgentFactory)
+      const payload = {
+        templateId: selectedTemplate,
+        riskLevel,
+      };
+      if (name.trim()) payload.name = name.trim();
+
+      await apiFetch('/agents/deploy', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+
+      // Step 4: Resume
+      await apiFetch('/agents/resume', { method: 'POST' }).catch(() => {});
 
       onSuccess?.();
     } catch (err) {
+      console.error('[Redeploy] failed:', err);
       setError(err.message || 'Redeploy failed');
       setDeploying(false);
     }
