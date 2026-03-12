@@ -25,13 +25,12 @@ export default function Transactions() {
     apiFetch('/transactions/summary').then(setSummary).catch(() => {});
   }, [apiFetch]);
 
-  // Fetch transactions
+  // Fetch transactions (backend supports strategy & chain filters; status is filtered client-side)
   const fetchTx = useCallback(async (newOffset = 0, append = false) => {
     if (append) setLoadingMore(true); else setLoading(true);
     const params = new URLSearchParams({ limit: PAGE_SIZE, offset: newOffset });
     if (filters.strategy) params.set('strategy', filters.strategy);
     if (filters.chain) params.set('chain', filters.chain);
-    if (filters.status) params.set('status', filters.status);
     const res = await apiFetch(`/transactions?${params}`).catch(() => []);
     const items = Array.isArray(res) ? res : (res?.transactions || []);
     if (append) {
@@ -43,18 +42,23 @@ export default function Transactions() {
     setOffset(newOffset + items.length);
     setLoading(false);
     setLoadingMore(false);
-  }, [apiFetch, filters]);
+  }, [apiFetch, filters.strategy, filters.chain]);
 
   useEffect(() => { fetchTx(0); }, [fetchTx]);
 
   const loadMore = () => fetchTx(offset, true);
+
+  // Apply client-side status filter (backend doesn't support status param)
+  const displayed = filters.status
+    ? transactions.filter(tx => tx.status === filters.status)
+    : transactions;
 
   return (
     <div className="p-4 md:p-6 max-w-[1200px] mx-auto space-y-6">
       <h1 className="font-syne font-bold text-lg text-white">TRANSACTIONS</h1>
       <TxSummary summary={summary} loading={!summary} />
       <TxFilters filters={filters} onChange={setFilters} strategies={strategies} chains={chains} />
-      <TxTable transactions={transactions} loading={loading || loadingMore} onLoadMore={loadMore} hasMore={hasMore} />
+      <TxTable transactions={displayed} loading={loading || loadingMore} onLoadMore={loadMore} hasMore={hasMore} />
     </div>
   );
 }
