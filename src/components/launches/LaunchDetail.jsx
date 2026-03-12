@@ -83,6 +83,7 @@ export default function LaunchDetail({ launchId, onBack }) {
               {price?.is_graduated && <NovaPill text="GRADUATED 🎓" color="#00ff88" />}
             </div>
             {brand.tagline && <p className="font-mono text-[11px] text-[#888] mt-2">{brand.tagline}</p>}
+            {brand.description && <p className="font-mono text-[10px] text-[#666] mt-1">{brand.description}</p>}
           </div>
         </div>
       </div>
@@ -174,10 +175,17 @@ export default function LaunchDetail({ launchId, onBack }) {
       {auditLog.length > 0 && (
         <div className="nova-card p-4">
           <p className="font-mono text-[9px] uppercase tracking-widest text-[#555] mb-2">Audit Log</p>
-          <div className="space-y-1">
-            {auditLog.map((entry, i) => (
-              <p key={i} className="font-mono text-[10px] text-[#888]">{typeof entry === 'string' ? entry : JSON.stringify(entry)}</p>
-            ))}
+          <div className="space-y-2">
+            {auditLog.map((entry, i) => {
+              if (typeof entry === 'string') return <p key={i} className="font-mono text-[10px] text-[#888]">{entry}</p>;
+              return (
+                <div key={i} className="flex items-start gap-2 py-1" style={{ borderBottom: '1px solid #111' }}>
+                  {entry.at && <span className="font-mono text-[9px] text-[#555] shrink-0">{new Date(entry.at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>}
+                  <span className="font-mono text-[10px] text-[#888]">{entry.message || JSON.stringify(entry)}</span>
+                  {entry.actor && <span className="font-mono text-[9px] text-[#555] shrink-0 ml-auto">{entry.actor}</span>}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
