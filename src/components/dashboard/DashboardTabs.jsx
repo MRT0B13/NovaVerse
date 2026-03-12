@@ -1,4 +1,6 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 
 export default function DashboardTabs({ activeTab, onChange }) {
   const tabs = [
@@ -22,6 +24,17 @@ export default function DashboardTabs({ activeTab, onChange }) {
           {t.label}
         </button>
       ))}
+      <Link
+        to={createPageUrl('Transactions')}
+        className="flex-1 font-mono text-xs py-2.5 rounded-md cursor-pointer transition-all text-center no-underline"
+        style={{
+          background: 'transparent',
+          color: '#00c8ff',
+          border: 'none',
+        }}
+      >
+        Transactions →
+      </Link>
     </div>
   );
 }

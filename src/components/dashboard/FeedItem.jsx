@@ -12,16 +12,41 @@ const AGENT_COLORS = {
   'Nova Community':  '#ffd700',
 };
 
+function getTxExplorerUrl(txHash, chain) {
+  if (!txHash) return null;
+  const c = (chain || '').toLowerCase();
+  if (c.includes('arb') || c.includes('evm') || c.includes('ethereum')) return `https://arbiscan.io/tx/${txHash}`;
+  return `https://solscan.io/tx/${txHash}`;
+}
+
 function buildFeedSummary(item) {
   switch (item.type) {
     case 'INTEL_SIGNAL':
       return item.detail || item.msg;
     case 'TRADE_EXECUTION':
       return `Executed ${item.raw?.strategy ?? 'trade'} — ${item.raw?.amount_in ?? ''} ${item.raw?.token_in ?? ''} → ${item.raw?.token_out ?? ''}`;
+    case 'TRADE_OPENED':
+      return `Opened ${item.raw?.strategy ?? 'position'} — ${item.raw?.amount_in ?? ''} ${item.raw?.token_in ?? ''} → ${item.raw?.token_out ?? ''}`;
+    case 'TRADE_CLOSED':
+      return `Closed ${item.raw?.strategy ?? 'position'} — ${item.raw?.token_in ?? item.raw?.asset ?? ''} ${item.raw?.pnl_usd != null ? `(PnL: $${Number(item.raw.pnl_usd).toFixed(2)})` : ''}`;
     case 'LP_UPDATE':
       return `LP position ${item.raw?.action ?? 'updated'} on ${item.raw?.protocol ?? 'Orca'}`;
+    case 'LP_OPENED':
+      return `Opened LP on ${item.raw?.protocol ?? item.raw?.pool_name ?? 'Orca'} — ${item.raw?.description || ''}`;
+    case 'LP_CLOSED':
+      return `Closed LP on ${item.raw?.protocol ?? item.raw?.pool_name ?? 'Orca'}`;
+    case 'YIELD_UPDATE':
+      return `Yield update: ${item.raw?.yield_earned != null ? `$${Number(item.raw.yield_earned).toFixed(2)} earned` : item.detail || 'position updated'}`;
+    case 'SECURITY_ALERT':
+      return `🛡️ Security: ${item.detail || item.raw?.message || item.msg}`;
     case 'RUG_ALERT':
       return `⚠️ Rug risk detected: ${item.raw?.token ?? item.detail}`;
+    case 'GOVERNANCE_VOTE':
+      return `Voted ${item.raw?.vote_choice ?? ''} on proposal: ${item.raw?.title ?? item.detail ?? ''}`;
+    case 'GOVERNANCE_DEBATE':
+      return item.detail || item.msg;
+    case 'HEALTH_CHECK':
+      return item.detail || item.msg;
     case 'REPORT':
       return item.detail || item.msg;
     case 'ALERT':
@@ -35,6 +60,7 @@ export default function FeedItem({ item }) {
   const [expanded, setExpanded] = useState(false);
   const borderColor = AGENT_COLORS[item.agent] ?? '#333';
   const summary = buildFeedSummary(item);
+  const txUrl = getTxExplorerUrl(item.raw?.tx_hash, item.raw?.chain);
 
   return (
     <div
@@ -48,6 +74,18 @@ export default function FeedItem({ item }) {
           <div className="flex items-center gap-2 flex-wrap">
             <AgentPill agent={item.agent} />
             <span className="font-syne text-sm text-[#bbb] truncate">{item.msg}</span>
+            {txUrl && (
+              <a
+                href={txUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="font-mono text-[10px] no-underline shrink-0"
+                style={{ color: '#00c8ff' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                View TX ↗
+              </a>
+            )}
           </div>
           {summary && summary !== item.msg && (
             <p className="font-mono text-[11px] text-[#888] mt-1 truncate">{summary}</p>
