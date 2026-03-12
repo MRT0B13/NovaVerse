@@ -52,7 +52,9 @@ import Burn from './pages/Burn';
 import Dashboard from './pages/Dashboard';
 import DebateChamber from './pages/DebateChamber';
 import Governance from './pages/Governance';
+import IntelCenter from './pages/IntelCenter';
 import Launches from './pages/Launches';
+import SwarmOps from './pages/SwarmOps';
 import Transactions from './pages/Transactions';
 import __Layout from './Layout.jsx';
 
@@ -63,7 +65,9 @@ export const PAGES = {
     "Dashboard": Dashboard,
     "DebateChamber": DebateChamber,
     "Governance": Governance,
+    "IntelCenter": IntelCenter,
     "Launches": Launches,
+    "SwarmOps": SwarmOps,
     "Transactions": Transactions,
 }
 

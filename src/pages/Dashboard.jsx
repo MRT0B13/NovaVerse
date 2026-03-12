@@ -14,6 +14,7 @@ import SupervisorSection from '../components/dashboard/SupervisorSection';
 import DashboardTabs from '../components/dashboard/DashboardTabs';
 import MyAgentTab from '../components/dashboard/MyAgentTab';
 import ErrorBanner from '../components/nova/ErrorBanner';
+import PortfolioChart from '../components/dashboard/PortfolioChart';
 
 export default function Dashboard() {
   const { token } = useAuth();
@@ -109,6 +110,10 @@ export default function Dashboard() {
       {connectionLost && <ErrorBanner />}
 
       <StatsRow portfolio={portfolio} skills={skills} agent={agent} loading={loading} />
+
+      <div className="mt-4">
+        <PortfolioChart />
+      </div>
 
       <div className="mt-4">
         <DashboardTabs activeTab={dashTab} onChange={setDashTab} />

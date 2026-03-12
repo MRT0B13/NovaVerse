@@ -7,9 +7,11 @@ import NovaPill from './components/nova/NovaPill';
 
 const NAV_ITEMS = [
   { label: '◈ Dashboard', page: 'Dashboard' },
-  { label: '⬡ Debate Chamber', page: 'DebateChamber' },
+  { label: '🔭 Intel', page: 'IntelCenter' },
+  { label: '🛡 Swarm Ops', page: 'SwarmOps' },
+  { label: '⬡ Debate', page: 'DebateChamber' },
   { label: '◉ Governance', page: 'Governance' },
-  { label: '⊕ Agent Factory', page: 'AgentFactory' },
+  { label: '⊕ Factory', page: 'AgentFactory' },
   { label: '🚀 Launches', page: 'Launches' },
   { label: '🔥 Burn', page: 'Burn' },
   { label: '↔ Transactions', page: 'Transactions' },
