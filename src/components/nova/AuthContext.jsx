@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 
-const API = 'https://enthusiastic-respect-production-3521.up.railway.app/api';
+const API = import.meta.env.VITE_API_URL || 'https://enthusiastic-respect-production-3521.up.railway.app/api';
+export { API };
 const AuthContext = createContext(null);
 
 export function useAuth() {
@@ -23,7 +25,9 @@ export function useApi() {
     }
     if (!res.ok) {
       const err = await res.json().catch(() => ({ detail: res.statusText }));
-      throw new Error(err.detail || err.message || `API error ${res.status}`);
+      const msg = err.detail || err.message || `API error ${res.status}`;
+      toast.error(msg);
+      throw new Error(msg);
     }
     return res.json();
   }, [token]);

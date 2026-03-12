@@ -4,9 +4,11 @@ import { createPageUrl } from '@/utils';
 import AuthProvider, { useAuth, useApi } from './components/nova/AuthContext';
 import ConnectWalletScreen from './components/nova/ConnectWalletScreen';
 import NovaPill from './components/nova/NovaPill';
+import InboxBell from './components/nav/InboxBell';
 
 const NAV_ITEMS = [
   { label: '◈ Dashboard', page: 'Dashboard' },
+  { label: '🌌 Universe', page: 'Universe' },
   { label: '🔭 Intel', page: 'IntelCenter' },
   { label: '🛡 Swarm Ops', page: 'SwarmOps' },
   { label: '⬡ Debate', page: 'DebateChamber' },
@@ -74,10 +76,11 @@ function NavBar({ currentPageName }) {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3 ml-auto">
+        {token && <InboxBell />}
         {novaBalance != null && (
           <NovaPill text={`${Number(novaBalance).toLocaleString()} NOVA`} />
         )}
-        
+
         {truncatedAddress ? (
           <div className="relative">
             <button

@@ -56,6 +56,7 @@ import IntelCenter from './pages/IntelCenter';
 import Launches from './pages/Launches';
 import SwarmOps from './pages/SwarmOps';
 import Transactions from './pages/Transactions';
+import Universe from './pages/Universe';
 import __Layout from './Layout.jsx';
 
 
@@ -69,6 +70,7 @@ export const PAGES = {
     "Launches": Launches,
     "SwarmOps": SwarmOps,
     "Transactions": Transactions,
+    "Universe": Universe,
 }
 
 export const pagesConfig = {

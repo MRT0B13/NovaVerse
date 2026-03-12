@@ -5,7 +5,8 @@ import LiveDot from '../nova/LiveDot';
 import NovaPill from '../nova/NovaPill';
 import { useApi } from '../nova/AuthContext';
 import { SkeletonRect } from '../nova/Skeleton';
-import { Pause, Play, Save, Loader2, RefreshCw } from 'lucide-react';
+import { Pause, Play, Save, Loader2, RefreshCw, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import RedeployModal from './RedeployModal';
 import SwarmHealthSection from './SwarmHealthSection';
 import LearningEngineSection from './LearningEngineSection';
@@ -42,7 +43,7 @@ function formatTemplateId(id) {
   return id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
 }
 
-function AgentIdentityCard({ agent, onToggle, onRedeploy, onAttachWallet }) {
+function AgentIdentityCard({ agent, onToggle, onRedeploy, onAttachWallet, onDestroy }) {
   const isRunning = agent.status === 'running';
   const dotColor = STATUS_DOT[agent.status] || '#555';
 
@@ -119,6 +120,17 @@ function AgentIdentityCard({ agent, onToggle, onRedeploy, onAttachWallet }) {
             }}
           >
             <RefreshCw className="w-3 h-3" /> Redeploy
+          </button>
+          <button
+            onClick={onDestroy}
+            className="flex items-center gap-2 font-mono text-xs px-3 py-2 rounded cursor-pointer transition-all hover:opacity-80"
+            style={{
+              background: '#ff444410',
+              border: '1px solid #ff444430',
+              color: '#ff4444',
+            }}
+          >
+            <Trash2 className="w-3 h-3" />
           </button>
         </div>
       </div>
@@ -252,6 +264,8 @@ export default function MyAgentTab({ agent, skills, nova, loading, onRefresh }) 
   const [localSkills, setLocalSkills] = useState(null);
   const [showRedeploy, setShowRedeploy] = useState(false);
   const [showAttachWallet, setShowAttachWallet] = useState(false);
+  const [showDestroy, setShowDestroy] = useState(false);
+  const [destroying, setDestroying] = useState(false);
   const displaySkills = localSkills || skills;
 
   // Poll when agent is stuck in 'deploying'
@@ -274,6 +288,22 @@ export default function MyAgentTab({ agent, skills, nova, loading, onRefresh }) 
       console.error('[MyAgentTab] toggle error:', err);
     }
     onRefresh?.();
+  };
+
+  const handleDestroy = async () => {
+    setDestroying(true);
+    try {
+      await apiFetch('/agents/destroy', {
+        method: 'POST',
+        body: JSON.stringify({ agentId: agent.agent_id }),
+      });
+      toast.success('Agent destroyed');
+      setShowDestroy(false);
+      onRefresh?.();
+    } catch {
+      // toast.error already fired by apiFetch
+    }
+    setDestroying(false);
   };
 
   const handleToggleSkill = async (skill) => {
@@ -327,7 +357,7 @@ export default function MyAgentTab({ agent, skills, nova, loading, onRefresh }) 
 
   return (
     <div className="space-y-4 max-w-[640px]">
-      <AgentIdentityCard agent={agent} onToggle={handleToggleAgent} onRedeploy={() => setShowRedeploy(true)} onAttachWallet={() => setShowAttachWallet(true)} />
+      <AgentIdentityCard agent={agent} onToggle={handleToggleAgent} onRedeploy={() => setShowRedeploy(true)} onAttachWallet={() => setShowAttachWallet(true)} onDestroy={() => setShowDestroy(true)} />
       {showRedeploy && (
         <RedeployModal
           agent={agent}
@@ -337,6 +367,31 @@ export default function MyAgentTab({ agent, skills, nova, loading, onRefresh }) 
       )}
       {showAttachWallet && (
         <AttachWalletModal onClose={() => setShowAttachWallet(false)} onSuccess={() => { setShowAttachWallet(false); onRefresh?.(); }} />
+      )}
+      {showDestroy && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setShowDestroy(false)}>
+          <div className="nova-card w-full max-w-sm p-6 animate-fade-in" onClick={e => e.stopPropagation()}>
+            <h3 className="font-syne font-bold text-lg text-white mb-2">Destroy Agent</h3>
+            <p className="font-mono text-xs text-[#888] mb-4">
+              Are you sure you want to permanently destroy <strong className="text-white">{agent.display_name}</strong>? This cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDestroy(false)}
+                className="flex-1 font-mono text-xs py-2.5 rounded cursor-pointer"
+                style={{ background: '#1a1a1a', border: '1px solid #222', color: '#bbb' }}
+              >Cancel</button>
+              <button
+                onClick={handleDestroy}
+                disabled={destroying}
+                className="flex-1 font-mono text-xs py-2.5 rounded cursor-pointer disabled:opacity-50"
+                style={{ background: '#ff444418', border: '1px solid #ff444440', color: '#ff4444' }}
+              >
+                {destroying ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Destroy'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
       <SkillsList skills={displaySkills} onToggle={handleToggleSkill} />
       <NetworkStats agent={agent} nova={nova} />

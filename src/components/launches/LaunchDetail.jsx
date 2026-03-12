@@ -3,19 +3,21 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useApi } from '../nova/AuthContext';
 import NovaPill from '../nova/NovaPill';
+import LaunchEditModal from './LaunchEditModal';
 import { formatUSD, formatSOL, truncateAddress } from '../nova/formatters';
 import { SkeletonRect } from '../nova/Skeleton';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 
 const STATUS_COLORS = { DRAFT: '#555', READY: '#ff9500', LAUNCHED: '#00c8ff', FAILED: '#ff4444' };
 
-export default function LaunchDetail({ launchId, onBack }) {
+export default function LaunchDetail({ launchId, onBack, onRefresh }) {
   const apiFetch = useApi();
   const [data, setData] = useState(null);
   const [price, setPrice] = useState(null);
   const [loading, setLoading] = useState(true);
   const [priceHist, setPriceHist] = useState([]);
   const [isBurnable, setIsBurnable] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
 
   useEffect(() => {
     apiFetch(`/launches/${launchId}`).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
@@ -63,7 +65,16 @@ export default function LaunchDetail({ launchId, onBack }) {
 
   return (
     <div className="space-y-4">
-      <button onClick={onBack} className="font-mono text-xs cursor-pointer hover:opacity-80" style={{ background: 'none', border: 'none', color: '#00ff88' }}>← Back to Launches</button>
+      <div className="flex items-center justify-between">
+        <button onClick={onBack} className="font-mono text-xs cursor-pointer hover:opacity-80" style={{ background: 'none', border: 'none', color: '#00ff88' }}>← Back to Launches</button>
+        <button
+          onClick={() => setShowEdit(true)}
+          className="font-mono text-[11px] px-3 py-1.5 rounded cursor-pointer transition-opacity hover:opacity-80"
+          style={{ background: '#00c8ff18', border: '1px solid #00c8ff40', color: '#00c8ff' }}
+        >
+          ✏ Edit
+        </button>
+      </div>
 
       {/* Header */}
       <div className="nova-card p-6">
@@ -188,6 +199,18 @@ export default function LaunchDetail({ launchId, onBack }) {
             })}
           </div>
         </div>
+      )}
+
+      {showEdit && (
+        <LaunchEditModal
+          launchId={launchId}
+          initialData={d}
+          onClose={() => setShowEdit(false)}
+          onSaved={() => {
+            apiFetch(`/launches/${launchId}`).then(dd => { setData(dd); }).catch(() => {});
+            onRefresh?.();
+          }}
+        />
       )}
     </div>
   );

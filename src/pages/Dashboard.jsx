@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { useAuth, useApi } from '../components/nova/AuthContext';
+import { useAuth, useApi, API } from '../components/nova/AuthContext';
 import StatsRow from '../components/dashboard/StatsRow';
 import LiveFeed from '../components/dashboard/LiveFeed';
 import OpenPositions from '../components/dashboard/OpenPositions';
@@ -63,7 +63,8 @@ export default function Dashboard() {
     let isMounted = true;
 
     function connect() {
-      ws = new WebSocket(`wss://enthusiastic-respect-production-3521.up.railway.app/api/ws/live?token=${token}`);
+      const wsUrl = API.replace(/^http/, 'ws') + `/ws/live?token=${token}`;
+      ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {

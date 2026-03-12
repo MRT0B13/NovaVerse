@@ -3,6 +3,7 @@ import { useApi } from '../nova/AuthContext';
 import { SkeletonRect } from '../nova/Skeleton';
 import NovaPill from '../nova/NovaPill';
 import CollapsibleSection from './CollapsibleSection';
+import LearningHistoryChart from './LearningHistoryChart';
 
 const STRATEGY_COLORS = {
   polymarket: '#c084fc',
@@ -167,6 +168,9 @@ export default function LearningEngineSection() {
               </div>
             </div>
           )}
+
+          {/* History Chart */}
+          <LearningHistoryChart />
 
           {/* Alerts */}
           {params.alerts && params.alerts.length > 0 && (

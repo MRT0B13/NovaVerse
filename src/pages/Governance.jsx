@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useApi } from '../components/nova/AuthContext';
 import StatCard from '../components/nova/StatCard';
 import ProposalCard from '../components/governance/ProposalCard';
 import SubmitProposalModal from '../components/governance/SubmitProposalModal';
 import { SkeletonRect } from '../components/nova/Skeleton';
+
+const PAGE_SIZE = 20;
 
 export default function Governance() {
   const apiFetch = useApi();
@@ -11,6 +13,7 @@ export default function Governance() {
   const [novaBalance, setNovaBalance] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [page, setPage] = useState(0);
 
   const fetchData = useCallback(async () => {
     const [p, port] = await Promise.allSettled([
@@ -31,9 +34,17 @@ export default function Governance() {
   const votedCount = proposals.filter(p => p.your_vote != null).length;
   const activeCount = proposals.filter(p => p.status === 'active').length;
 
+  const sorted = useMemo(() =>
+    [...proposals].sort((a, b) => {
+      const order = { active: 0, passed: 1, failed: 2, rejected: 2, expired: 3 };
+      return (order[a.status] ?? 4) - (order[b.status] ?? 4);
+    }), [proposals]);
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+  const paged = sorted.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
   return (
     <div className="p-4 md:p-6 max-w-[1000px] mx-auto">
-      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
         {loading ? (
           [1,2,3].map(i => (
@@ -51,10 +62,11 @@ export default function Governance() {
         )}
       </div>
 
-      {/* Proposals list */}
       <div className="nova-card overflow-hidden">
         <div className="flex items-center justify-between px-3 sm:px-4 py-3 gap-2" style={{ borderBottom: '1px solid #1a1a1a' }}>
-          <span className="font-mono text-[10px] uppercase tracking-widest text-[#888]">All Proposals</span>
+          <span className="font-mono text-[10px] uppercase tracking-widest text-[#888]">
+            All Proposals {sorted.length > 0 && `(${sorted.length})`}
+          </span>
           <button
             onClick={() => setShowModal(true)}
             className="font-mono text-[10px] px-3 py-1.5 rounded cursor-pointer transition-opacity hover:opacity-80 shrink-0"
@@ -67,17 +79,37 @@ export default function Governance() {
         <div className="p-4 space-y-4">
           {loading ? (
             [1,2,3].map(i => <SkeletonRect key={i} h={80} />)
-          ) : proposals.length === 0 ? (
+          ) : paged.length === 0 ? (
             <div className="py-12 text-center text-[#555] font-mono text-xs">
               No proposals yet
             </div>
           ) : (
-            [...proposals].sort((a, b) => {
-              const order = { active: 0, passed: 1, failed: 2, rejected: 2, expired: 3 };
-              return (order[a.status] ?? 4) - (order[b.status] ?? 4);
-            }).map(p => <ProposalCard key={p.id} proposal={p} />)
+            paged.map(p => <ProposalCard key={p.id} proposal={p} />)
           )}
         </div>
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-4 py-3" style={{ borderTop: '1px solid #1a1a1a' }}>
+            <span className="font-mono text-[10px] text-[#555]">
+              {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, sorted.length)} of {sorted.length}
+            </span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPage(p => Math.max(0, p - 1))}
+                disabled={page === 0}
+                className="font-mono text-[10px] px-3 py-1 rounded cursor-pointer disabled:opacity-30"
+                style={{ background: '#1a1a1a', border: '1px solid #222', color: '#bbb' }}
+              >← Prev</button>
+              <span className="font-mono text-[10px] text-[#555] self-center">{page + 1}/{totalPages}</span>
+              <button
+                onClick={() => setPage(p => p + 1)}
+                disabled={page + 1 >= totalPages}
+                className="font-mono text-[10px] px-3 py-1 rounded cursor-pointer disabled:opacity-30"
+                style={{ background: '#1a1a1a', border: '1px solid #222', color: '#bbb' }}
+              >Next →</button>
+            </div>
+          </div>
+        )}
       </div>
 
       {showModal && (

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useApi } from '../components/nova/AuthContext';
+import { useAuth, useApi, API } from '../components/nova/AuthContext';
 import LiveDot from '../components/nova/LiveDot';
 import NovaPill from '../components/nova/NovaPill';
 import DebateMessage from '../components/debate/DebateMessage';
@@ -8,6 +8,7 @@ import { timeRemaining } from '../components/nova/formatters';
 import { SkeletonRect } from '../components/nova/Skeleton';
 
 export default function DebateChamber() {
+  const { token } = useAuth();
   const apiFetch = useApi();
   const [proposals, setProposals] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
@@ -57,11 +58,59 @@ export default function DebateChamber() {
     if (isInitial) setDebateLoading(false);
   }, [apiFetch, selectedId]);
 
+  // WebSocket for live debate messages with polling fallback
+  const wsRef = useRef(null);
+  const pollRef = useRef(null);
+
   useEffect(() => {
+    if (!selectedId) return;
     fetchDebate(true);
-    const interval = setInterval(() => fetchDebate(false), 5000);
-    return () => clearInterval(interval);
-  }, [fetchDebate]);
+
+    let ws;
+    let reconnectTimeout;
+    let isMounted = true;
+
+    function connectWs() {
+      if (!token) return;
+      const wsUrl = API.replace(/^http/, 'ws') + `/ws/live?token=${token}`;
+      ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const parsed = JSON.parse(event.data);
+          if (parsed.type === 'debate_message' && parsed.data && String(parsed.data.proposal_id) === String(selectedId)) {
+            setDebateMessages(prev => [...(Array.isArray(prev) ? prev : []), parsed.data]);
+          } else if (parsed.type === 'feed_event' && parsed.data?.message_type === 'debate') {
+            // Refresh full debate on any debate feed event
+            fetchDebate(false);
+          }
+        } catch {}
+      };
+
+      ws.onclose = () => {
+        if (!isMounted) return;
+        // Fall back to polling
+        if (!pollRef.current) {
+          pollRef.current = setInterval(() => fetchDebate(false), 5000);
+        }
+        reconnectTimeout = setTimeout(connectWs, 3000);
+      };
+    }
+
+    connectWs();
+
+    return () => {
+      isMounted = false;
+      if (ws) ws.close();
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
+      if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+    };
+  }, [fetchDebate, selectedId, token]);
 
   // Track manual scroll
   const handleScroll = useCallback(() => {
