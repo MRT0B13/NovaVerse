@@ -23,7 +23,7 @@ export default function StatsRow({ portfolio, skills, agent, loadingPortfolio, l
   const STATUS_COLORS = { running: '#00ff88', paused: '#ff9500', deploying: '#00c8ff', error: '#ff4444' };
   const agentStatus = agent?.status;
   const statusColor = noAgent ? '#555' : (STATUS_COLORS[agentStatus] || '#555');
-  const statusLabel = noAgent ? 'Not Deployed' : agentStatus.charAt(0).toUpperCase() + agentStatus.slice(1);
+  const statusLabel = noAgent ? 'Not Deployed' : agentStatus ? agentStatus.charAt(0).toUpperCase() + agentStatus.slice(1) : 'Unknown';
   const sub = noAgent ? 'Deploy an agent to see live data' : undefined;
 
   return (
