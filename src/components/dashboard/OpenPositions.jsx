@@ -52,8 +52,9 @@ export default function OpenPositions({ positions, loading }) {
       </div>
 
       {sorted.length === 0 ? (
-        <div className="p-8 text-center text-[#555] font-mono text-xs">
-          Your agent hasn't opened any positions yet.
+        <div className="p-8 text-center">
+          <p className="font-mono text-xs text-[#555]">No open positions yet.</p>
+          <p className="font-mono text-[10px] text-[#333] mt-1">Positions will appear here once your agent opens trades.</p>
         </div>
       ) : (
         <div className="overflow-x-auto">

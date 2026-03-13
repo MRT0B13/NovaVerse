@@ -22,8 +22,6 @@ export default function PortfolioChart() {
 
   useEffect(() => { fetchPnl(); }, [fetchPnl]);
 
-  if (!loading && data.length === 0) return null;
-
   return (
     <div className="nova-card p-4">
       <div className="flex items-center justify-between mb-3">
@@ -50,6 +48,10 @@ export default function PortfolioChart() {
 
       {loading ? (
         <SkeletonRect h={160} />
+      ) : data.length === 0 ? (
+        <div className="flex items-center justify-center" style={{ height: 160 }}>
+          <p className="font-mono text-[11px] text-[#555]">No portfolio data yet — PnL chart will appear once trades are recorded.</p>
+        </div>
       ) : (
         <div style={{ height: 160 }}>
           <ResponsiveContainer width="100%" height="100%">

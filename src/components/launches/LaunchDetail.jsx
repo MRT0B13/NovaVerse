@@ -123,9 +123,9 @@ export default function LaunchDetail({ launchId, onBack, onRefresh }) {
         {/* Left column — main content */}
         <div className="flex-1 min-w-0 space-y-4">
           {/* Price chart */}
-          {priceHist.length > 1 && (
-            <div className="nova-card p-4">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-[#888]">Price History</span>
+          <div className="nova-card p-4">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-[#888]">Price History</span>
+            {priceHist.length > 1 ? (
               <div className="mt-2" style={{ height: 140 }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={priceHist}>
@@ -136,40 +136,54 @@ export default function LaunchDetail({ launchId, onBack, onRefresh }) {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="mt-2 flex items-center justify-center rounded" style={{ height: 100, background: '#0a0a0a', border: '1px solid #111' }}>
+                <p className="font-mono text-[10px] text-[#555]">
+                  {price ? 'Collecting price data — chart appears after a few ticks...' : 'No price data available for this launch.'}
+                </p>
+              </div>
+            )}
+          </div>
 
           {/* Price + Graduation */}
-          {price && (
-            <div className="nova-card p-4 space-y-3">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <span className="font-mono text-xs text-[#888]">Market Cap</span>
-                <span className="font-syne font-bold text-lg text-white">{formatUSD(price.market_cap)}</span>
-              </div>
-              {price.price_usd != null && (
+          <div className="nova-card p-4 space-y-3">
+            {price ? (
+              <>
                 <div className="flex items-center justify-between flex-wrap gap-2">
-                  <span className="font-mono text-xs text-[#888]">Token Price</span>
-                  <span className="font-mono text-sm text-[#00ff88]">${Number(price.price_usd).toFixed(6)}</span>
+                  <span className="font-mono text-xs text-[#888]">Market Cap</span>
+                  <span className="font-syne font-bold text-lg text-white">{formatUSD(price.market_cap)}</span>
                 </div>
-              )}
-              {price.volume_24h != null && Number(price.volume_24h) > 0 && (
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <span className="font-mono text-xs text-[#888]">24h Volume</span>
-                  <span className="font-mono text-sm text-[#bbb]">{formatUSD(price.volume_24h)}</span>
+                {price.price_usd != null && (
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <span className="font-mono text-xs text-[#888]">Token Price</span>
+                    <span className="font-mono text-sm text-[#00ff88]">${Number(price.price_usd).toFixed(6)}</span>
+                  </div>
+                )}
+                {price.volume_24h != null && Number(price.volume_24h) > 0 && (
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <span className="font-mono text-xs text-[#888]">24h Volume</span>
+                    <span className="font-mono text-sm text-[#bbb]">{formatUSD(price.volume_24h)}</span>
+                  </div>
+                )}
+                <div className="w-full h-3 rounded-full overflow-hidden" style={{ background: '#1a1a1a' }}>
+                  <div className="h-full rounded-full" style={{
+                    width: `${Math.min(gradProgress, 100)}%`,
+                    background: gradProgress >= 90 ? 'linear-gradient(90deg, #00ff88, #ffd700, #c084fc)' : 'linear-gradient(90deg, #00ff88, #ffd700)',
+                  }} />
                 </div>
-              )}
-              <div className="w-full h-3 rounded-full overflow-hidden" style={{ background: '#1a1a1a' }}>
-                <div className="h-full rounded-full" style={{
-                  width: `${Math.min(gradProgress, 100)}%`,
-                  background: gradProgress >= 90 ? 'linear-gradient(90deg, #00ff88, #ffd700, #c084fc)' : 'linear-gradient(90deg, #00ff88, #ffd700)',
-                }} />
+                <p className="font-mono text-[10px] text-[#555]">{gradProgress.toFixed(1)}% of $69k graduation</p>
+                {sellState.current_price_sol && (
+                  <p className="font-mono text-[11px] text-[#bbb]">Price: {formatSOL(sellState.current_price_sol)} {sellState.peak_price_sol ? `(Peak: ${formatSOL(sellState.peak_price_sol)})` : ''}</p>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-2">
+                <p className="font-mono text-xs text-[#555]">
+                  {status === 'LAUNCHED' ? 'Loading market data...' : 'Market data available after launch.'}
+                </p>
               </div>
-              <p className="font-mono text-[10px] text-[#555]">{gradProgress.toFixed(1)}% of $69k graduation</p>
-              {sellState.current_price_sol && (
-                <p className="font-mono text-[11px] text-[#bbb]">Price: {formatSOL(sellState.current_price_sol)} {sellState.peak_price_sol ? `(Peak: ${formatSOL(sellState.peak_price_sol)})` : ''}</p>
-              )}
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Auto-sell Ladder */}
           {tpLevels.length > 0 && (

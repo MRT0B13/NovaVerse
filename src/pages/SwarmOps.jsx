@@ -44,7 +44,17 @@ export default function SwarmOps() {
     if (results[0].status === 'fulfilled') setOverview(results[0].value);
     if (results[1].status === 'fulfilled') {
       const d = results[1].value;
-      setAgents(Array.isArray(d) ? d : (d?.agents || []));
+      const list = Array.isArray(d) ? d : (d?.agents || []);
+      // If health APIs responded, the health-monitor/health-agent IS alive
+      // (it serves these endpoints). Override stale heartbeat status.
+      const healthApiAlive = results[0].status === 'fulfilled';
+      setAgents(list.map(a => {
+        const n = (a.name || a.agentName || '').toLowerCase();
+        if (healthApiAlive && (n === 'health-monitor' || n === 'health-agent')) {
+          return { ...a, alive: true, status: 'alive' };
+        }
+        return a;
+      }));
     }
     if (results[2].status === 'fulfilled') {
       const d = results[2].value;
@@ -77,12 +87,12 @@ export default function SwarmOps() {
   }, [fetchAll]);
 
   const agentsObj = overview?.agents || {};
-  // Count alive based on both the alive boolean AND the status field
+  // Count alive: check status field first, then alive boolean
   const aliveCount = agentsObj.alive ?? agents.filter(a => {
-    if (a.alive === true) return true;
-    if (a.alive === false) return false;
     const s = (a.status || '').toLowerCase();
-    return s === 'alive' || s === 'running' || s === 'active';
+    if (s === 'alive' || s === 'running' || s === 'active') return true;
+    if (s === 'dead' || s === 'disabled' || s === 'error' || s === 'offline') return false;
+    return a.alive === true;
   }).length;
   const totalCount = agentsObj.total ?? agents.length;
   const statusKey = (overview?.status || 'healthy').toLowerCase();

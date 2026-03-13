@@ -28,7 +28,16 @@ export default function LearningHistoryChart() {
   useEffect(() => { fetchHistory(); }, [fetchHistory]);
 
   if (loading) return <SkeletonRect h={180} />;
-  if (!data || data.length === 0) return null;
+  if (!data || data.length === 0) {
+    return (
+      <div className="mt-4">
+        <p className="font-mono text-[9px] uppercase tracking-widest text-[#555] mb-2">Regime History</p>
+        <div className="flex items-center justify-center rounded" style={{ height: 120, background: '#0a0a0a', border: '1px solid #1a1a1a' }}>
+          <p className="font-mono text-[10px] text-[#555]">No regime history yet — data accumulates over time.</p>
+        </div>
+      </div>
+    );
+  }
 
   // Build regime bands for background coloring
   const regimeBands = [];
