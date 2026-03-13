@@ -77,7 +77,13 @@ export default function SwarmOps() {
   }, [fetchAll]);
 
   const agentsObj = overview?.agents || {};
-  const aliveCount = agentsObj.alive ?? agents.filter(a => a.alive !== false).length;
+  // Count alive based on both the alive boolean AND the status field
+  const aliveCount = agentsObj.alive ?? agents.filter(a => {
+    if (a.alive === true) return true;
+    if (a.alive === false) return false;
+    const s = (a.status || '').toLowerCase();
+    return s === 'alive' || s === 'running' || s === 'active';
+  }).length;
   const totalCount = agentsObj.total ?? agents.length;
   const statusKey = (overview?.status || 'healthy').toLowerCase();
   const style = STATUS_STYLES[statusKey] || STATUS_STYLES.healthy;

@@ -84,6 +84,12 @@ export default function LaunchCard({ launch: raw, onClick }) {
             );
           })()}
 
+          {status === 'FAILED' && (
+            <p className="font-mono text-[10px] mt-2" style={{ color: '#ff4444' }}>
+              Launch failed — tap for details
+            </p>
+          )}
+
           {Number(launch.treasury_sol || launch.treasurySol || 0) > 0 && (
             <p className="font-mono text-[10px] text-[#555] mt-1">Treasury: {formatSOL(launch.treasury_sol || launch.treasurySol)}</p>
           )}
