@@ -6,6 +6,10 @@ import FeedItem, { AGENT_COLORS } from './FeedItem';
 export default function LiveFeed({ items, loading }) {
   const [activeAgent, setActiveAgent] = useState('All');
 
+  // Hooks must be called before any early return (React rules of hooks)
+  const agents = useMemo(() => [...new Set((items || []).map(i => i.agent).filter(Boolean))], [items]);
+  const filtered = useMemo(() => activeAgent === 'All' ? items : (items || []).filter(i => i.agent === activeAgent), [items, activeAgent]);
+
   if (loading) {
     return (
       <div className="nova-card p-4 space-y-3">
@@ -14,10 +18,6 @@ export default function LiveFeed({ items, loading }) {
       </div>
     );
   }
-
-  // Derive unique agents from the feed data (memoized to prevent child re-renders)
-  const agents = useMemo(() => [...new Set((items || []).map(i => i.agent).filter(Boolean))], [items]);
-  const filtered = useMemo(() => activeAgent === 'All' ? items : (items || []).filter(i => i.agent === activeAgent), [items, activeAgent]);
 
   return (
     <div className="nova-card overflow-hidden">
