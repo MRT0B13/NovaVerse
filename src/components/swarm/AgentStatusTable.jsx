@@ -11,10 +11,11 @@ const AGENT_COLORS = {
   'nova-launcher': '#f472b6',
   'nova-community': '#ffd700',
   'nova': '#00ff88',
+  'health-monitor': '#00e5cc',
 };
 
-// Health infra agents — not ecosystem agents, exclude from the table
-const INFRA_AGENTS = new Set(['health-monitor', 'health-agent']);
+// health-agent is a stale duplicate of health-monitor — exclude it
+const INFRA_AGENTS = new Set(['health-agent']);
 
 function getAgentStatus(agent) {
   // Priority: check the explicit status field first, then the alive boolean

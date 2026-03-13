@@ -45,8 +45,8 @@ export default function SwarmOps() {
     if (results[1].status === 'fulfilled') {
       const d = results[1].value;
       const list = Array.isArray(d) ? d : (d?.agents || []);
-      // Filter out infra agents (health-monitor/health-agent) — they're not ecosystem agents
-      const INFRA = new Set(['health-monitor', 'health-agent']);
+      // Filter out health-agent (stale duplicate of health-monitor)
+      const INFRA = new Set(['health-agent']);
       setAgents(list.filter(a => !INFRA.has((a.name || a.agentName || '').toLowerCase())));
     }
     if (results[2].status === 'fulfilled') {
