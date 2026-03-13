@@ -3,21 +3,17 @@ import StatCard from '../nova/StatCard';
 import { formatUSD } from '../nova/formatters';
 import { SkeletonRect } from '../nova/Skeleton';
 
-export default function StatsRow({ portfolio, skills, agent, loading }) {
-  if (loading) {
-    return (
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {[1,2,3,4].map(i => (
-          <div key={i} className="nova-card p-4 space-y-3">
-            <SkeletonRect w="60%" h={10} />
-            <SkeletonRect w="80%" h={24} />
-          </div>
-        ))}
-      </div>
-    );
-  }
+function SkeletonCard() {
+  return (
+    <div className="nova-card p-4 space-y-3">
+      <SkeletonRect w="60%" h={10} />
+      <SkeletonRect w="80%" h={24} />
+    </div>
+  );
+}
 
-  const noAgent = !agent;
+export default function StatsRow({ portfolio, skills, agent, loadingPortfolio, loadingSkills, loadingAgent }) {
+  const noAgent = !agent && !loadingAgent;
   const totalValue = Number(portfolio?.summary?.total_value_usd || 0);
   const novaBalance = Number(portfolio?.nova?.balance || 0);
   const novaEarned = Number(portfolio?.nova?.earned_month || 0);
@@ -32,25 +28,33 @@ export default function StatsRow({ portfolio, skills, agent, loading }) {
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-      <StatCard label="Portfolio Total" value={noAgent ? '—' : formatUSD(totalValue)} color={noAgent ? '#555' : '#00ff88'} sub={noAgent ? sub : undefined} />
-      <StatCard
-        label="NOVA Tokens"
-        value={noAgent ? '—' : novaBalance.toLocaleString()}
-        sub={noAgent ? sub : `+${novaEarned} this month`}
-        color={noAgent ? '#555' : '#c084fc'}
-      />
-      <StatCard
-        label="Active Skills"
-        value={noAgent ? '—' : `${enabledSkills} / ${totalSkills}`}
-        color={noAgent ? '#555' : '#00c8ff'}
-        sub={noAgent ? sub : (totalSkills === 0 ? 'No skills loaded — deploy an agent to activate skills' : undefined)}
-      />
-      <StatCard
-        label="Agent Status"
-        value={statusLabel}
-        color={statusColor}
-        sub={noAgent ? sub : undefined}
-      />
+      {loadingPortfolio ? <SkeletonCard /> : (
+        <StatCard label="Portfolio Total" value={noAgent ? '—' : formatUSD(totalValue)} color={noAgent ? '#555' : '#00ff88'} sub={noAgent ? sub : undefined} />
+      )}
+      {loadingPortfolio ? <SkeletonCard /> : (
+        <StatCard
+          label="NOVA Tokens"
+          value={noAgent ? '—' : novaBalance.toLocaleString()}
+          sub={noAgent ? sub : `+${novaEarned} this month`}
+          color={noAgent ? '#555' : '#c084fc'}
+        />
+      )}
+      {loadingSkills ? <SkeletonCard /> : (
+        <StatCard
+          label="Active Skills"
+          value={noAgent ? '—' : `${enabledSkills} / ${totalSkills}`}
+          color={noAgent ? '#555' : '#00c8ff'}
+          sub={noAgent ? sub : (totalSkills === 0 ? 'No skills loaded — deploy an agent to activate skills' : undefined)}
+        />
+      )}
+      {loadingAgent ? <SkeletonCard /> : (
+        <StatCard
+          label="Agent Status"
+          value={statusLabel}
+          color={statusColor}
+          sub={noAgent ? sub : undefined}
+        />
+      )}
     </div>
   );
 }

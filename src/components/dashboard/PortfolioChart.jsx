@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useApi } from '../nova/AuthContext';
+import React, { useState } from 'react';
+import useNovaQuery from '../../hooks/useNovaQuery';
 import { formatUSD } from '../nova/formatters';
 import { SkeletonRect } from '../nova/Skeleton';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
@@ -7,20 +7,17 @@ import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'rec
 const PERIODS = ['1d', '7d', '30d'];
 
 export default function PortfolioChart() {
-  const apiFetch = useApi();
-  const [data, setData] = useState([]);
   const [period, setPeriod] = useState('7d');
-  const [loading, setLoading] = useState(true);
 
-  const fetchPnl = useCallback(() => {
-    setLoading(true);
-    apiFetch(`/portfolio/pnl?period=${period}`)
-      .then(d => setData(Array.isArray(d) ? d : (d?.snapshots || [])))
-      .catch(() => setData([]))
-      .finally(() => setLoading(false));
-  }, [period, apiFetch]);
+  // React Query caches each period separately — switching back to a visited
+  // period is instant (no skeleton flash, no network request within staleTime).
+  const { data: raw, isLoading } = useNovaQuery(
+    ['portfolio-pnl', period],
+    `/portfolio/pnl?period=${period}`,
+    { staleTime: 30_000 },
+  );
 
-  useEffect(() => { fetchPnl(); }, [fetchPnl]);
+  const data = Array.isArray(raw) ? raw : (raw?.snapshots || []);
 
   return (
     <div className="nova-card p-4">
@@ -46,7 +43,7 @@ export default function PortfolioChart() {
         </div>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <SkeletonRect h={160} />
       ) : data.length === 0 ? (
         <div className="flex items-center justify-center" style={{ height: 160 }}>

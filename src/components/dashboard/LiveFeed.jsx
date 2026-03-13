@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import LiveDot from '../nova/LiveDot';
 import { SkeletonRect } from '../nova/Skeleton';
 import FeedItem, { AGENT_COLORS } from './FeedItem';
@@ -15,9 +15,9 @@ export default function LiveFeed({ items, loading }) {
     );
   }
 
-  // Derive unique agents from the feed data
-  const agents = [...new Set((items || []).map(i => i.agent).filter(Boolean))];
-  const filtered = activeAgent === 'All' ? items : (items || []).filter(i => i.agent === activeAgent);
+  // Derive unique agents from the feed data (memoized to prevent child re-renders)
+  const agents = useMemo(() => [...new Set((items || []).map(i => i.agent).filter(Boolean))], [items]);
+  const filtered = useMemo(() => activeAgent === 'All' ? items : (items || []).filter(i => i.agent === activeAgent), [items, activeAgent]);
 
   return (
     <div className="nova-card overflow-hidden">

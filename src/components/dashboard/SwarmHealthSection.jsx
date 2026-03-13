@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useApi } from '../nova/AuthContext';
+import useNovaQuery from '../../hooks/useNovaQuery';
 import { SkeletonRect } from '../nova/Skeleton';
 import NovaPill from '../nova/NovaPill';
 import CollapsibleSection from './CollapsibleSection';
@@ -26,29 +27,21 @@ function CriticalErrorRow({ error }) {
 
 export default function SwarmHealthSection() {
   const apiFetch = useApi();
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [started, setStarted] = useState(false);
   const [critErrors, setCritErrors] = useState(null);
   const [showCritErrors, setShowCritErrors] = useState(false);
 
-  const fetchHealth = useCallback(async () => {
-    const res = await apiFetch('/health/overview').catch(() => null);
-    if (res) setData(res);
-  }, [apiFetch]);
+  // Only fetch once the section has been opened. React Query handles
+  // caching + refetch interval — no manual setInterval needed.
+  const { data, isLoading } = useNovaQuery(
+    'health-overview',
+    '/health/overview',
+    { enabled: started, staleTime: 20_000, refetchInterval: started ? 30_000 : false },
+  );
 
   const handleFirstOpen = useCallback(() => {
     setStarted(true);
-    setLoading(true);
-    fetchHealth().then(() => setLoading(false));
-  }, [fetchHealth]);
-
-  // Auto-refresh every 30s once opened
-  useEffect(() => {
-    if (!started) return;
-    const interval = setInterval(fetchHealth, 30000);
-    return () => clearInterval(interval);
-  }, [started, fetchHealth]);
+  }, []);
 
   const fetchCriticalErrors = async () => {
     if (critErrors) { setShowCritErrors(s => !s); return; }
@@ -57,7 +50,6 @@ export default function SwarmHealthSection() {
     setShowCritErrors(true);
   };
 
-  // Summary for collapsed state
   const summary = (() => {
     if (!data) return 'Loading…';
     const s = data.status;
@@ -80,7 +72,7 @@ export default function SwarmHealthSection() {
 
   return (
     <CollapsibleSection title="Swarm Health" icon="🛡" accentColor="#00ff88" summary={summary} summaryColor={summaryColor} onFirstOpen={handleFirstOpen}>
-      {loading || !data ? (
+      {isLoading || !data ? (
         <div className="space-y-3">
           <SkeletonRect h={20} />
           <div className="grid grid-cols-2 gap-2">
@@ -89,7 +81,6 @@ export default function SwarmHealthSection() {
         </div>
       ) : (
         <div className="space-y-3">
-          {/* Header row */}
           <div className="flex items-center justify-between">
             <NovaPill
               text={(data.status || 'unknown').toUpperCase()}
@@ -98,7 +89,6 @@ export default function SwarmHealthSection() {
             <span className="font-mono text-[10px] text-[#333]">{data.checkedAt ? relativeTime(data.checkedAt) : ''}</span>
           </div>
 
-          {/* 2x2 tiles */}
           <div className="grid grid-cols-2 gap-2">
             <HealthTile
               label="Agents Alive"
@@ -122,7 +112,6 @@ export default function SwarmHealthSection() {
             />
           </div>
 
-          {/* API Health */}
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-mono text-[10px] text-[#555]">
               APIs: {data.apis?.up ?? 0}/{data.apis?.total ?? 0} online
@@ -139,7 +128,6 @@ export default function SwarmHealthSection() {
             )}
           </div>
 
-          {/* Critical errors banner */}
           {(data.errors?.critical ?? 0) > 0 && (
             <div className="rounded p-3" style={{ background: '#ff444418', border: '1px solid #ff444430' }}>
               <div className="flex items-center justify-between">

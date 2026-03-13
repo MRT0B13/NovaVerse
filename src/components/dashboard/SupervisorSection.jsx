@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useApi } from '../nova/AuthContext';
+import React, { useState, useCallback } from 'react';
+import useNovaQuery from '../../hooks/useNovaQuery';
 import { SkeletonRect } from '../nova/Skeleton';
 import NovaPill from '../nova/NovaPill';
 import LiveDot from '../nova/LiveDot';
@@ -24,42 +24,34 @@ function agentColor(name) {
 const STATUS_DOT_COLORS = { alive: '#00ff88', degraded: '#ff9500', dead: '#ff4444' };
 
 export default function SupervisorSection() {
-  const apiFetch = useApi();
-  const [status, setStatus] = useState(null);
-  const [agents, setAgents] = useState(null);
-  const [decisions, setDecisions] = useState(null);
-  const [digest, setDigest] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [started, setStarted] = useState(false);
 
-  const fetchAll = useCallback(async () => {
-    const [s, a, d, dg] = await Promise.allSettled([
-      apiFetch('/supervisor/status'),
-      apiFetch('/supervisor/agents'),
-      apiFetch('/supervisor/decisions?limit=5'),
-      apiFetch('/supervisor/digest'),
-    ]);
-    if (s.status === 'fulfilled') setStatus(s.value);
-    if (a.status === 'fulfilled') setAgents(a.value);
-    if (d.status === 'fulfilled') setDecisions(d.value);
-    if (dg.status === 'fulfilled') setDigest(dg.value);
-  }, [apiFetch]);
+  // 4 independent queries — each section renders as its data arrives.
+  // Shared cache with React Query means the sidebar + MyAgentTab instances
+  // don't fire duplicate requests.
+  const { data: status, isLoading: loadStatus } = useNovaQuery(
+    'supervisor-status', '/supervisor/status',
+    { enabled: started, staleTime: 10_000, refetchInterval: started ? 15_000 : false },
+  );
+  const { data: agents, isLoading: loadAgents } = useNovaQuery(
+    'supervisor-agents', '/supervisor/agents',
+    { enabled: started, staleTime: 10_000, refetchInterval: started ? 15_000 : false },
+  );
+  const { data: decisions, isLoading: loadDecisions } = useNovaQuery(
+    'supervisor-decisions', '/supervisor/decisions?limit=5',
+    { enabled: started, staleTime: 10_000, refetchInterval: started ? 15_000 : false },
+  );
+  const { data: digest, isLoading: loadDigest } = useNovaQuery(
+    'supervisor-digest', '/supervisor/digest',
+    { enabled: started, staleTime: 10_000, refetchInterval: started ? 15_000 : false },
+  );
 
-  const handleFirstOpen = useCallback(async () => {
+  const loading = loadStatus && loadAgents && loadDecisions && loadDigest;
+
+  const handleFirstOpen = useCallback(() => {
     setStarted(true);
-    setLoading(true);
-    await fetchAll();
-    setLoading(false);
-  }, [fetchAll]);
+  }, []);
 
-  // Auto-refresh every 15s once opened
-  useEffect(() => {
-    if (!started) return;
-    const interval = setInterval(fetchAll, 15000);
-    return () => clearInterval(interval);
-  }, [started, fetchAll]);
-
-  // Summary for collapsed state
   const summary = (() => {
     if (!started) return null;
     if (loading) return 'Loading…';

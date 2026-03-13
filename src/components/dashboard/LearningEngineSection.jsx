@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { useApi } from '../nova/AuthContext';
+import useNovaQuery from '../../hooks/useNovaQuery';
 import { SkeletonRect } from '../nova/Skeleton';
 import NovaPill from '../nova/NovaPill';
 import CollapsibleSection from './CollapsibleSection';
@@ -31,28 +31,28 @@ const REGIME_STYLES = {
 };
 
 export default function LearningEngineSection() {
-  const apiFetch = useApi();
-  const [params, setParams] = useState(null);
-  const [regime, setRegime] = useState(null);
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [started, setStarted] = useState(false);
 
-  const handleFirstOpen = useCallback(async () => {
-    setStarted(true);
-    setLoading(true);
-    const [p, r, s] = await Promise.allSettled([
-      apiFetch('/learning/params'),
-      apiFetch('/learning/regime'),
-      apiFetch('/learning/stats'),
-    ]);
-    if (p.status === 'fulfilled') setParams(p.value);
-    if (r.status === 'fulfilled') setRegime(r.value);
-    if (s.status === 'fulfilled') setStats(s.value);
-    setLoading(false);
-  }, [apiFetch]);
+  // 3 independent queries — each section renders as its data arrives.
+  const { data: params, isLoading: loadParams } = useNovaQuery(
+    'learning-params', '/learning/params',
+    { enabled: started, staleTime: 30_000 },
+  );
+  const { data: regime, isLoading: loadRegime } = useNovaQuery(
+    'learning-regime', '/learning/regime',
+    { enabled: started, staleTime: 30_000 },
+  );
+  const { data: stats, isLoading: loadStats } = useNovaQuery(
+    'learning-stats', '/learning/stats',
+    { enabled: started, staleTime: 30_000 },
+  );
 
-  // Summary for collapsed state
+  const loading = loadParams && loadRegime && loadStats;
+
+  const handleFirstOpen = useCallback(() => {
+    setStarted(true);
+  }, []);
+
   const summary = (() => {
     if (!started) return null;
     if (loading) return 'Loading…';
