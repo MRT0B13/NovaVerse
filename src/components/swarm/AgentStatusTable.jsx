@@ -11,9 +11,10 @@ const AGENT_COLORS = {
   'nova-launcher': '#f472b6',
   'nova-community': '#ffd700',
   'nova': '#00ff88',
-  'health-monitor': '#888',
-  'health-agent': '#888',
 };
+
+// Health infra agents — not ecosystem agents, exclude from the table
+const INFRA_AGENTS = new Set(['health-monitor', 'health-agent']);
 
 function getAgentStatus(agent) {
   // Priority: check the explicit status field first, then the alive boolean
@@ -57,7 +58,9 @@ export default function AgentStatusTable({ agents, loading }) {
     );
   }
 
-  const list = Array.isArray(agents) ? agents : [];
+  const raw = Array.isArray(agents) ? agents : [];
+  // Filter out infra agents (health-monitor, health-agent) — they're not ecosystem agents
+  const list = raw.filter(a => !INFRA_AGENTS.has((a.name || a.agentName || '').toLowerCase()));
 
   // Sort: alive first, then degraded, then dead/disabled
   const ORDER = { alive: 0, degraded: 1, dead: 2, disabled: 3, unknown: 4 };

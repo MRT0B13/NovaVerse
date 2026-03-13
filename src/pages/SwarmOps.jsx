@@ -45,16 +45,9 @@ export default function SwarmOps() {
     if (results[1].status === 'fulfilled') {
       const d = results[1].value;
       const list = Array.isArray(d) ? d : (d?.agents || []);
-      // If health APIs responded, the health-monitor/health-agent IS alive
-      // (it serves these endpoints). Override stale heartbeat status.
-      const healthApiAlive = results[0].status === 'fulfilled';
-      setAgents(list.map(a => {
-        const n = (a.name || a.agentName || '').toLowerCase();
-        if (healthApiAlive && (n === 'health-monitor' || n === 'health-agent')) {
-          return { ...a, alive: true, status: 'alive' };
-        }
-        return a;
-      }));
+      // Filter out infra agents (health-monitor/health-agent) — they're not ecosystem agents
+      const INFRA = new Set(['health-monitor', 'health-agent']);
+      setAgents(list.filter(a => !INFRA.has((a.name || a.agentName || '').toLowerCase())));
     }
     if (results[2].status === 'fulfilled') {
       const d = results[2].value;
