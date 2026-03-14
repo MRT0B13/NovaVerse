@@ -69,6 +69,7 @@ export default function DebateChamber() {
     let ws;
     let reconnectTimeout;
     let isMounted = true;
+    let retryCount = 0;
 
     function connectWs() {
       if (!token) return;
@@ -77,6 +78,7 @@ export default function DebateChamber() {
       wsRef.current = ws;
 
       ws.onopen = () => {
+        retryCount = 0;
         if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
       };
 
@@ -86,7 +88,6 @@ export default function DebateChamber() {
           if (parsed.type === 'debate_message' && parsed.data && String(parsed.data.proposal_id) === String(selectedId)) {
             setDebateMessages(prev => [...(Array.isArray(prev) ? prev : []), parsed.data]);
           } else if (parsed.type === 'feed_event' && parsed.data?.message_type === 'debate') {
-            // Refresh full debate on any debate feed event
             fetchDebate(false);
           }
         } catch {}
@@ -94,11 +95,12 @@ export default function DebateChamber() {
 
       ws.onclose = () => {
         if (!isMounted) return;
-        // Fall back to polling
         if (!pollRef.current) {
           pollRef.current = setInterval(() => fetchDebate(false), 5000);
         }
-        reconnectTimeout = setTimeout(connectWs, 3000);
+        const delay = Math.min(30000, 1000 * Math.pow(2, retryCount));
+        retryCount++;
+        reconnectTimeout = setTimeout(connectWs, delay);
       };
     }
 

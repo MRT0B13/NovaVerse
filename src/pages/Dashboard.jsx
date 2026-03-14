@@ -18,6 +18,10 @@ import ErrorBanner from '../components/nova/ErrorBanner';
 import PortfolioChart from '../components/dashboard/PortfolioChart';
 import { useQueryClient } from '@tanstack/react-query';
 
+const WS_BACKOFF_BASE = 1000;
+const WS_BACKOFF_MAX = 30000;
+const WS_HEARTBEAT_TIMEOUT = 45000; // consider stale if no message for 45s
+
 export default function Dashboard() {
   const { token } = useAuth();
   const queryClient = useQueryClient();
@@ -26,18 +30,15 @@ export default function Dashboard() {
   const [dashTab, setDashTab] = useState('feed');
   const [wsConnected, setWsConnected] = useState(false);
   const wsRef = useRef(null);
-  const pollRef = useRef(null);
 
   // ── React Query data fetching ──────────────────────────────────────
-  // Each query is independent — components render as soon as their data arrives.
-  // staleTime prevents refetching on tab switches / re-mounts.
   const { data: portfolio, isLoading: loadingPortfolio, refetch: refetchPortfolio } =
     useNovaQuery('portfolio', '/portfolio', { staleTime: 20_000, refetchInterval: 30_000 });
 
   const { data: feedRaw, isLoading: loadingFeed } =
     useNovaQuery('feed', '/feed?limit=20', {
       staleTime: 10_000,
-      refetchInterval: wsConnected ? false : 30_000, // skip polling when WS is connected
+      refetchInterval: wsConnected ? false : 30_000,
     });
 
   const { data: skills, isLoading: loadingSkills, refetch: refetchSkills } =
@@ -46,22 +47,34 @@ export default function Dashboard() {
   const { data: agent, isLoading: loadingAgent, refetch: refetchAgent } =
     useNovaQuery('agent-me', '/agents/me', { staleTime: 30_000, refetchInterval: 30_000 });
 
-  // Normalise feed data shape
   const feed = Array.isArray(feedRaw) ? feedRaw : (feedRaw?.items || feedRaw?.feed || []);
 
-  // Refresh helper for child components that need a manual refetch
-  const refreshAll = () => {
+  const refreshAll = React.useCallback(() => {
     refetchPortfolio();
     refetchSkills();
     refetchAgent();
-  };
+  }, [refetchPortfolio, refetchSkills, refetchAgent]);
 
-  // ── WebSocket for live feed ────────────────────────────────────────
+  // ── WebSocket for live feed — with exponential backoff + heartbeat ──
   useEffect(() => {
     if (!token) return;
     let ws;
     let reconnectTimeout;
+    let heartbeatTimeout;
     let isMounted = true;
+    let retryCount = 0;
+
+    function resetHeartbeat() {
+      clearTimeout(heartbeatTimeout);
+      heartbeatTimeout = setTimeout(() => {
+        // No message received in HEARTBEAT_TIMEOUT — connection is stale
+        if (isMounted) {
+          setConnectionLost(true);
+          setWsConnected(false);
+        }
+        if (ws?.readyState === WebSocket.OPEN) ws.close();
+      }, WS_HEARTBEAT_TIMEOUT);
+    }
 
     function connect() {
       const wsUrl = API.replace(/^http/, 'ws') + `/ws/live?token=${token}`;
@@ -72,26 +85,35 @@ export default function Dashboard() {
         if (isMounted) {
           setConnectionLost(false);
           setWsConnected(true);
+          retryCount = 0; // reset backoff on successful connect
         }
-        if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+        resetHeartbeat();
       };
 
       ws.onmessage = (event) => {
-        const parsed = JSON.parse(event.data);
-        if (parsed.type === 'feed_event' && parsed.data) {
-          // Update the React Query cache directly with the new event
-          queryClient.setQueryData(['feed'], (old) => {
-            const prev = Array.isArray(old) ? old : (old?.items || old?.feed || []);
-            return [parsed.data, ...prev].slice(0, 50);
-          });
+        resetHeartbeat();
+        try {
+          const parsed = JSON.parse(event.data);
+          if (parsed.type === 'feed_event' && parsed.data) {
+            queryClient.setQueryData(['feed'], (old) => {
+              const prev = Array.isArray(old) ? old : (old?.items || old?.feed || []);
+              return [parsed.data, ...prev].slice(0, 50);
+            });
+          }
+        } catch {
+          // Malformed WS message — ignore silently
         }
       };
 
       ws.onclose = () => {
+        clearTimeout(heartbeatTimeout);
         if (!isMounted) return;
         setConnectionLost(true);
         setWsConnected(false);
-        reconnectTimeout = setTimeout(connect, 3000);
+        // Exponential backoff: 1s, 2s, 4s, 8s, 16s, capped at 30s
+        const delay = Math.min(WS_BACKOFF_MAX, WS_BACKOFF_BASE * Math.pow(2, retryCount));
+        retryCount++;
+        reconnectTimeout = setTimeout(connect, delay);
       };
 
       ws.onerror = () => ws.close();
@@ -100,9 +122,9 @@ export default function Dashboard() {
     connect();
     return () => {
       isMounted = false;
+      clearTimeout(heartbeatTimeout);
+      clearTimeout(reconnectTimeout);
       if (ws) ws.close();
-      if (reconnectTimeout) clearTimeout(reconnectTimeout);
-      if (pollRef.current) clearInterval(pollRef.current);
     };
   }, [token, queryClient]);
 

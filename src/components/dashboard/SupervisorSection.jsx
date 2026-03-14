@@ -46,7 +46,7 @@ export default function SupervisorSection() {
     { enabled: started, staleTime: 10_000, refetchInterval: started ? 15_000 : false },
   );
 
-  const loading = loadStatus && loadAgents && loadDecisions && loadDigest;
+  const loading = loadStatus || loadAgents || loadDecisions || loadDigest;
 
   const handleFirstOpen = useCallback(() => {
     setStarted(true);

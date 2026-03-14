@@ -6,7 +6,7 @@ export function formatUSD(n) {
 export function formatPnl(n) {
   if (n == null) return '$0.00';
   const prefix = n >= 0 ? '+' : '';
-  return prefix + formatUSD(n).replace('$', '$');
+  return prefix + formatUSD(n);
 }
 
 export function formatPnlSigned(n) {

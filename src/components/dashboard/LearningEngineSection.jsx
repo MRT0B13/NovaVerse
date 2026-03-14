@@ -36,18 +36,18 @@ export default function LearningEngineSection() {
   // 3 independent queries — each section renders as its data arrives.
   const { data: params, isLoading: loadParams } = useNovaQuery(
     'learning-params', '/learning/params',
-    { enabled: started, staleTime: 30_000 },
+    { enabled: started, staleTime: 30_000, refetchInterval: started ? 60_000 : false },
   );
   const { data: regime, isLoading: loadRegime } = useNovaQuery(
     'learning-regime', '/learning/regime',
-    { enabled: started, staleTime: 30_000 },
+    { enabled: started, staleTime: 30_000, refetchInterval: started ? 60_000 : false },
   );
   const { data: stats, isLoading: loadStats } = useNovaQuery(
     'learning-stats', '/learning/stats',
-    { enabled: started, staleTime: 30_000 },
+    { enabled: started, staleTime: 30_000, refetchInterval: started ? 60_000 : false },
   );
 
-  const loading = loadParams && loadRegime && loadStats;
+  const loading = loadParams || loadRegime || loadStats;
 
   const handleFirstOpen = useCallback(() => {
     setStarted(true);

@@ -15,7 +15,13 @@ const AGENT_COLORS = {
 function getTxExplorerUrl(txHash, chain) {
   if (!txHash) return null;
   const c = (chain || '').toLowerCase();
+  if (c.includes('solana') || c.includes('sol')) return `https://solscan.io/tx/${txHash}`;
+  if (c.includes('base')) return `https://basescan.org/tx/${txHash}`;
+  if (c.includes('polygon') || c.includes('matic')) return `https://polygonscan.com/tx/${txHash}`;
+  if (c.includes('optimism') || c.includes('op')) return `https://optimistic.etherscan.io/tx/${txHash}`;
   if (c.includes('arb') || c.includes('evm') || c.includes('ethereum')) return `https://arbiscan.io/tx/${txHash}`;
+  // Fallback: 0x prefix = EVM, otherwise assume Solana
+  if (txHash.startsWith('0x')) return `https://arbiscan.io/tx/${txHash}`;
   return `https://solscan.io/tx/${txHash}`;
 }
 

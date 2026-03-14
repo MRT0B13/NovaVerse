@@ -185,67 +185,112 @@ function NetworkStats({ agent, nova }) {
 function ConfigSection({ agent }) {
   const apiFetch = useApi();
   const [configs, setConfigs] = useState({});
+  const [serverConfigs, setServerConfigs] = useState({});
   const [saving, setSaving] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   const allowedKeys = TEMPLATE_CONFIG_KEYS[agent?.template_id] || [];
   const configItems = ALL_CONFIG_ITEMS.filter(item => allowedKeys.includes(item.key));
 
+  // Fetch current config values from server on mount
+  React.useEffect(() => {
+    if (configItems.length === 0 || loaded) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await apiFetch('/agents/config');
+        if (!cancelled && res) {
+          const serverVals = {};
+          // Handle both object and array response shapes
+          const entries = Array.isArray(res) ? res : Object.entries(res).map(([k, v]) => ({ key: k, value: v }));
+          for (const entry of entries) {
+            const key = entry.key || entry.name;
+            if (key) serverVals[key] = entry.value;
+          }
+          setServerConfigs(serverVals);
+          setLoaded(true);
+        }
+      } catch {
+        // Non-fatal — sliders will use item defaults until server responds
+        setLoaded(true);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [agent?.template_id]);
+
   if (configItems.length === 0) return null;
 
+  // Get display value: user override > server value > item default
+  const getValue = (item) => {
+    if (configs[item.key] !== undefined) return configs[item.key];
+    if (serverConfigs[item.key] !== undefined) return Number(serverConfigs[item.key]);
+    return item.type === 'range' ? item.min : item.options[0];
+  };
+
   const handleSave = async () => {
+    if (Object.keys(configs).length === 0) return;
     setSaving(true);
-    for (const [key, value] of Object.entries(configs)) {
-      await apiFetch('/agents/config', {
-        method: 'PATCH',
-        body: JSON.stringify({ key, value: String(value) }),
-      });
+    try {
+      for (const [key, value] of Object.entries(configs)) {
+        await apiFetch('/agents/config', {
+          method: 'PATCH',
+          body: JSON.stringify({ key, value: String(value) }),
+        });
+      }
+      // Merge saved values into server state
+      setServerConfigs(prev => ({ ...prev, ...configs }));
+      setConfigs({});
+      toast.success('Configuration saved');
+    } catch {
+      toast.error('Failed to save configuration');
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
-    setConfigs({});
   };
 
   return (
     <div className="nova-card p-5 space-y-5">
       <span className="font-mono text-[10px] uppercase tracking-widest text-[#888]">Configuration</span>
-      {configItems.map(item => (
-        <div key={item.key}>
-          <div className="flex justify-between mb-2">
-            <label className="font-mono text-[10px] text-[#888]">{item.label}</label>
-            <span className="font-mono text-xs text-white">
-              {configs[item.key] !== undefined ? configs[item.key] : item.type === 'range' ? item.min : item.options[0]}
-            </span>
-          </div>
-          {item.type === 'range' ? (
-            <input
-              type="range"
-              min={item.min}
-              max={item.max}
-              step={item.step}
-              value={configs[item.key] ?? item.min}
-              onChange={e => setConfigs({ ...configs, [item.key]: Number(e.target.value) })}
-              className="w-full accent-green-400"
-              style={{ height: 4 }}
-            />
-          ) : (
-            <div className="flex gap-2">
-              {item.options.map(opt => (
-                <button
-                  key={opt}
-                  onClick={() => setConfigs({ ...configs, [item.key]: opt })}
-                  className="font-mono text-xs px-4 py-1 rounded cursor-pointer transition-all"
-                  style={{
-                    background: (configs[item.key] || item.options[0]) === opt ? '#00ff8818' : '#0d0d0d',
-                    border: `1px solid ${(configs[item.key] || item.options[0]) === opt ? '#00ff88' : '#1a1a1a'}`,
-                    color: (configs[item.key] || item.options[0]) === opt ? '#00ff88' : '#555',
-                  }}
-                >
-                  {opt}
-                </button>
-              ))}
+      {configItems.map(item => {
+        const val = getValue(item);
+        return (
+          <div key={item.key}>
+            <div className="flex justify-between mb-2">
+              <label className="font-mono text-[10px] text-[#888]">{item.label}</label>
+              <span className="font-mono text-xs text-white">{val}</span>
             </div>
-          )}
-        </div>
-      ))}
+            {item.type === 'range' ? (
+              <input
+                type="range"
+                min={item.min}
+                max={item.max}
+                step={item.step}
+                value={val}
+                onChange={e => setConfigs({ ...configs, [item.key]: Number(e.target.value) })}
+                className="w-full accent-green-400"
+                style={{ height: 4 }}
+              />
+            ) : (
+              <div className="flex gap-2">
+                {item.options.map(opt => (
+                  <button
+                    key={opt}
+                    onClick={() => setConfigs({ ...configs, [item.key]: opt })}
+                    className="font-mono text-xs px-4 py-1 rounded cursor-pointer transition-all"
+                    style={{
+                      background: val === opt ? '#00ff8818' : '#0d0d0d',
+                      border: `1px solid ${val === opt ? '#00ff88' : '#1a1a1a'}`,
+                      color: val === opt ? '#00ff88' : '#555',
+                    }}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
       <button
         onClick={handleSave}
         disabled={saving || Object.keys(configs).length === 0}
@@ -280,12 +325,11 @@ export default function MyAgentTab({ agent, skills, nova, loading, onRefresh }) 
   const handleToggleAgent = async () => {
     if (!agent) return;
     const endpoint = agent.status === 'running' ? '/agents/pause' : '/agents/resume';
-    console.log('[MyAgentTab] toggling agent:', endpoint);
     try {
-      const res = await apiFetch(endpoint, { method: 'PATCH' });
-      console.log('[MyAgentTab] toggle response:', res);
-    } catch (err) {
-      console.error('[MyAgentTab] toggle error:', err);
+      await apiFetch(endpoint, { method: 'PATCH' });
+      toast.success(agent.status === 'running' ? 'Agent paused' : 'Agent resumed');
+    } catch {
+      // toast.error already fired by apiFetch
     }
     onRefresh?.();
   };
@@ -313,15 +357,12 @@ export default function MyAgentTab({ agent, skills, nova, loading, onRefresh }) 
       return list.map(s => s.skill_id === skill.skill_id ? { ...s, enabled: newEnabled } : s);
     });
     try {
-      console.log('[MyAgentTab] toggling skill:', skill.skill_id, 'to', newEnabled);
-      const res = await apiFetch(`/skills/${skill.skill_id}`, {
+      await apiFetch(`/skills/${skill.skill_id}`, {
         method: 'PATCH',
         body: JSON.stringify({ enabled: newEnabled }),
       });
-      console.log('[MyAgentTab] skill toggle response:', res);
       onRefresh?.();
-    } catch (err) {
-      console.error('[MyAgentTab] skill toggle error:', err);
+    } catch {
       setLocalSkills(prev => {
         const list = prev || skills || [];
         return list.map(s => s.skill_id === skill.skill_id ? { ...s, enabled: !newEnabled } : s);

@@ -18,7 +18,11 @@ export default function AgentSidebarCard({ agent, onRefresh }) {
 
   const handleToggle = async () => {
     const endpoint = isRunning ? '/agents/pause' : '/agents/resume';
-    await apiFetch(endpoint, { method: 'PATCH' });
+    try {
+      await apiFetch(endpoint, { method: 'PATCH' });
+    } catch {
+      // toast.error already fired by apiFetch
+    }
     onRefresh?.();
   };
 
